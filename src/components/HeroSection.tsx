@@ -1,3 +1,4 @@
+
 import { Lock, Shield, CircuitBoard, Link, Bitcoin, Database, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
@@ -71,7 +72,7 @@ export function HeroSection() {
             <DollarSign className="text-cryptic-accent w-5 h-5 mr-2" />
             <div>
               <span className="block text-cryptic-accent text-sm">Total Encrypted Value</span>
-              <span className="text-cryptic-highlight text-xl font-bold">${totalValue} USDT</span>
+              <span className="text-cryptic-highlight text-xl font-bold">${totalValue} USD</span>
             </div>
           </div>
         </div>
@@ -100,50 +101,34 @@ export function HeroSection() {
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
             
-            {/* Simplified FHE + Blockchain Visualization */}
-            <div className="relative z-10 flex justify-center">
-              {/* Blockchain chain visualization - simplified */}
-              <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 flex flex-col">
-                {blockchainBlocks.slice(0, 3).map((block, index) => (
-                  <div key={block.id} className="relative">
-                    <div className="w-12 h-12 bg-cryptic-accent/20 mb-2 rounded-md flex items-center justify-center">
-                      <Database className="text-cryptic-accent w-5 h-5" />
-                    </div>
-                    {index < 2 && (
-                      <div className="absolute left-1/2 transform -translate-x-1/2 h-2 w-1 bg-cryptic-accent/50"></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* FHE visualization - simplified */}
-              <div className="w-56 h-56 rounded-full border-2 border-cryptic-accent/30 flex items-center justify-center relative animate-slow-spin">
-                <div className="w-40 h-40 rounded-full border border-cryptic-accent/50 flex items-center justify-center animate-reverse-spin">
-                  <CircuitBoard className="text-cryptic-accent w-10 h-10" />
-                  
-                  {/* Reduced number of animated encrypted data points */}
-                  {encryptedValues.slice(0, 5).map((value, index) => {
-                    const angle = (index / 5) * Math.PI * 2;
-                    const x = Math.cos(angle) * 40;
-                    const y = Math.sin(angle) * 40;
-                    
-                    return (
-                      <div 
-                        key={index}
-                        className="absolute text-xs font-mono text-cryptic-highlight"
-                        style={{ 
-                          transform: `translate(${x}px, ${y}px)`,
-                        }}
-                      >
-                        {value}
-                      </div>
-                    );
-                  })}
-                </div>
+            {/* Simplified Visualization */}
+            <div className="relative z-10 flex justify-center items-center h-64">
+              {/* Central encryption visualization */}
+              <div className="w-40 h-40 rounded-full border border-cryptic-accent/50 flex items-center justify-center relative">
+                <CircuitBoard className="text-cryptic-accent w-10 h-10" />
                 
-                {/* Connection line - simplified */}
-                <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-8 h-1 bg-cryptic-accent/50"></div>
+                {/* Reduced number of animated encrypted data points */}
+                {encryptedValues.slice(0, 3).map((value, index) => {
+                  const angle = (index / 3) * Math.PI * 2;
+                  const x = Math.cos(angle) * 40;
+                  const y = Math.sin(angle) * 40;
+                  
+                  return (
+                    <div 
+                      key={index}
+                      className="absolute text-xs font-mono text-cryptic-highlight"
+                      style={{ 
+                        transform: `translate(${x}px, ${y}px)`,
+                      }}
+                    >
+                      {value}
+                    </div>
+                  );
+                })}
               </div>
+              
+              {/* Orbital ring */}
+              <div className="absolute w-56 h-56 rounded-full border border-cryptic-accent/20 animate-slow-spin"></div>
             </div>
           </div>
         </div>
