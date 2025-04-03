@@ -1,5 +1,5 @@
 
-import { Eye, Lock, Shield, Vault } from 'lucide-react';
+import { Eye, Lock, Shield, Vault, LineChart, Code, Zap } from 'lucide-react';
 
 export function Features() {
   return (
@@ -7,48 +7,48 @@ export function Features() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-cinzel font-bold mb-6">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">Arcane Features</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">Private DeFi Features</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Delve into the mysterious world of decentralized finance with features designed for the discerning cryptomancer.
+            Experience the first truly private lending protocol using fully homomorphic encryption to protect your financial data.
           </p>
         </div>
         
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           <FeatureCard 
             icon={<Shield className="h-6 w-6 text-cryptic-accent" />}
-            title="Protected by Sigils"
-            description="Our smart contracts are audited by top security firms, with protection spells and sigils to guard your assets."
+            title="True Privacy"
+            description="FeLend uses fully homomorphic encryption (FHE) that allows computations directly on encrypted data, ensuring your financial information remains private."
           />
           
           <FeatureCard 
             icon={<Lock className="h-6 w-6 text-cryptic-accent" />}
-            title="Cryptic Privacy"
-            description="Privacy features that ensure your financial movements remain hidden from prying eyes, cloaked in layers of cryptographic fog."
+            title="Trustless Protocol"
+            description="No need to trust centralized entities with your data. Our protocol keeps your information encrypted at all times, even during transactions."
           />
           
           <FeatureCard 
             icon={<Eye className="h-6 w-6 text-cryptic-accent" />}
-            title="Oracle Network"
-            description="Our mystical oracle network sources pricing data from the beyond, ensuring accurate and manipulation-resistant asset valuation."
+            title="Confidential Transactions"
+            description="Borrow against your crypto holdings without revealing your balances, transaction history, or financial position to anyone."
           />
           
           <FeatureCard 
-            icon={<Vault className="h-6 w-6 text-cryptic-accent" />}
-            title="Enigmatic Vaults"
-            description="Specialized yield strategies accessible only to those who know where to look, offering returns from hidden corners of the ecosystem."
+            icon={<LineChart className="h-6 w-6 text-cryptic-accent" />}
+            title="Risk Assessment"
+            description="Our protocol can assess creditworthiness and calculate risk scores on encrypted data, enabling accurate lending decisions while preserving privacy."
           />
           
           <FeatureCard 
-            icon={<Shield className="h-6 w-6 text-cryptic-accent" />}
-            title="Arcane Insurance"
-            description="Optional protection rituals to shield your deposits against unforeseen events in the cryptosphere."
+            icon={<Code className="h-6 w-6 text-cryptic-accent" />}
+            title="FHE Architecture"
+            description="Built on Fhenix protocol, the first L1 blockchain with native FHE support, making computation on encrypted data practical and efficient."
           />
           
           <FeatureCard 
-            icon={<Lock className="h-6 w-6 text-cryptic-accent" />}
-            title="Forbidden Knowledge"
-            description="Access to exclusive market insights and alpha through our network of crypto-seers and blockchain oracles."
+            icon={<Zap className="h-6 w-6 text-cryptic-accent" />}
+            title="Compliance Without Compromise"
+            description="Meet regulatory requirements while maintaining user privacy through zero-knowledge proofs and selective disclosure."
           />
         </div>
       </div>

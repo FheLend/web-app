@@ -61,16 +61,16 @@ export function HeroSection() {
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-cinzel text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
-              <span className="text-glow">Private</span>
+              <span className="text-glow">Fully</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">
-                encrypted lending
+                Encrypted Lending
               </span>
               <div className="absolute -left-6 -top-6 w-12 h-12 border border-cryptic-accent/30 rounded-full opacity-70"></div>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-              Felend leverages Fully Homomorphic Encryption (FHE) to secure your financial data while enabling computations on encrypted data, ensuring both privacy and functionality.
+              FeLend is the first privacy-preserving lending protocol using fully homomorphic encryption (FHE), allowing you to borrow against your assets without revealing your financial data.
             </p>
             
             <Button className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white">
@@ -80,7 +80,7 @@ export function HeroSection() {
           </div>
           
           <div className="hidden md:block">
-            {/* New Privacy-Focused Lending Visualization */}
+            {/* Privacy-Focused Lending Visualization */}
             <div className="relative flex justify-center">
               {/* Main secured vault */}
               <div className="relative z-10 w-64 h-64 rounded-lg bg-gradient-to-br from-cryptic-dark to-[#1F2433] border border-cryptic-accent/20 shadow-lg flex flex-col items-center justify-center p-6">
@@ -105,7 +105,7 @@ export function HeroSection() {
                 {/* Loan indicators */}
                 <div className="flex justify-between w-full mt-4">
                   <div>
-                    <p className="text-xs text-cryptic-highlight/70">Secure Loans</p>
+                    <p className="text-xs text-cryptic-highlight/70">Private Loans</p>
                     <p className="text-sm font-bold text-white">$40,234</p>
                   </div>
                   <div>
