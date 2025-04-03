@@ -1,10 +1,11 @@
 
-import { Eye, Lock, Shield, CircuitBoard } from 'lucide-react';
+import { Lock, Shield, CircuitBoard, Link, Bitcoin, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 
 export function HeroSection() {
   const [encryptedValues, setEncryptedValues] = useState<string[]>([]);
+  const [blockchainBlocks, setBlockchainBlocks] = useState<{id: number, hash: string}[]>([]);
   
   // Generate animated encrypted data representation
   useEffect(() => {
@@ -30,6 +31,24 @@ export function HeroSection() {
     generateEncryptedData();
     const interval = setInterval(generateEncryptedData, 2000);
     
+    return () => clearInterval(interval);
+  }, []);
+
+  // Generate blockchain blocks
+  useEffect(() => {
+    const generateBlockchain = () => {
+      const blocks = [];
+      for (let i = 0; i < 5; i++) {
+        const hash = Array(8).fill(0).map(() => 
+          Math.random().toString(16).substring(2, 4)).join('');
+        blocks.push({ id: i, hash: `0x${hash}` });
+      }
+      setBlockchainBlocks(blocks);
+    };
+
+    generateBlockchain();
+    const interval = setInterval(generateBlockchain, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -76,8 +95,26 @@ export function HeroSection() {
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
             
-            {/* Dynamic FHE Visualization */}
+            {/* Dynamic FHE + Blockchain Visualization */}
             <div className="relative z-10 flex justify-center">
+              {/* Blockchain chain visualization */}
+              <div className="absolute -left-12 top-1/2 transform -translate-y-1/2 flex flex-col">
+                {blockchainBlocks.map((block, index) => (
+                  <div key={block.id} className="relative">
+                    <div className="w-16 h-16 bg-cryptic-accent/20 border border-cryptic-accent mb-2 p-1 rounded-md flex items-center justify-center">
+                      <Database className="text-cryptic-accent w-6 h-6" />
+                    </div>
+                    {index < blockchainBlocks.length - 1 && (
+                      <div className="absolute left-1/2 transform -translate-x-1/2 h-2 w-1 bg-cryptic-accent"></div>
+                    )}
+                    <div className="absolute -right-16 top-1/2 transform -translate-y-1/2 text-xs text-cryptic-highlight opacity-70">
+                      {block.hash}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* FHE visualization */}
               <div className="w-64 h-64 rounded-full border-4 border-cryptic-accent/30 flex items-center justify-center relative animate-slow-spin">
                 <div className="w-56 h-56 rounded-full border border-cryptic-accent/50 flex items-center justify-center animate-reverse-spin">
                   <div className="w-40 h-40 rounded-full border-2 border-cryptic-accent/70 flex items-center justify-center relative">
@@ -103,8 +140,22 @@ export function HeroSection() {
                       );
                     })}
                     
-                    <Shield className="text-cryptic-accent w-10 h-10 animate-pulse" />
+                    <Bitcoin className="text-cryptic-accent w-10 h-10 animate-pulse" />
                   </div>
+                </div>
+                
+                {/* Connection lines between FHE and blockchain */}
+                <div className="absolute -left-16 top-1/2 transform -translate-y-1/2 w-16 h-1 bg-cryptic-accent/50"></div>
+              </div>
+              
+              {/* Transaction flow indicator */}
+              <div className="absolute -bottom-12 flex space-x-3 items-center justify-center w-full">
+                <div className="px-3 py-1 bg-cryptic-accent/20 border border-cryptic-accent/50 rounded text-xs animate-pulse">
+                  <span className="text-cryptic-highlight">Encrypted Transaction</span>
+                </div>
+                <Link className="text-cryptic-accent animate-pulse" size={14} />
+                <div className="px-3 py-1 bg-cryptic-accent/20 border border-cryptic-accent/50 rounded text-xs animate-pulse">
+                  <span className="text-cryptic-highlight">Verified by FHE</span>
                 </div>
               </div>
             </div>
