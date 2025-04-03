@@ -65,14 +65,17 @@ export function HeroSection() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
-        {/* Prominently displayed total encrypted value */}
-        <div className="flex justify-center mb-8 md:mb-10">
-          <div className="px-6 py-4 bg-cryptic-accent/20 border-2 border-cryptic-accent rounded-lg shadow-lg backdrop-blur-sm">
-            <div className="flex flex-col items-center">
-              <span className="text-cryptic-accent font-medium tracking-wide text-lg">Total Encrypted Value</span>
-              <span className="text-cryptic-highlight text-3xl md:text-4xl font-bold animate-pulse">
-                ₿ 72,538.45
-              </span>
+        {/* Total Encrypted Value - Enhanced version */}
+        <div className="bg-gradient-to-r from-cryptic-purple/30 to-cryptic-accent/30 p-1 rounded-lg mb-8 border border-cryptic-accent/50 shadow-lg">
+          <div className="flex justify-center items-center bg-cryptic-darker/80 backdrop-blur-md rounded px-6 py-3">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-3">
+              <Bitcoin className="text-cryptic-accent w-8 h-8 md:w-10 md:h-10 animate-pulse" />
+              <div className="flex flex-col items-center md:items-start">
+                <span className="text-cryptic-accent font-medium tracking-wide text-lg">Total Encrypted Value</span>
+                <span className="text-cryptic-highlight text-3xl md:text-4xl font-bold text-glow">
+                  ₿ 72,538.45
+                </span>
+              </div>
             </div>
           </div>
         </div>
