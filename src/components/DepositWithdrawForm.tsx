@@ -64,11 +64,6 @@ export function DepositWithdrawForm({ vaultSymbol, apy }: DepositWithdrawFormPro
           </TabsList>
           
           <TabsContent value="deposit" className="pt-4">
-            <div className="bg-cryptic-dark rounded-lg p-4 mb-4">
-              <h2 className="text-xl font-cinzel mb-4">APY</h2>
-              <div className="text-4xl font-mono text-cryptic-accent">{apy}</div>
-            </div>
-            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm mb-2 text-muted-foreground">Amount to Deposit</label>
