@@ -87,46 +87,41 @@ export function VaultTable() {
             </TableHeader>
             <TableBody>
               {vaults.map((vault) => (
-                <Link 
+                <TableRow 
                   key={vault.id} 
-                  to={`/vaults/${vault.id}`}
-                  className="block"
+                  className="bg-glass hover:bg-cryptic-purple/10 transition duration-200 cursor-pointer"
                 >
-                  <TableRow 
-                    className="bg-glass hover:bg-cryptic-purple/10 transition duration-200 cursor-pointer"
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-cryptic-purple/30 flex items-center justify-center text-xl font-bold">
-                          {vault.symbol.charAt(0)}
+                  <TableCell>
+                    <Link to={`/vaults/${vault.id}`} className="flex items-center gap-3">
+                      <div className="size-10 rounded-full bg-cryptic-purple/30 flex items-center justify-center text-xl font-bold">
+                        {vault.symbol.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="font-medium flex items-center gap-2">
+                          {vault.name}
+                          {vault.verified && (
+                            <Shield size={14} className="text-cryptic-accent" />
+                          )}
                         </div>
-                        <div>
-                          <div className="font-medium flex items-center gap-2">
-                            {vault.name}
-                            {vault.verified && (
-                              <Shield size={14} className="text-cryptic-accent" />
-                            )}
-                          </div>
-                          <div className="text-sm text-muted-foreground">{vault.symbol}</div>
-                        </div>
+                        <div className="text-sm text-muted-foreground">{vault.symbol}</div>
                       </div>
-                    </TableCell>
-                    <TableCell className="font-mono">{vault.tvl}</TableCell>
-                    <TableCell className="text-cryptic-accent font-mono">{vault.apy}</TableCell>
-                    <TableCell className={`hidden md:table-cell font-mono ${vault.positive ? 'text-green-400' : 'text-red-400'}`}>
-                      <div className="flex items-center gap-1">
-                        <TrendingUp size={14} className={vault.positive ? 'rotate-0' : 'rotate-180'} />
-                        {vault.change}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-cryptic-accent/70"></div>
-                        <span>{vault.provider}</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                </Link>
+                    </Link>
+                  </TableCell>
+                  <TableCell className="font-mono">{vault.tvl}</TableCell>
+                  <TableCell className="text-cryptic-accent font-mono">{vault.apy}</TableCell>
+                  <TableCell className={`hidden md:table-cell font-mono ${vault.positive ? 'text-green-400' : 'text-red-400'}`}>
+                    <div className="flex items-center gap-1">
+                      <TrendingUp size={14} className={vault.positive ? 'rotate-0' : 'rotate-180'} />
+                      {vault.change}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-cryptic-accent/70"></div>
+                      <span>{vault.provider}</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
               ))}
             </TableBody>
           </Table>
