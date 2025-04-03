@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 export function HeroSection() {
   const [encryptedValues, setEncryptedValues] = useState<string[]>([]);
   const [blockchainBlocks, setBlockchainBlocks] = useState<{id: number, hash: string}[]>([]);
+  const [totalValue, setTotalValue] = useState<string>("72,538.45");
   
   // Generate animated encrypted data representation
   useEffect(() => {
@@ -65,6 +66,17 @@ export function HeroSection() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
+        {/* Total Encrypted Value */}
+        <div className="mb-8 flex justify-center">
+          <div className="inline-flex items-center bg-cryptic-dark/70 backdrop-blur-md border border-cryptic-accent/30 rounded-lg px-6 py-3 shadow-lg">
+            <Bitcoin className="text-cryptic-accent w-7 h-7 mr-3" />
+            <div>
+              <span className="block text-cryptic-accent text-sm font-medium">Total Encrypted Value</span>
+              <span className="text-cryptic-highlight text-2xl font-bold text-glow">₿ {totalValue}</span>
+            </div>
+          </div>
+        </div>
+        
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-cinzel text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
