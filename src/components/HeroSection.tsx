@@ -1,11 +1,10 @@
 
-import { Lock, Shield, CircuitBoard, Link, Bitcoin, Database, DollarSign, Zap } from 'lucide-react';
+import { Lock, Shield, Database, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 
 export function HeroSection() {
   const [encryptedValues, setEncryptedValues] = useState<string[]>([]);
-  const [blockchainBlocks, setBlockchainBlocks] = useState<{id: number, hash: string}[]>([]);
   const [totalValue, setTotalValue] = useState<string>("72,538.45");
   
   // Generate animated encrypted data representation
@@ -35,33 +34,15 @@ export function HeroSection() {
     return () => clearInterval(interval);
   }, []);
 
-  // Generate blockchain blocks
-  useEffect(() => {
-    const generateBlockchain = () => {
-      const blocks = [];
-      for (let i = 0; i < 5; i++) {
-        const hash = Array(8).fill(0).map(() => 
-          Math.random().toString(16).substring(2, 4)).join('');
-        blocks.push({ id: i, hash: `0x${hash}` });
-      }
-      setBlockchainBlocks(blocks);
-    };
-
-    generateBlockchain();
-    const interval = setInterval(generateBlockchain, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div className="relative overflow-hidden py-16 md:py-24 bg-cryptic-dark">
-      {/* Animated background elements */}
+      {/* Subtle background elements */}
       <div 
-        className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-glow opacity-20 animate-float"
+        className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-glow opacity-20 blur-3xl"
         style={{ animationDelay: '0s' }}
       />
       <div 
-        className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-purple-glow opacity-10 animate-float"
+        className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-purple-glow opacity-10 blur-3xl"
         style={{ animationDelay: '-3s' }}
       />
 
@@ -92,7 +73,7 @@ export function HeroSection() {
               Felend leverages Fully Homomorphic Encryption (FHE) to secure your financial data while enabling computations on encrypted data, ensuring both privacy and functionality.
             </p>
             
-            {/* Co-branded "Powered By" section */}
+            {/* Felend x Fhenix mention */}
             <div className="mb-8 flex flex-col space-y-2">
               <p className="text-sm text-cryptic-highlight">Powered by</p>
               <div className="flex items-center gap-3">
@@ -116,67 +97,66 @@ export function HeroSection() {
             </Button>
           </div>
           
-          <div className="hidden md:block relative">
-            <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
-            
-            {/* Simplified co-branded visualization */}
-            <div className="relative z-10 flex justify-center items-center h-72">
-              {/* Felend encrypted circle */}
-              <div className="relative">
-                <div className="w-36 h-36 rounded-full border-2 border-cryptic-accent/50 flex items-center justify-center">
-                  <CircuitBoard className="text-cryptic-accent w-8 h-8" />
-                  
-                  {/* Animated encrypted data points */}
-                  {encryptedValues.slice(0, 3).map((value, index) => {
-                    const angle = (index / 3) * Math.PI * 2;
-                    const x = Math.cos(angle) * 30;
-                    const y = Math.sin(angle) * 30;
-                    
-                    return (
-                      <div 
-                        key={index}
-                        className="absolute text-xs font-mono text-cryptic-highlight"
-                        style={{ 
-                          transform: `translate(${x}px, ${y}px)`,
-                        }}
-                      >
-                        {value}
-                      </div>
-                    );
-                  })}
+          <div className="hidden md:block">
+            {/* New Privacy-Focused Lending Visualization */}
+            <div className="relative flex justify-center">
+              {/* Main secured vault */}
+              <div className="relative z-10 w-64 h-64 rounded-lg bg-gradient-to-br from-cryptic-dark to-[#1F2433] border border-cryptic-accent/20 shadow-lg flex flex-col items-center justify-center p-6">
+                <Shield className="w-12 h-12 text-cryptic-accent mb-4" />
+                
+                {/* Digital lock/vault effect */}
+                <div className="w-full h-1 bg-cryptic-accent/20 mb-4 relative">
+                  <div className="absolute top-0 left-0 h-full bg-gradient-to-r from-cryptic-accent to-cryptic-highlight" style={{ width: '70%' }}></div>
                 </div>
-                <div className="absolute w-48 h-48 rounded-full border border-cryptic-accent/20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-slow-spin"></div>
-              </div>
-              
-              {/* Connection beam between logos */}
-              <div className="w-16 h-2 bg-gradient-to-r from-cryptic-accent to-[#ff5e00] mx-2"></div>
-              
-              {/* Fhenix circle with orange gradient */}
-              <div className="relative">
-                <div className="w-36 h-36 rounded-full border-2 border-[#ff5e00]/50 flex items-center justify-center bg-gradient-to-br from-black to-[#150a02] p-2">
-                  <div className="w-full h-full rounded-full flex items-center justify-center bg-black">
-                    <Zap className="text-[#ff5e00] w-8 h-8" />
-                    
-                    {/* Fhenix animated elements */}
-                    {[1, 2, 3].map((_, index) => {
-                      const angle = (index / 3) * Math.PI * 2;
-                      const x = Math.cos(angle) * 30;
-                      const y = Math.sin(angle) * 30;
-                      
-                      return (
-                        <div 
-                          key={index}
-                          className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-[#ff5e00] to-[#ffae00]"
-                          style={{ 
-                            transform: `translate(${x}px, ${y}px)`,
-                          }}
-                        />
-                      );
-                    })}
+                
+                {/* Encrypted data display */}
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  {encryptedValues.slice(0, 4).map((value, index) => (
+                    <div key={index} className="bg-cryptic-dark border border-cryptic-accent/10 rounded px-2 py-1">
+                      <p className="text-xs font-mono text-cryptic-highlight opacity-70">
+                        {value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Loan indicators */}
+                <div className="flex justify-between w-full mt-4">
+                  <div>
+                    <p className="text-xs text-cryptic-highlight/70">Secure Loans</p>
+                    <p className="text-sm font-bold text-white">$40,234</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-cryptic-highlight/70">APR</p>
+                    <p className="text-sm font-bold text-cryptic-accent">3.2%</p>
                   </div>
                 </div>
-                <div className="absolute w-48 h-48 rounded-full border border-[#ff5e00]/20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-reverse-spin"></div>
               </div>
+              
+              {/* Security layers */}
+              <div className="absolute inset-0 -z-10 w-64 h-64 border border-cryptic-accent/5 rounded-lg transform translate-x-2 translate-y-2"></div>
+              <div className="absolute inset-0 -z-20 w-64 h-64 border border-cryptic-accent/5 rounded-lg transform translate-x-4 translate-y-4"></div>
+              
+              {/* Privacy shield elements */}
+              <div className="absolute -top-6 -left-6 w-12 h-12 rounded-full bg-gradient-to-br from-cryptic-accent/20 to-transparent flex items-center justify-center">
+                <Lock className="w-5 h-5 text-cryptic-accent" />
+              </div>
+              
+              <div className="absolute -bottom-6 -right-6 w-12 h-12 rounded-full bg-gradient-to-br from-cryptic-accent/20 to-transparent flex items-center justify-center">
+                <Database className="w-5 h-5 text-cryptic-accent" />
+              </div>
+              
+              {/* Connection lines */}
+              <svg className="absolute inset-0 w-full h-full -z-30" viewBox="0 0 260 260">
+                <path d="M50,50 L210,210" stroke="url(#gradientLine)" strokeWidth="1" fill="none" />
+                <path d="M50,210 L210,50" stroke="url(#gradientLine)" strokeWidth="1" fill="none" />
+                <defs>
+                  <linearGradient id="gradientLine" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="rgba(138, 79, 255, 0.1)" />
+                    <stop offset="100%" stopColor="rgba(192, 168, 255, 0.1)" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
           </div>
         </div>
