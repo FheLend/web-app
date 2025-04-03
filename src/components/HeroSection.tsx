@@ -1,5 +1,4 @@
-
-import { Lock, Shield, CircuitBoard, Link, Bitcoin, Database } from 'lucide-react';
+import { Lock, Shield, CircuitBoard, Link, Bitcoin, Database, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 
@@ -66,13 +65,13 @@ export function HeroSection() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
-        {/* Total Encrypted Value */}
-        <div className="mb-8 flex justify-center">
-          <div className="inline-flex items-center bg-cryptic-dark/70 backdrop-blur-md border border-cryptic-accent/30 rounded-lg px-6 py-3 shadow-lg">
-            <Bitcoin className="text-cryptic-accent w-7 h-7 mr-3" />
+        {/* Total Encrypted Value - positioned to the left, above the heading */}
+        <div className="mb-4">
+          <div className="inline-flex items-center">
+            <DollarSign className="text-cryptic-accent w-5 h-5 mr-2" />
             <div>
-              <span className="block text-cryptic-accent text-sm font-medium">Total Encrypted Value</span>
-              <span className="text-cryptic-highlight text-2xl font-bold text-glow">₿ {totalValue}</span>
+              <span className="block text-cryptic-accent text-sm">Total Encrypted Value</span>
+              <span className="text-cryptic-highlight text-xl font-bold">${totalValue} USDT</span>
             </div>
           </div>
         </div>
@@ -101,68 +100,49 @@ export function HeroSection() {
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
             
-            {/* Dynamic FHE + Blockchain Visualization */}
+            {/* Simplified FHE + Blockchain Visualization */}
             <div className="relative z-10 flex justify-center">
-              {/* Blockchain chain visualization */}
-              <div className="absolute -left-12 top-1/2 transform -translate-y-1/2 flex flex-col">
-                {blockchainBlocks.map((block, index) => (
+              {/* Blockchain chain visualization - simplified */}
+              <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 flex flex-col">
+                {blockchainBlocks.slice(0, 3).map((block, index) => (
                   <div key={block.id} className="relative">
-                    <div className="w-16 h-16 bg-cryptic-accent/20 border border-cryptic-accent mb-2 p-1 rounded-md flex items-center justify-center">
-                      <Database className="text-cryptic-accent w-6 h-6" />
+                    <div className="w-12 h-12 bg-cryptic-accent/20 mb-2 rounded-md flex items-center justify-center">
+                      <Database className="text-cryptic-accent w-5 h-5" />
                     </div>
-                    {index < blockchainBlocks.length - 1 && (
-                      <div className="absolute left-1/2 transform -translate-x-1/2 h-2 w-1 bg-cryptic-accent"></div>
+                    {index < 2 && (
+                      <div className="absolute left-1/2 transform -translate-x-1/2 h-2 w-1 bg-cryptic-accent/50"></div>
                     )}
-                    <div className="absolute -right-16 top-1/2 transform -translate-y-1/2 text-xs text-cryptic-highlight opacity-70">
-                      {block.hash}
-                    </div>
                   </div>
                 ))}
               </div>
 
-              {/* FHE visualization */}
-              <div className="w-64 h-64 rounded-full border-4 border-cryptic-accent/30 flex items-center justify-center relative animate-slow-spin">
-                <div className="w-56 h-56 rounded-full border border-cryptic-accent/50 flex items-center justify-center animate-reverse-spin">
-                  <div className="w-40 h-40 rounded-full border-2 border-cryptic-accent/70 flex items-center justify-center relative">
-                    <CircuitBoard className="absolute text-cryptic-accent w-12 h-12 animate-pulse" />
+              {/* FHE visualization - simplified */}
+              <div className="w-56 h-56 rounded-full border-2 border-cryptic-accent/30 flex items-center justify-center relative animate-slow-spin">
+                <div className="w-40 h-40 rounded-full border border-cryptic-accent/50 flex items-center justify-center animate-reverse-spin">
+                  <CircuitBoard className="text-cryptic-accent w-10 h-10" />
+                  
+                  {/* Reduced number of animated encrypted data points */}
+                  {encryptedValues.slice(0, 5).map((value, index) => {
+                    const angle = (index / 5) * Math.PI * 2;
+                    const x = Math.cos(angle) * 40;
+                    const y = Math.sin(angle) * 40;
                     
-                    {/* Animated encrypted data points */}
-                    {encryptedValues.map((value, index) => {
-                      const angle = (index / 8) * Math.PI * 2;
-                      const x = Math.cos(angle) * 60;
-                      const y = Math.sin(angle) * 60;
-                      
-                      return (
-                        <div 
-                          key={index}
-                          className="absolute text-xs font-mono text-cryptic-highlight animate-pulse"
-                          style={{ 
-                            transform: `translate(${x}px, ${y}px)`,
-                            animationDelay: `${index * 0.2}s`
-                          }}
-                        >
-                          {value}
-                        </div>
-                      );
-                    })}
-                    
-                    <Bitcoin className="text-cryptic-accent w-10 h-10 animate-pulse" />
-                  </div>
+                    return (
+                      <div 
+                        key={index}
+                        className="absolute text-xs font-mono text-cryptic-highlight"
+                        style={{ 
+                          transform: `translate(${x}px, ${y}px)`,
+                        }}
+                      >
+                        {value}
+                      </div>
+                    );
+                  })}
                 </div>
                 
-                {/* Connection lines between FHE and blockchain */}
-                <div className="absolute -left-16 top-1/2 transform -translate-y-1/2 w-16 h-1 bg-cryptic-accent/50"></div>
-              </div>
-              
-              {/* Transaction flow indicator */}
-              <div className="absolute -bottom-12 flex space-x-3 items-center justify-center w-full">
-                <div className="px-3 py-1 bg-cryptic-accent/20 border border-cryptic-accent/50 rounded text-xs animate-pulse">
-                  <span className="text-cryptic-highlight">Encrypted Transaction</span>
-                </div>
-                <Link className="text-cryptic-accent animate-pulse" size={14} />
-                <div className="px-3 py-1 bg-cryptic-accent/20 border border-cryptic-accent/50 rounded text-xs animate-pulse">
-                  <span className="text-cryptic-highlight">Verified by FHE</span>
-                </div>
+                {/* Connection line - simplified */}
+                <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-8 h-1 bg-cryptic-accent/50"></div>
               </div>
             </div>
           </div>
