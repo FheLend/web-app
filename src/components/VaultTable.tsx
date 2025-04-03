@@ -4,6 +4,7 @@ import { Search, Shield, Star, Vault, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 type Filter = 'All' | 'ETH' | 'BTC' | 'USDC' | 'DAI';
 
@@ -98,6 +99,7 @@ const vaults: Vault[] = [
 export function VaultTable() {
   const [activeFilter, setActiveFilter] = useState<Filter>('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   
   const filteredVaults = vaults.filter(vault => {
     const matchesSearch = searchTerm === '' || 
@@ -109,6 +111,10 @@ export function VaultTable() {
     
     return matchesSearch && matchesFilter;
   });
+
+  const handleRowClick = (vaultId: string) => {
+    navigate(`/vault/${vaultId}`);
+  };
 
   return (
     <div className="py-16 px-4 sm:px-6">
@@ -163,7 +169,7 @@ export function VaultTable() {
                 <tr 
                   key={vault.id} 
                   className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
-                  onClick={() => console.log(`Navigating to vault ${vault.id}`)}
+                  onClick={() => handleRowClick(vault.id)}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
