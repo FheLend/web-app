@@ -1,8 +1,38 @@
 
-import { Eye } from 'lucide-react';
+import { Eye, Lock, Shield, CircuitBoard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
 
 export function HeroSection() {
+  const [encryptedValues, setEncryptedValues] = useState<string[]>([]);
+  
+  // Generate animated encrypted data representation
+  useEffect(() => {
+    // Generate random encrypted-looking strings
+    const generateEncryptedData = () => {
+      const chars = '01αβγδεζηθικλμνξοπρστυφχψω$%#@!*^&';
+      const newValues = [];
+      
+      for (let i = 0; i < 8; i++) {
+        let str = '';
+        const length = Math.floor(Math.random() * 6) + 4;
+        
+        for (let j = 0; j < length; j++) {
+          str += chars[Math.floor(Math.random() * chars.length)];
+        }
+        
+        newValues.push(str);
+      }
+      
+      setEncryptedValues(newValues);
+    };
+    
+    generateEncryptedData();
+    const interval = setInterval(generateEncryptedData, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="relative overflow-hidden py-16 md:py-24 bg-cryptic-dark">
       {/* Animated background elements */}
@@ -18,23 +48,23 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
         <div className="text-center sm:text-left mb-10">
           <p className="text-cryptic-accent font-medium tracking-wide mb-3">
-            Total Oracle Value: <span className="text-cryptic-highlight animate-glow">₿ 72,538.45</span>
+            Total Encrypted Value: <span className="text-cryptic-highlight animate-glow">₿ 72,538.45</span>
           </p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-cinzel text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
-              <span className="text-glow">Earn on</span>
+              <span className="text-glow">Private</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">
-                your terms
+                encrypted lending
               </span>
               <div className="absolute -left-6 -top-6 w-12 h-12 border border-cryptic-accent/30 rounded-full opacity-70"></div>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-              Access the hidden realm of decentralized lending, where your assets work in the shadows to generate yields beyond ordinary markets.
+              Felend leverages Fully Homomorphic Encryption (FHE) to secure your financial data while enabling computations on encrypted data, ensuring both privacy and functionality.
             </p>
             
             <Button className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white">
@@ -44,19 +74,43 @@ export function HeroSection() {
           </div>
           
           <div className="hidden md:block relative">
-            <div className="relative z-10 animate-float">
-              <img 
-                src="/lovable-uploads/cb54a236-2fe8-4b19-af7a-9f81d1d8902e.png" 
-                alt="Cryptic Vault" 
-                className="max-w-sm mx-auto opacity-80"
-              />
+            <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
+            
+            {/* Dynamic FHE Visualization */}
+            <div className="relative z-10 flex justify-center">
+              <div className="w-64 h-64 rounded-full border-4 border-cryptic-accent/30 flex items-center justify-center relative animate-slow-spin">
+                <div className="w-56 h-56 rounded-full border border-cryptic-accent/50 flex items-center justify-center animate-reverse-spin">
+                  <div className="w-40 h-40 rounded-full border-2 border-cryptic-accent/70 flex items-center justify-center relative">
+                    <CircuitBoard className="absolute text-cryptic-accent w-12 h-12 animate-pulse" />
+                    
+                    {/* Animated encrypted data points */}
+                    {encryptedValues.map((value, index) => {
+                      const angle = (index / 8) * Math.PI * 2;
+                      const x = Math.cos(angle) * 60;
+                      const y = Math.sin(angle) * 60;
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className="absolute text-xs font-mono text-cryptic-highlight animate-pulse"
+                          style={{ 
+                            transform: `translate(${x}px, ${y}px)`,
+                            animationDelay: `${index * 0.2}s`
+                          }}
+                        >
+                          {value}
+                        </div>
+                      );
+                    })}
+                    
+                    <Shield className="text-cryptic-accent w-10 h-10 animate-pulse" />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl"></div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-import { Lock } from "lucide-react";

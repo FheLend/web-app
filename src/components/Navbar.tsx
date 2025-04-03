@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Eye, EyeOff, Lock, Menu, Shield, Moon } from 'lucide-react';
+import { Eye, EyeOff, Lock, Menu, Shield, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -11,9 +11,9 @@ export function Navbar() {
     <nav className="py-4 px-4 sm:px-6 border-b border-cryptic-purple/20 bg-cryptic-darker/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          <Shield className="h-6 w-6 text-cryptic-accent mr-2" />
+          <Key className="h-6 w-6 text-cryptic-accent mr-2" />
           <span className="font-cinzel text-lg sm:text-xl font-semibold text-glow">
-            Cryptic<span className="text-cryptic-accent">Loan</span>
+            Fe<span className="text-cryptic-accent">lend</span>
           </span>
         </div>
 
