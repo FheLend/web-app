@@ -1,7 +1,5 @@
 
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table } from "@/components/ui/table";
 import { 
   ChartContainer, 
   ChartTooltip, 
@@ -15,171 +13,25 @@ interface VaultProps {
   };
 }
 
-// Sample data for the charts
-const generateChartData = () => {
-  const data = [];
-  const now = new Date();
-  for (let i = 30; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(now.getDate() - i);
-    data.push({
-      date: date.toISOString().split('T')[0],
-      value: 350 + (Math.random() * 10 - 5)
-    });
-  }
-  return data;
-};
-
-const chartData = generateChartData();
-const ltvData = generateChartData().map(item => ({ ...item, value: 7 + (Math.random() * 1 - 0.5) }));
-
 export function VaultOverview({ vault }: VaultProps) {
   return (
     <div className="space-y-10">
-      {/* First Chart - Deposited */}
+      {/* Overview Information */}
       <div className="rounded-lg bg-cryptic-dark p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-cinzel">Your Deposited (APY)</h2>
-          <Tabs defaultValue="1d">
-            <TabsList className="bg-cryptic-purple/10">
-              <TabsTrigger value="1d">1d</TabsTrigger>
-              <TabsTrigger value="7d">7d</TabsTrigger>
-              <TabsTrigger value="1m">1m</TabsTrigger>
-              <TabsTrigger value="3m">3m</TabsTrigger>
-              <TabsTrigger value="all">All</TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
         
         <div className="text-3xl font-mono mb-8">{vault.deposited}</div>
-        
-        <div className="h-80">
-          <ChartContainer
-            config={{
-              line: {
-                label: "Value",
-                color: "#8A4FFF",
-              },
-            }}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={chartData}
-                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-              >
-                <XAxis 
-                  dataKey="date" 
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 12, fill: '#9ca3af' }}
-                  tickFormatter={(value) => value.split("-")[2]}
-                  padding={{ left: 10, right: 10 }}
-                />
-                <YAxis 
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 12, fill: '#9ca3af' }}
-                  domain={[(dataMin: number) => dataMin - 1, (dataMax: number) => dataMax + 1]}
-                  tickFormatter={(value) => `${value}M`}
-                  width={50}
-                />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const value = typeof payload[0].value === 'number' ? 
-                        payload[0].value.toFixed(2) : 
-                        payload[0].value;
-                      return (
-                        <div className="rounded-lg border bg-cryptic-dark p-2 shadow-md">
-                          <div className="text-sm text-muted-foreground">{payload[0].payload.date}</div>
-                          <div className="text-sm font-medium">{`${value}M`}</div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#8A4FFF" 
-                  strokeWidth={2} 
-                  dot={false} 
-                  activeDot={{ r: 6, fill: "#8A4FFF", stroke: "#12151f", strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </div>
       </div>
 
-      {/* Second Chart - LTV */}
+      {/* LTV Information */}
       <div className="rounded-lg bg-cryptic-dark p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-cinzel">LTV</h2>
-          <Button variant="outline" size="sm" className="text-xs">Details</Button>
         </div>
         
         <div className="text-3xl font-mono mb-8 text-cryptic-accent">{vault.ltv}</div>
-        
-        <div className="h-80">
-          <ChartContainer
-            config={{
-              line: {
-                label: "LTV",
-                color: "#8A4FFF",
-              },
-            }}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={ltvData}
-                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-              >
-                <XAxis 
-                  dataKey="date" 
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 12, fill: '#9ca3af' }}
-                  tickFormatter={(value) => value.split("-")[2]}
-                  padding={{ left: 10, right: 10 }}
-                />
-                <YAxis 
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 12, fill: '#9ca3af' }}
-                  domain={[6, 8]}
-                  tickFormatter={(value) => `${value}%`}
-                  width={50}
-                />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const value = typeof payload[0].value === 'number' ? 
-                        payload[0].value.toFixed(2) : 
-                        payload[0].value;
-                      return (
-                        <div className="rounded-lg border bg-cryptic-dark p-2 shadow-md">
-                          <div className="text-sm text-muted-foreground">{payload[0].payload.date}</div>
-                          <div className="text-sm font-medium">{`${value}%`}</div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#8A4FFF" 
-                  strokeWidth={2} 
-                  dot={false} 
-                  activeDot={{ r: 6, fill: "#8A4FFF", stroke: "#12151f", strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </div>
       </div>
 
       {/* Market Allocation Table */}

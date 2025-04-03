@@ -7,6 +7,7 @@ import { VaultPerformance } from '@/components/VaultPerformance';
 import { VaultRisk } from '@/components/VaultRisk';
 import { VaultDepositors } from '@/components/VaultDepositors';
 import { VaultTransactionHistory } from '@/components/VaultTransactionHistory';
+import { DepositWithdrawForm } from '@/components/DepositWithdrawForm';
 import { useParams } from 'react-router-dom';
 import { useMemo } from 'react';
 
@@ -68,11 +69,8 @@ const VaultDetail = () => {
           <div className="lg:col-span-2">
             <VaultOverview vault={vaultData} />
           </div>
-          <div>
-            <div className="bg-cryptic-dark rounded-lg p-5 mb-6">
-              <h2 className="text-xl font-cinzel mb-4">APY</h2>
-              <div className="text-4xl font-mono text-cryptic-accent">{vaultData.apy}</div>
-            </div>
+          <div className="lg:col-span-1">
+            <DepositWithdrawForm vaultSymbol={vaultData.symbol} apy={vaultData.apy} />
           </div>
         </div>
         
