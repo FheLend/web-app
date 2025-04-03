@@ -1,8 +1,38 @@
 
-import { Eye, Lock, Shield, Key } from 'lucide-react';
+import { Eye, Lock, Shield, CircuitBoard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
 
 export function HeroSection() {
+  const [encryptedValues, setEncryptedValues] = useState<string[]>([]);
+  
+  // Generate animated encrypted data representation
+  useEffect(() => {
+    // Generate random encrypted-looking strings
+    const generateEncryptedData = () => {
+      const chars = '01αβγδεζηθικλμνξοπρστυφχψω$%#@!*^&';
+      const newValues = [];
+      
+      for (let i = 0; i < 8; i++) {
+        let str = '';
+        const length = Math.floor(Math.random() * 6) + 4;
+        
+        for (let j = 0; j < length; j++) {
+          str += chars[Math.floor(Math.random() * chars.length)];
+        }
+        
+        newValues.push(str);
+      }
+      
+      setEncryptedValues(newValues);
+    };
+    
+    generateEncryptedData();
+    const interval = setInterval(generateEncryptedData, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="relative overflow-hidden py-16 md:py-24 bg-cryptic-dark">
       {/* Animated background elements */}
@@ -38,20 +68,46 @@ export function HeroSection() {
             </p>
             
             <Button className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white">
-              <Key className="mr-2 h-4 w-4" />
+              <Lock className="mr-2 h-4 w-4" />
               Connect Wallet
             </Button>
           </div>
           
           <div className="hidden md:block relative">
-            <div className="relative z-10 animate-float">
-              <img 
-                src="/lovable-uploads/cb54a236-2fe8-4b19-af7a-9f81d1d8902e.png" 
-                alt="Encrypted Vault" 
-                className="max-w-sm mx-auto opacity-80"
-              />
+            <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
+            
+            {/* Dynamic FHE Visualization */}
+            <div className="relative z-10 flex justify-center">
+              <div className="w-64 h-64 rounded-full border-4 border-cryptic-accent/30 flex items-center justify-center relative animate-slow-spin">
+                <div className="w-56 h-56 rounded-full border border-cryptic-accent/50 flex items-center justify-center animate-reverse-spin">
+                  <div className="w-40 h-40 rounded-full border-2 border-cryptic-accent/70 flex items-center justify-center relative">
+                    <CircuitBoard className="absolute text-cryptic-accent w-12 h-12 animate-pulse" />
+                    
+                    {/* Animated encrypted data points */}
+                    {encryptedValues.map((value, index) => {
+                      const angle = (index / 8) * Math.PI * 2;
+                      const x = Math.cos(angle) * 60;
+                      const y = Math.sin(angle) * 60;
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className="absolute text-xs font-mono text-cryptic-highlight animate-pulse"
+                          style={{ 
+                            transform: `translate(${x}px, ${y}px)`,
+                            animationDelay: `${index * 0.2}s`
+                          }}
+                        >
+                          {value}
+                        </div>
+                      );
+                    })}
+                    
+                    <Shield className="text-cryptic-accent w-10 h-10 animate-pulse" />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl"></div>
           </div>
         </div>
       </div>
