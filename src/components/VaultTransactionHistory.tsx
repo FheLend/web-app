@@ -71,10 +71,13 @@ export function VaultTransactionHistory({ vault }: VaultProps) {
                   <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
+                        const value = typeof payload[0].value === 'number' ? 
+                          payload[0].value.toFixed(2) : 
+                          payload[0].value;
                         return (
                           <div className="rounded-lg border bg-cryptic-dark p-2 shadow-md">
                             <div className="text-sm text-muted-foreground">{payload[0].payload.date}</div>
-                            <div className="text-sm font-medium">{`$${payload[0].value.toFixed(2)}K`}</div>
+                            <div className="text-sm font-medium">{`$${value}K`}</div>
                           </div>
                         );
                       }
