@@ -10,13 +10,14 @@ export function Navbar() {
   return (
     <nav className="py-4 px-4 sm:px-6 border-b border-cryptic-purple/20 bg-cryptic-darker/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center">
-          <Key className="h-6 w-6 text-cryptic-accent mr-2" />
-          <span className="font-cinzel text-lg sm:text-xl font-semibold text-glow">
-            Fe<span className="text-cryptic-accent">lend</span>
-          </span>
-        </div>
-
+        <NavLink href="/">
+          <div className="flex items-center">
+            <Key className="h-6 w-6 text-cryptic-accent mr-2" />
+            <span className="font-cinzel text-lg sm:text-xl font-semibold text-glow">
+              Fe<span className="text-cryptic-accent">lend</span>
+            </span>
+          </div>
+       </NavLink>
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8 items-center">
           <NavLink href="#" active>
