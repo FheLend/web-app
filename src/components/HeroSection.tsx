@@ -65,10 +65,16 @@ export function HeroSection() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
-        <div className="text-center sm:text-left mb-10">
-          <p className="text-cryptic-accent font-medium tracking-wide mb-3">
-            Total Encrypted Value: <span className="text-cryptic-highlight animate-glow">₿ 72,538.45</span>
-          </p>
+        {/* Prominently displayed total encrypted value */}
+        <div className="flex justify-center mb-8 md:mb-10">
+          <div className="px-6 py-4 bg-cryptic-accent/20 border-2 border-cryptic-accent rounded-lg shadow-lg backdrop-blur-sm">
+            <div className="flex flex-col items-center">
+              <span className="text-cryptic-accent font-medium tracking-wide text-lg">Total Encrypted Value</span>
+              <span className="text-cryptic-highlight text-3xl md:text-4xl font-bold animate-pulse">
+                ₿ 72,538.45
+              </span>
+            </div>
+          </div>
         </div>
         
         <div className="grid md:grid-cols-2 gap-16 items-center">
