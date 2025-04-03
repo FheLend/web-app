@@ -1,130 +1,249 @@
 
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Shield, TrendingUp } from 'lucide-react';
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Eye, Search, Shield, Star, Vault } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
-const vaults = [
+type Filter = 'All' | 'ETH' | 'BTC' | 'USDC' | 'DAI';
+
+interface Vault {
+  id: string;
+  name: string;
+  icon: string;
+  deposits: string;
+  value: string;
+  curator: string;
+  curatorIcon: string;
+  collateral: string[];
+  apy: string;
+  apyTrend: 'up' | 'down' | 'stable';
+}
+
+const vaults: Vault[] = [
   {
-    id: "spark-dai",
-    name: "Spark DAI",
-    symbol: "SparkDAI",
-    provider: "SparkDAO",
-    verified: true,
-    tvl: "$350.06M",
-    apy: "7.28%",
-    change: "+2.3%",
-    positive: true
+    id: '1',
+    name: 'Shadow DAI Vault',
+    icon: '🌑',
+    deposits: '350.06M DAI',
+    value: '$349.87M',
+    curator: 'ShadowDAO',
+    curatorIcon: '👁️',
+    collateral: ['ETH', 'BTC', 'LINK', 'AAVE'],
+    apy: '7.41%',
+    apyTrend: 'up'
   },
   {
-    id: "aave-eth",
-    name: "Aave ETH",
-    symbol: "aETH",
-    provider: "Aave",
-    verified: true,
-    tvl: "$423.12M",
-    apy: "5.62%",
-    change: "-0.8%",
-    positive: false
+    id: '2',
+    name: 'Mystic Capital Yield USDC',
+    icon: '🔮',
+    deposits: '214.36M USDC',
+    value: '$213.99M',
+    curator: 'Mystic Capital',
+    curatorIcon: '⚜️',
+    collateral: ['ETH', 'SOL', 'AVAX', 'BNB', 'MATIC'],
+    apy: '5.86%',
+    apyTrend: 'up'
   },
   {
-    id: "compound-usdc",
-    name: "Compound USDC",
-    symbol: "cUSDC",
-    provider: "Compound",
-    verified: true,
-    tvl: "$289.45M",
-    apy: "3.95%",
-    change: "+0.2%",
-    positive: true
+    id: '3',
+    name: 'Crypthouse USDC',
+    icon: '🏰',
+    deposits: '142.11M USDC',
+    value: '$141.92M',
+    curator: 'Crypthouse Financial',
+    curatorIcon: '🔷',
+    collateral: ['ETH', 'BTC', 'LTC', 'DOT', 'BNB'],
+    apy: '5.59%',
+    apyTrend: 'down'
   },
   {
-    id: "maker-dai",
-    name: "Maker DAI",
-    symbol: "mkrDAI",
-    provider: "MakerDAO",
-    verified: true,
-    tvl: "$178.33M",
-    apy: "4.12%",
-    change: "+0.5%",
-    positive: true
+    id: '4',
+    name: 'Crypthouse USDT',
+    icon: '🏰',
+    deposits: '124.78M USDT',
+    value: '$124.63M',
+    curator: 'Crypthouse Financial',
+    curatorIcon: '🔷',
+    collateral: ['ETH', 'BTC', 'SOL'],
+    apy: '4.94%',
+    apyTrend: 'down'
   },
   {
-    id: "felend-eth",
-    name: "Felend ETH",
-    symbol: "fETH",
-    provider: "Felend",
-    verified: false,
-    tvl: "$95.78M",
-    apy: "8.45%",
-    change: "+3.2%",
-    positive: true
-  }
+    id: '5',
+    name: 'Crypthouse BUSD',
+    icon: '🏰',
+    deposits: '91.89M BUSD',
+    value: '$91.85M',
+    curator: 'Crypthouse Financial',
+    curatorIcon: '🔷',
+    collateral: ['ETH', 'BNB'],
+    apy: '5.05%',
+    apyTrend: 'stable'
+  },
+  {
+    id: '6',
+    name: 'Oracle USDC Core',
+    icon: '🔮',
+    deposits: '84.54M USDC',
+    value: '$84.37M',
+    curator: 'Oracle',
+    curatorIcon: '🔱',
+    collateral: ['ETH', 'BTC', 'SOL', 'DOT', 'LINK'],
+    apy: '5.49%',
+    apyTrend: 'up'
+  },
 ];
 
 export function VaultTable() {
-  return (
-    <div className="py-16 px-4 sm:px-6 bg-cryptic-dark">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-cinzel font-bold mb-6">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">Featured Vaults</span>
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Private lending vaults with full homomorphic encryption to protect your financial data while earning yield.
-          </p>
-        </div>
+  const [activeFilter, setActiveFilter] = useState<Filter>('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const filteredVaults = vaults.filter(vault => {
+    const matchesSearch = searchTerm === '' || 
+      vault.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      vault.curator.toLowerCase().includes(searchTerm.toLowerCase());
+      
+    const matchesFilter = activeFilter === 'All' || 
+      vault.deposits.includes(activeFilter);
+    
+    return matchesSearch && matchesFilter;
+  });
 
-        <div className="overflow-x-auto rounded-lg border border-cryptic-purple/20 cryptic-shadow">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-cryptic-purple/10">
-                <TableHead className="font-medium">Vault</TableHead>
-                <TableHead className="font-medium">TVL</TableHead>
-                <TableHead className="font-medium">APY</TableHead>
-                <TableHead className="font-medium hidden md:table-cell">24h Change</TableHead>
-                <TableHead className="font-medium hidden lg:table-cell">Provider</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {vaults.map((vault) => (
-                <TableRow 
+  return (
+    <div className="py-16 px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h2 className="text-2xl font-cinzel font-bold text-foreground mb-2">Cryptic Vaults</h2>
+          <p className="text-muted-foreground">Discover mysterious vaults with extraordinary yields</p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div className="flex flex-wrap gap-2">
+            {(['All', 'ETH', 'BTC', 'USDC', 'DAI'] as Filter[]).map((filter) => (
+              <Button
+                key={filter}
+                variant={activeFilter === filter ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveFilter(filter)}
+                className={cn(
+                  "border-cryptic-muted",
+                  activeFilter === filter && "bg-cryptic-accent hover:bg-cryptic-accent/90"
+                )}
+              >
+                {filter}
+              </Button>
+            ))}
+          </div>
+          
+          <div className="relative w-full sm:w-auto">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search vaults"
+              className="pl-10 w-full sm:w-64 bg-cryptic-darker border-cryptic-muted"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+        
+        <div className="overflow-x-auto cryptic-shadow rounded-lg border border-cryptic-purple/20">
+          <table className="w-full">
+            <thead className="bg-cryptic-darker">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Vault</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Deposits</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Curator</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Collateral</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">APY</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-cryptic-muted/20">
+              {filteredVaults.map((vault) => (
+                <tr 
                   key={vault.id} 
-                  className="bg-glass hover:bg-cryptic-purple/10 transition duration-200 cursor-pointer"
+                  className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150"
                 >
-                  <TableCell>
-                    <Link to={`/vaults/${vault.id}`} className="flex items-center gap-3">
-                      <div className="size-10 rounded-full bg-cryptic-purple/30 flex items-center justify-center text-xl font-bold">
-                        {vault.symbol.charAt(0)}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+                        <span className="text-lg">{vault.icon}</span>
                       </div>
-                      <div>
-                        <div className="font-medium flex items-center gap-2">
-                          {vault.name}
-                          {vault.verified && (
-                            <Shield size={14} className="text-cryptic-accent" />
-                          )}
-                        </div>
-                        <div className="text-sm text-muted-foreground">{vault.symbol}</div>
+                      <div className="ml-4">
+                        <div className="font-medium text-foreground">{vault.name}</div>
+                        <div className="text-sm text-muted-foreground">{vault.value}</div>
                       </div>
-                    </Link>
-                  </TableCell>
-                  <TableCell className="font-mono">{vault.tvl}</TableCell>
-                  <TableCell className="text-cryptic-accent font-mono">{vault.apy}</TableCell>
-                  <TableCell className={`hidden md:table-cell font-mono ${vault.positive ? 'text-green-400' : 'text-red-400'}`}>
-                    <div className="flex items-center gap-1">
-                      <TrendingUp size={14} className={vault.positive ? 'rotate-0' : 'rotate-180'} />
-                      {vault.change}
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-cryptic-accent/70"></div>
-                      <span>{vault.provider}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                    {vault.deposits}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-6 w-6 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+                        <span className="text-sm">{vault.curatorIcon}</span>
+                      </div>
+                      <div className="ml-2 text-sm text-foreground">{vault.curator}</div>
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-1">
+                      {vault.collateral.map((token, idx) => (
+                        <span 
+                          key={idx} 
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight"
+                        >
+                          {token}
+                        </span>
+                      ))}
+                      {vault.collateral.length > 3 && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight">
+                          +{vault.collateral.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <span 
+                        className={cn(
+                          "text-sm font-medium",
+                          vault.apyTrend === 'up' ? "text-emerald-400" : 
+                          vault.apyTrend === 'down' ? "text-rose-400" : 
+                          "text-amber-400"
+                        )}
+                      >
+                        {vault.apy}
+                      </span>
+                      <div 
+                        className={cn(
+                          "ml-2",
+                          vault.apyTrend === 'up' ? "text-emerald-400" : 
+                          vault.apyTrend === 'down' ? "text-rose-400" : 
+                          "text-amber-400"
+                        )}
+                      >
+                        {vault.apyTrend === 'up' && '↑'}
+                        {vault.apyTrend === 'down' && '↓'}
+                        {vault.apyTrend === 'stable' && '→'}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="mt-6 flex justify-center">
+          <div className="inline-flex rounded-md">
+            <Button variant="outline" size="sm" className="rounded-r-none border-r-0 text-muted-foreground">
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-l-none text-muted-foreground">
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </div>
