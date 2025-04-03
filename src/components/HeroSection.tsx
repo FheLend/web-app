@@ -1,5 +1,5 @@
 
-import { Lock, Shield, CircuitBoard, Link, Bitcoin, Database, DollarSign } from 'lucide-react';
+import { Lock, Shield, CircuitBoard, Link, Bitcoin, Database, DollarSign, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 
@@ -92,6 +92,24 @@ export function HeroSection() {
               Felend leverages Fully Homomorphic Encryption (FHE) to secure your financial data while enabling computations on encrypted data, ensuring both privacy and functionality.
             </p>
             
+            {/* Co-branded "Powered By" section */}
+            <div className="mb-8 flex flex-col space-y-2">
+              <p className="text-sm text-cryptic-highlight">Powered by</p>
+              <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-r from-cryptic-accent to-cryptic-highlight p-[1px] rounded-md">
+                  <div className="bg-cryptic-dark px-4 py-2 rounded-md flex items-center">
+                    <span className="font-cinzel font-bold mr-1 text-white">Felend</span>
+                    <span className="text-cryptic-highlight text-lg">×</span>
+                    <img 
+                      src="/lovable-uploads/b0a11051-a1f3-44b0-8dd9-4bad74f9eab7.png" 
+                      alt="Fhenix" 
+                      className="h-6 ml-1" 
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <Button className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white">
               <Lock className="mr-2 h-4 w-4" />
               Connect Wallet
@@ -101,34 +119,64 @@ export function HeroSection() {
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
             
-            {/* Simplified Visualization */}
-            <div className="relative z-10 flex justify-center items-center h-64">
-              {/* Central encryption visualization */}
-              <div className="w-40 h-40 rounded-full border border-cryptic-accent/50 flex items-center justify-center relative">
-                <CircuitBoard className="text-cryptic-accent w-10 h-10" />
-                
-                {/* Reduced number of animated encrypted data points */}
-                {encryptedValues.slice(0, 3).map((value, index) => {
-                  const angle = (index / 3) * Math.PI * 2;
-                  const x = Math.cos(angle) * 40;
-                  const y = Math.sin(angle) * 40;
+            {/* Simplified co-branded visualization */}
+            <div className="relative z-10 flex justify-center items-center h-72">
+              {/* Felend encrypted circle */}
+              <div className="relative">
+                <div className="w-36 h-36 rounded-full border-2 border-cryptic-accent/50 flex items-center justify-center">
+                  <CircuitBoard className="text-cryptic-accent w-8 h-8" />
                   
-                  return (
-                    <div 
-                      key={index}
-                      className="absolute text-xs font-mono text-cryptic-highlight"
-                      style={{ 
-                        transform: `translate(${x}px, ${y}px)`,
-                      }}
-                    >
-                      {value}
-                    </div>
-                  );
-                })}
+                  {/* Animated encrypted data points */}
+                  {encryptedValues.slice(0, 3).map((value, index) => {
+                    const angle = (index / 3) * Math.PI * 2;
+                    const x = Math.cos(angle) * 30;
+                    const y = Math.sin(angle) * 30;
+                    
+                    return (
+                      <div 
+                        key={index}
+                        className="absolute text-xs font-mono text-cryptic-highlight"
+                        style={{ 
+                          transform: `translate(${x}px, ${y}px)`,
+                        }}
+                      >
+                        {value}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="absolute w-48 h-48 rounded-full border border-cryptic-accent/20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-slow-spin"></div>
               </div>
               
-              {/* Orbital ring */}
-              <div className="absolute w-56 h-56 rounded-full border border-cryptic-accent/20 animate-slow-spin"></div>
+              {/* Connection beam between logos */}
+              <div className="w-16 h-2 bg-gradient-to-r from-cryptic-accent to-[#ff5e00] mx-2"></div>
+              
+              {/* Fhenix circle with orange gradient */}
+              <div className="relative">
+                <div className="w-36 h-36 rounded-full border-2 border-[#ff5e00]/50 flex items-center justify-center bg-gradient-to-br from-black to-[#150a02] p-2">
+                  <div className="w-full h-full rounded-full flex items-center justify-center bg-black">
+                    <Zap className="text-[#ff5e00] w-8 h-8" />
+                    
+                    {/* Fhenix animated elements */}
+                    {[1, 2, 3].map((_, index) => {
+                      const angle = (index / 3) * Math.PI * 2;
+                      const x = Math.cos(angle) * 30;
+                      const y = Math.sin(angle) * 30;
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-[#ff5e00] to-[#ffae00]"
+                          style={{ 
+                            transform: `translate(${x}px, ${y}px)`,
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="absolute w-48 h-48 rounded-full border border-[#ff5e00]/20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-reverse-spin"></div>
+              </div>
             </div>
           </div>
         </div>
