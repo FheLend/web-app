@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Eye, Search, Shield, Star, Vault } from 'lucide-react';
+import { Search, Shield, Star, Vault, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -23,23 +23,23 @@ interface Vault {
 const vaults: Vault[] = [
   {
     id: '1',
-    name: 'Shadow DAI Vault',
-    icon: '🌑',
+    name: 'Private DAI Vault',
+    icon: '🔒',
     deposits: '350.06M DAI',
     value: '$349.87M',
-    curator: 'ShadowDAO',
-    curatorIcon: '👁️',
+    curator: 'FeLend DAO',
+    curatorIcon: '🛡️',
     collateral: ['ETH', 'BTC', 'LINK', 'AAVE'],
     apy: '7.41%',
     apyTrend: 'up'
   },
   {
     id: '2',
-    name: 'Mystic Capital Yield USDC',
-    icon: '🔮',
+    name: 'Encrypted USDC Yield',
+    icon: '🔐',
     deposits: '214.36M USDC',
     value: '$213.99M',
-    curator: 'Mystic Capital',
+    curator: 'Private Capital',
     curatorIcon: '⚜️',
     collateral: ['ETH', 'SOL', 'AVAX', 'BNB', 'MATIC'],
     apy: '5.86%',
@@ -47,11 +47,11 @@ const vaults: Vault[] = [
   },
   {
     id: '3',
-    name: 'Crypthouse USDC',
-    icon: '🏰',
+    name: 'FHE USDC Pool',
+    icon: '🛡️',
     deposits: '142.11M USDC',
     value: '$141.92M',
-    curator: 'Crypthouse Financial',
+    curator: 'FHE Finance',
     curatorIcon: '🔷',
     collateral: ['ETH', 'BTC', 'LTC', 'DOT', 'BNB'],
     apy: '5.59%',
@@ -59,11 +59,11 @@ const vaults: Vault[] = [
   },
   {
     id: '4',
-    name: 'Crypthouse USDT',
-    icon: '🏰',
+    name: 'Private USDT Vault',
+    icon: '🔒',
     deposits: '124.78M USDT',
     value: '$124.63M',
-    curator: 'Crypthouse Financial',
+    curator: 'FHE Finance',
     curatorIcon: '🔷',
     collateral: ['ETH', 'BTC', 'SOL'],
     apy: '4.94%',
@@ -71,11 +71,11 @@ const vaults: Vault[] = [
   },
   {
     id: '5',
-    name: 'Crypthouse BUSD',
-    icon: '🏰',
+    name: 'Confidential BUSD',
+    icon: '🔐',
     deposits: '91.89M BUSD',
     value: '$91.85M',
-    curator: 'Crypthouse Financial',
+    curator: 'FHE Finance',
     curatorIcon: '🔷',
     collateral: ['ETH', 'BNB'],
     apy: '5.05%',
@@ -83,11 +83,11 @@ const vaults: Vault[] = [
   },
   {
     id: '6',
-    name: 'Oracle USDC Core',
-    icon: '🔮',
+    name: 'Encrypted USDC Core',
+    icon: '🛡️',
     deposits: '84.54M USDC',
     value: '$84.37M',
-    curator: 'Oracle',
+    curator: 'FeLend DAO',
     curatorIcon: '🔱',
     collateral: ['ETH', 'BTC', 'SOL', 'DOT', 'LINK'],
     apy: '5.49%',
@@ -114,8 +114,8 @@ export function VaultTable() {
     <div className="py-16 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-2xl font-cinzel font-bold text-foreground mb-2">Cryptic Vaults</h2>
-          <p className="text-muted-foreground">Discover mysterious vaults with extraordinary yields</p>
+          <h2 className="text-2xl font-cinzel font-bold text-foreground mb-2">Encrypted Lending Vaults</h2>
+          <p className="text-muted-foreground">Discover our FHE-powered lending pools with private transactions and balances</p>
         </div>
         
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -162,7 +162,8 @@ export function VaultTable() {
               {filteredVaults.map((vault) => (
                 <tr 
                   key={vault.id} 
-                  className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150"
+                  className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
+                  onClick={() => console.log(`Navigating to vault ${vault.id}`)}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">

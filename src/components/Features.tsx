@@ -1,5 +1,5 @@
 
-import { Eye, Lock, Shield, Vault } from 'lucide-react';
+import { Eye, Lock, Shield, Vault, Code, GanttChart, User } from 'lucide-react';
 
 export function Features() {
   return (
@@ -7,48 +7,48 @@ export function Features() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-cinzel font-bold mb-6">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">Arcane Features</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">Cutting-Edge Features</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Delve into the mysterious world of decentralized finance with features designed for the discerning cryptomancer.
+            FeLend combines the power of fully homomorphic encryption with DeFi lending to enable a new generation of private financial services.
           </p>
         </div>
         
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           <FeatureCard 
             icon={<Shield className="h-6 w-6 text-cryptic-accent" />}
-            title="Protected by Sigils"
-            description="Our smart contracts are audited by top security firms, with protection spells and sigils to guard your assets."
+            title="Privacy by Default"
+            description="All user data is encrypted by default using Fully Homomorphic Encryption, ensuring your financial information remains confidential on-chain."
           />
           
           <FeatureCard 
             icon={<Lock className="h-6 w-6 text-cryptic-accent" />}
-            title="Cryptic Privacy"
-            description="Privacy features that ensure your financial movements remain hidden from prying eyes, cloaked in layers of cryptographic fog."
+            title="Encrypted Credit Scoring"
+            description="Our protocol performs lending risk assessments on encrypted data, without ever exposing your sensitive information."
           />
           
           <FeatureCard 
-            icon={<Eye className="h-6 w-6 text-cryptic-accent" />}
-            title="Oracle Network"
-            description="Our mystical oracle network sources pricing data from the beyond, ensuring accurate and manipulation-resistant asset valuation."
+            icon={<Code className="h-6 w-6 text-cryptic-accent" />}
+            title="Private Smart Contracts"
+            description="Built on FHE-enabled smart contracts that can compute on encrypted data while keeping inputs, outputs, and the computation itself private."
           />
           
           <FeatureCard 
             icon={<Vault className="h-6 w-6 text-cryptic-accent" />}
-            title="Enigmatic Vaults"
-            description="Specialized yield strategies accessible only to those who know where to look, offering returns from hidden corners of the ecosystem."
+            title="Secure Lending Pools"
+            description="Access various lending pools with competitive interest rates, all while maintaining the privacy of your transactions and balances."
           />
           
           <FeatureCard 
-            icon={<Shield className="h-6 w-6 text-cryptic-accent" />}
-            title="Arcane Insurance"
-            description="Optional protection rituals to shield your deposits against unforeseen events in the cryptosphere."
+            icon={<GanttChart className="h-6 w-6 text-cryptic-accent" />}
+            title="Real-time Risk Management"
+            description="Our protocol continuously evaluates lending risks while preserving data privacy, creating a more secure lending environment."
           />
           
           <FeatureCard 
-            icon={<Lock className="h-6 w-6 text-cryptic-accent" />}
-            title="Forbidden Knowledge"
-            description="Access to exclusive market insights and alpha through our network of crypto-seers and blockchain oracles."
+            icon={<User className="h-6 w-6 text-cryptic-accent" />}
+            title="Cross-Chain Compatibility"
+            description="Designed to work across multiple blockchain networks, expanding the reach of private DeFi lending services."
           />
         </div>
       </div>

@@ -48,23 +48,23 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
         <div className="text-center sm:text-left mb-10">
           <p className="text-cryptic-accent font-medium tracking-wide mb-3">
-            Total Encrypted Value: <span className="text-cryptic-highlight animate-glow">₿ 72,538.45</span>
+            Total Value Locked: <span className="text-cryptic-highlight animate-glow">₿ 72,538.45</span>
           </p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-cinzel text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
-              <span className="text-glow">Private</span>
+              <span className="text-glow">Fully</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">
-                encrypted lending
+                Encrypted Lending
               </span>
               <div className="absolute -left-6 -top-6 w-12 h-12 border border-cryptic-accent/30 rounded-full opacity-70"></div>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-              Felend leverages Fully Homomorphic Encryption (FHE) to secure your financial data while enabling computations on encrypted data, ensuring both privacy and functionality.
+              FeLend is the first DeFi lending protocol that leverages Fully Homomorphic Encryption (FHE) to enable private computation, ensuring the confidentiality of all user data on the blockchain.
             </p>
             
             <Button className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white">

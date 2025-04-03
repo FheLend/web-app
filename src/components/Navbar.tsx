@@ -20,13 +20,13 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8 items-center">
           <NavLink href="#" active>
-            Earn
+            Lend
           </NavLink>
           <NavLink href="#">
             Borrow
           </NavLink>
           <NavLink href="#">
-            Explore
+            Vaults
           </NavLink>
           <Button variant="outline" size="sm" className="ml-4 border-cryptic-accent/50 bg-transparent hover:bg-cryptic-accent/10 text-cryptic-accent">
             <Lock className="mr-2 h-4 w-4" />
@@ -52,13 +52,13 @@ export function Navbar() {
         <div className="md:hidden pt-4 pb-3 border-t border-cryptic-purple/20 mt-4">
           <div className="space-y-3 px-2">
             <NavLink href="#" active mobile>
-              Earn
+              Lend
             </NavLink>
             <NavLink href="#" mobile>
               Borrow
             </NavLink>
             <NavLink href="#" mobile>
-              Explore
+              Vaults
             </NavLink>
             <Button variant="outline" size="sm" className="mt-4 w-full border-cryptic-accent/50 bg-transparent hover:bg-cryptic-accent/10 text-cryptic-accent">
               <Lock className="mr-2 h-4 w-4" />
