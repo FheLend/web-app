@@ -35,7 +35,8 @@ const ltvData = generateChartData().map(item => ({ ...item, value: 7 + (Math.ran
 
 export function VaultOverview({ vault }: VaultProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
+      {/* First Chart - Deposited */}
       <div className="rounded-lg bg-cryptic-dark p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-cinzel">Your Deposited (APY)</h2>
@@ -50,9 +51,9 @@ export function VaultOverview({ vault }: VaultProps) {
           </Tabs>
         </div>
         
-        <div className="text-3xl font-mono mb-6">{vault.deposited}</div>
+        <div className="text-3xl font-mono mb-8">{vault.deposited}</div>
         
-        <div className="h-64">
+        <div className="h-80">
           <ChartContainer
             config={{
               line: {
@@ -62,20 +63,25 @@ export function VaultOverview({ vault }: VaultProps) {
             }}
           >
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
+              <LineChart
+                data={chartData}
+                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+              >
                 <XAxis 
                   dataKey="date" 
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
                   tickFormatter={(value) => value.split("-")[2]}
+                  padding={{ left: 10, right: 10 }}
                 />
                 <YAxis 
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 12 }}
-                  domain={['auto', 'auto']}
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
+                  domain={[(dataMin: number) => dataMin - 1, (dataMax: number) => dataMax + 1]}
                   tickFormatter={(value) => `${value}M`}
+                  width={50}
                 />
                 <Tooltip
                   content={({ active, payload }) => {
@@ -107,15 +113,16 @@ export function VaultOverview({ vault }: VaultProps) {
         </div>
       </div>
 
+      {/* Second Chart - LTV */}
       <div className="rounded-lg bg-cryptic-dark p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-cinzel">LTV</h2>
           <Button variant="outline" size="sm" className="text-xs">Details</Button>
         </div>
         
-        <div className="text-3xl font-mono mb-6 text-cryptic-accent">{vault.ltv}</div>
+        <div className="text-3xl font-mono mb-8 text-cryptic-accent">{vault.ltv}</div>
         
-        <div className="h-64">
+        <div className="h-80">
           <ChartContainer
             config={{
               line: {
@@ -125,20 +132,25 @@ export function VaultOverview({ vault }: VaultProps) {
             }}
           >
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={ltvData}>
+              <LineChart
+                data={ltvData}
+                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+              >
                 <XAxis 
                   dataKey="date" 
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
                   tickFormatter={(value) => value.split("-")[2]}
+                  padding={{ left: 10, right: 10 }}
                 />
                 <YAxis 
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 12 }}
-                  domain={[0, 15]}
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
+                  domain={[6, 8]}
                   tickFormatter={(value) => `${value}%`}
+                  width={50}
                 />
                 <Tooltip
                   content={({ active, payload }) => {
@@ -170,6 +182,7 @@ export function VaultOverview({ vault }: VaultProps) {
         </div>
       </div>
 
+      {/* Market Allocation Table */}
       <div className="rounded-lg bg-cryptic-dark p-6">
         <h2 className="text-xl font-cinzel mb-4">Market Allocation</h2>
         
