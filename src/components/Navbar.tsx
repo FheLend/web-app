@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Lock, Menu, Shield, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,10 +12,12 @@ export function Navbar() {
     <nav className="py-4 px-4 sm:px-6 border-b border-cryptic-purple/20 bg-cryptic-darker/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          <Key className="h-6 w-6 text-cryptic-accent mr-2" />
-          <span className="font-cinzel text-lg sm:text-xl font-semibold text-glow">
-            Fe<span className="text-cryptic-accent">lend</span>
-          </span>
+          <Link to="/" className="flex items-center">
+            <Key className="h-6 w-6 text-cryptic-accent mr-2" />
+            <span className="font-cinzel text-lg sm:text-xl font-semibold text-glow">
+              Fe<span className="text-cryptic-accent">lend</span>
+            </span>
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
