@@ -73,24 +73,6 @@ export function HeroSection() {
               Felend leverages Fully Homomorphic Encryption (FHE) to secure your financial data while enabling computations on encrypted data, ensuring both privacy and functionality.
             </p>
             
-            {/* Felend x Fhenix mention */}
-            <div className="mb-8 flex flex-col space-y-2">
-              <p className="text-sm text-cryptic-highlight">Powered by</p>
-              <div className="flex items-center gap-3">
-                <div className="bg-gradient-to-r from-cryptic-accent to-cryptic-highlight p-[1px] rounded-md">
-                  <div className="bg-cryptic-dark px-4 py-2 rounded-md flex items-center">
-                    <span className="font-cinzel font-bold mr-1 text-white">Felend</span>
-                    <span className="text-cryptic-highlight text-lg">×</span>
-                    <img 
-                      src="/lovable-uploads/b0a11051-a1f3-44b0-8dd9-4bad74f9eab7.png" 
-                      alt="Fhenix" 
-                      className="h-6 ml-1" 
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            
             <Button className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white">
               <Lock className="mr-2 h-4 w-4" />
               Connect Wallet
