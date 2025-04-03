@@ -1,5 +1,5 @@
 
-import { Shield } from 'lucide-react';
+import { Shield, Key } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -8,13 +8,13 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center mb-4">
-              <Shield className="h-5 w-5 text-cryptic-accent mr-2" />
+              <Key className="h-5 w-5 text-cryptic-accent mr-2" />
               <span className="font-cinzel text-lg font-semibold">
-                Cryptic<span className="text-cryptic-accent">Loan</span>
+                Fe<span className="text-cryptic-accent">lend</span>
               </span>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Explore the shadows of decentralized finance where your assets work in mysterious ways.
+              A revolutionary lending protocol that leverages Fully Homomorphic Encryption to secure user financial data on the blockchain.
             </p>
           </div>
           
@@ -34,7 +34,7 @@ export function Footer() {
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Documentation</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">API</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Security</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Audit Reports</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">FHE Explainer</a></li>
             </ul>
           </div>
           
@@ -52,7 +52,7 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-cryptic-purple/10">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              © 2025 CrypticLoan. All rights reserved. Enter at your own risk.
+              © 2025 Felend. All rights reserved. Secured with Fully Homomorphic Encryption.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-muted-foreground hover:text-cryptic-accent">Terms</a>
