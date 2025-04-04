@@ -18,15 +18,6 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
-				'cinzel': ['Cinzel', 'serif'],
-				'rajdhani': ['Rajdhani', 'sans-serif'],
-				'spaceGrotesk': ['Space Grotesk', 'sans-serif'],
-				'syne': ['Syne', 'sans-serif'],
-			},
-			fontSize: {
-				base: '1rem',
-			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -70,14 +61,6 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				},
-				cryptic: {
-					dark: '#0A192F',
-					darker: '#071527',
-					purple: '#3B6EBF',
-					accent: '#33C3F0',
-					highlight: '#8CDAFD',
-					muted: '#4D5B7C'
 				}
 			},
 			borderRadius: {
@@ -87,35 +70,25 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: { height: '0' },
-					to: { height: 'var(--radix-accordion-content-height)' }
-				},
-				'accordion-up': {
-					from: { height: 'var(--radix-accordion-content-height)' },
-					to: { height: '0' }
-				},
-				'glow': {
-					'0%, 100%': { 
-						textShadow: '0 0 5px rgba(51, 195, 240, 0.3), 0 0 15px rgba(51, 195, 240, 0.3)' 
+					from: {
+						height: '0'
 					},
-					'50%': { 
-						textShadow: '0 0 20px rgba(51, 195, 240, 0.6), 0 0 30px rgba(51, 195, 240, 0.4)' 
+					to: {
+						height: 'var(--radix-accordion-content-height)'
 					}
 				},
-				'float': {
-					'0%, 100%': { transform: 'translateY(0)' },
-					'50%': { transform: 'translateY(-10px)' }
+				'accordion-up': {
+					from: {
+						height: 'var(--radix-accordion-content-height)'
+					},
+					to: {
+						height: '0'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
-				'glow': 'glow 3s ease-in-out infinite',
-				'float': 'float 6s ease-in-out infinite'
-			},
-			backgroundImage: {
-				'cryptic-gradient': 'linear-gradient(to bottom, #0A192F, #071527)',
-				'blue-glow': 'radial-gradient(circle, rgba(51, 195, 240, 0.2) 0%, rgba(51, 195, 240, 0.1) 30%, transparent 70%)'
+				'accordion-up': 'accordion-up 0.2s ease-out'
 			}
 		}
 	},
