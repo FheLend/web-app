@@ -120,7 +120,7 @@ export function VaultTable() {
     <div className="py-16 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-3xl font-cinzel font-bold text-foreground mb-2">Encrypted Lending Vaults</h2>
+          <h2 className="text-3xl font-spaceGrotesk font-bold text-foreground mb-2">Encrypted Lending Vaults</h2>
           <p className="text-muted-foreground text-lg">Discover our FHE-powered lending pools with private transactions and balances</p>
         </div>
         

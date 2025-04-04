@@ -9,7 +9,7 @@ export function Footer() {
           <div>
             <div className="flex items-center mb-4">
               <Key className="h-5 w-5 text-cryptic-accent mr-2" />
-              <span className="font-cinzel text-lg font-semibold">
+              <span className="font-spaceGrotesk text-lg font-semibold">
                 Fe<span className="text-cryptic-accent">lend</span>
               </span>
             </div>
@@ -19,7 +19,7 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="font-cinzel text-sm font-semibold text-foreground mb-4">Platform</h3>
+            <h3 className="font-spaceGrotesk text-sm font-semibold text-foreground mb-4">Platform</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Earn</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Borrow</a></li>
@@ -29,7 +29,7 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="font-cinzel text-sm font-semibold text-foreground mb-4">Resources</h3>
+            <h3 className="font-spaceGrotesk text-sm font-semibold text-foreground mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Documentation</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">API</a></li>
@@ -39,7 +39,7 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="font-cinzel text-sm font-semibold text-foreground mb-4">Community</h3>
+            <h3 className="font-spaceGrotesk text-sm font-semibold text-foreground mb-4">Community</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Discord</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Twitter</a></li>

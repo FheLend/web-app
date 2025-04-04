@@ -19,8 +19,6 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'cinzel': ['Cinzel', 'serif'],
-				'rajdhani': ['Rajdhani', 'sans-serif'],
 				'spaceGrotesk': ['Space Grotesk', 'sans-serif'],
 				'syne': ['Syne', 'sans-serif'],
 			},
@@ -75,8 +73,8 @@ export default {
 					dark: '#0A192F',
 					darker: '#071527',
 					purple: '#3B6EBF',
-					accent: '#33C3F0',
-					highlight: '#8CDAFD',
+					accent: '#1E9AC4 ',
+					highlight: '#5AB3DB ',
 					muted: '#4D5B7C'
 				}
 			},

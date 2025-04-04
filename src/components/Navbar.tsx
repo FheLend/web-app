@@ -14,7 +14,7 @@ export function Navbar() {
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
             <Key className="h-7 w-7 text-cryptic-accent mr-2" />
-            <span className="font-cinzel text-xl sm:text-2xl font-semibold text-glow">
+            <span className="font-spaceGrotesk text-xl sm:text-2xl font-semibold text-glow">
               Fe<span className="text-cryptic-accent">lend</span>
             </span>
           </Link>

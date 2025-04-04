@@ -6,7 +6,7 @@ export function Features() {
     <div className="py-16 px-4 sm:px-6 bg-cryptic-darker">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-cinzel font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-spaceGrotesk font-bold mb-6">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">Cutting-Edge Features</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -68,7 +68,7 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
       <div className="h-12 w-12 rounded-full bg-cryptic-purple/10 flex items-center justify-center mb-4">
         {icon}
       </div>
-      <h3 className="font-cinzel text-xl font-medium mb-2 text-cryptic-highlight">{title}</h3>
+      <h3 className="font-spaceGrotesk text-xl font-medium mb-2 text-cryptic-highlight">{title}</h3>
       <p className="text-muted-foreground">{description}</p>
     </div>
   );

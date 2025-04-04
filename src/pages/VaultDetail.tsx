@@ -141,7 +141,7 @@ export default function VaultDetail() {
                 {vault.icon}
               </div>
               <div>
-                <h1 className="text-3xl font-cinzel font-bold text-foreground">
+                <h1 className="text-3xl font-spaceGrotesk font-bold text-foreground">
                   {vault.name}
                 </h1>
                 <div className="flex items-center mt-1 text-sm text-muted-foreground">

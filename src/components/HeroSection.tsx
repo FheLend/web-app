@@ -54,7 +54,7 @@ export function HeroSection() {
         
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <h1 className="font-cinzel text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
+            <h1 className="font-spaceGrotesk text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
               <span className="text-glow">Fully</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">
