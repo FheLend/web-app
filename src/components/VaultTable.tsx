@@ -120,8 +120,8 @@ export function VaultTable() {
     <div className="py-16 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-2xl font-cinzel font-bold text-foreground mb-2">Encrypted Lending Vaults</h2>
-          <p className="text-muted-foreground">Discover our FHE-powered lending pools with private transactions and balances</p>
+          <h2 className="text-3xl font-cinzel font-bold text-foreground mb-2">Encrypted Lending Vaults</h2>
+          <p className="text-muted-foreground text-lg">Discover our FHE-powered lending pools with private transactions and balances</p>
         </div>
         
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -133,7 +133,7 @@ export function VaultTable() {
                 size="sm"
                 onClick={() => setActiveFilter(filter)}
                 className={cn(
-                  "border-cryptic-muted",
+                  "border-cryptic-muted text-base",
                   activeFilter === filter && "bg-cryptic-accent hover:bg-cryptic-accent/90"
                 )}
               >
@@ -143,25 +143,25 @@ export function VaultTable() {
           </div>
           
           <div className="relative w-full sm:w-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               placeholder="Search vaults"
-              className="pl-10 w-full sm:w-64 bg-cryptic-darker border-cryptic-muted"
+              className="pl-10 w-full sm:w-64 bg-cryptic-darker border-cryptic-muted text-base"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
         
-        <div className="overflow-x-auto cryptic-shadow rounded-lg border border-cryptic-purple/20">
-          <table className="w-full">
+        <div className="overflow-x-auto cryptic-shadow rounded-lg border border-cryptic-accent/20">
+          <table className="w-full text-base">
             <thead className="bg-cryptic-darker">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Vault</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Deposits</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Curator</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Collateral</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">APY</th>
+                <th className="px-6 py-5 text-left font-medium text-muted-foreground">Vault</th>
+                <th className="px-6 py-5 text-left font-medium text-muted-foreground">Deposits</th>
+                <th className="px-6 py-5 text-left font-medium text-muted-foreground">Curator</th>
+                <th className="px-6 py-5 text-left font-medium text-muted-foreground">Collateral</th>
+                <th className="px-6 py-5 text-left font-medium text-muted-foreground">APY</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-cryptic-muted/20">
@@ -171,50 +171,50 @@ export function VaultTable() {
                   className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
                   onClick={() => handleRowClick(vault.id)}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
-                        <span className="text-lg">{vault.icon}</span>
+                      <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+                        <span className="text-xl">{vault.icon}</span>
                       </div>
                       <div className="ml-4">
-                        <div className="font-medium text-foreground">{vault.name}</div>
-                        <div className="text-sm text-muted-foreground">{vault.value}</div>
+                        <div className="font-medium text-foreground text-lg">{vault.name}</div>
+                        <div className="text-muted-foreground">{vault.value}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                  <td className="px-6 py-5 whitespace-nowrap text-foreground">
                     {vault.deposits}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-6 w-6 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
-                        <span className="text-sm">{vault.curatorIcon}</span>
+                      <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+                        <span className="text-base">{vault.curatorIcon}</span>
                       </div>
-                      <div className="ml-2 text-sm text-foreground">{vault.curator}</div>
+                      <div className="ml-3 text-foreground">{vault.curator}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex space-x-1">
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <div className="flex flex-wrap gap-1">
                       {vault.collateral.map((token, idx) => (
                         <span 
                           key={idx} 
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight"
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cryptic-purple/10 text-cryptic-highlight"
                         >
                           {token}
                         </span>
                       ))}
                       {vault.collateral.length > 3 && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cryptic-purple/10 text-cryptic-highlight">
                           +{vault.collateral.length - 3}
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center">
                       <span 
                         className={cn(
-                          "text-sm font-medium",
+                          "font-medium text-lg",
                           vault.apyTrend === 'up' ? "text-emerald-400" : 
                           vault.apyTrend === 'down' ? "text-rose-400" : 
                           "text-amber-400"
@@ -224,7 +224,7 @@ export function VaultTable() {
                       </span>
                       <div 
                         className={cn(
-                          "ml-2",
+                          "ml-2 text-xl",
                           vault.apyTrend === 'up' ? "text-emerald-400" : 
                           vault.apyTrend === 'down' ? "text-rose-400" : 
                           "text-amber-400"
@@ -244,10 +244,10 @@ export function VaultTable() {
         
         <div className="mt-6 flex justify-center">
           <div className="inline-flex rounded-md">
-            <Button variant="outline" size="sm" className="rounded-r-none border-r-0 text-muted-foreground">
+            <Button variant="outline" size="sm" className="rounded-r-none border-r-0 text-muted-foreground text-base">
               Previous
             </Button>
-            <Button variant="outline" size="sm" className="rounded-l-none text-muted-foreground">
+            <Button variant="outline" size="sm" className="rounded-l-none text-muted-foreground text-base">
               Next
             </Button>
           </div>

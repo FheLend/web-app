@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,33 +7,33 @@
 
 @layer base {
   :root {
-    --background: 231 25% 12%;
-    --foreground: 210 20% 98%;
+    --background: 216 33% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 231 25% 15%;
-    --card-foreground: 210 20% 98%;
+    --card: 216 33% 14%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 231 25% 18%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 216 33% 17%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 258 100% 65%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 196 82% 58%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 240 10% 20%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 214 32% 20%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 240 10% 20%;
-    --muted-foreground: 240 5% 75%;
+    --muted: 214 32% 20%;
+    --muted-foreground: 214 25% 75%;
 
-    --accent: 258 100% 65%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 196 82% 58%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 350 89% 60%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 240 10% 20%;
-    --input: 240 10% 20%;
-    --ring: 258 100% 65%;
+    --border: 214 32% 20%;
+    --input: 214 32% 20%;
+    --ring: 196 82% 58%;
 
     --radius: 0.75rem;
   }
@@ -43,31 +43,37 @@
   }
 
   body {
-    @apply bg-cryptic-dark text-foreground font-rajdhani;
+    @apply bg-cryptic-dark text-foreground font-spaceGrotesk;
     background-image: 
-      radial-gradient(circle at 20% 30%, rgba(70, 51, 102, 0.15) 0%, transparent 30%),
-      radial-gradient(circle at 80% 70%, rgba(70, 51, 102, 0.1) 0%, transparent 20%);
+      radial-gradient(circle at 20% 30%, rgba(51, 195, 240, 0.15) 0%, transparent 30%),
+      radial-gradient(circle at 80% 70%, rgba(51, 195, 240, 0.1) 0%, transparent 20%);
     min-height: 100vh;
+    font-size: 1rem;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-cinzel;
+    @apply font-syne;
+  }
+
+  /* Set table text to be 1rem by default */
+  table {
+    @apply text-base;
   }
 }
 
 @layer utilities {
   .text-glow {
-    text-shadow: 0 0 5px rgba(138, 79, 255, 0.5), 0 0 15px rgba(138, 79, 255, 0.3);
+    text-shadow: 0 0 5px rgba(51, 195, 240, 0.5), 0 0 15px rgba(51, 195, 240, 0.3);
   }
   
   .border-glow {
-    box-shadow: 0 0 5px rgba(138, 79, 255, 0.5), 0 0 15px rgba(138, 79, 255, 0.2);
+    box-shadow: 0 0 5px rgba(51, 195, 240, 0.5), 0 0 15px rgba(51, 195, 240, 0.2);
   }
   
   .bg-glass {
-    background: rgba(26, 31, 44, 0.7);
+    background: rgba(10, 25, 47, 0.7);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(138, 79, 255, 0.1);
+    border: 1px solid rgba(51, 195, 240, 0.1);
   }
 
   .cryptic-shadow {
