@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -22,6 +21,8 @@ export default {
 			fontFamily: {
 				'cinzel': ['Cinzel', 'serif'],
 				'rajdhani': ['Rajdhani', 'sans-serif'],
+				'spaceGrotesk': ['Space Grotesk', 'sans-serif'],
+				'syne': ['Syne', 'sans-serif'],
 			},
 			fontSize: {
 				base: '1rem',
