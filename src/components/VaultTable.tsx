@@ -5,6 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type Filter = 'All' | 'ETH' | 'BTC' | 'USDC' | 'DAI';
 
@@ -100,6 +109,7 @@ export function VaultTable() {
   const [activeFilter, setActiveFilter] = useState<Filter>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const filteredVaults = vaults.filter(vault => {
     const matchesSearch = searchTerm === '' || 
@@ -116,30 +126,103 @@ export function VaultTable() {
     navigate(`/vault/${vaultId}`);
   };
 
-  return (
-    <div className="py-16 px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h2 className="text-3xl font-spaceGrotesk font-bold text-foreground mb-2">Encrypted Lending Vaults</h2>
-          <p className="text-muted-foreground text-lg">Discover our FHE-powered lending pools with private transactions and balances</p>
+  // Render a mobile card view for each vault
+  const renderMobileVaults = () => {
+    return filteredVaults.map((vault) => (
+      <div 
+        key={vault.id}
+        className="mb-4 p-4 bg-cryptic-dark/50 rounded-lg border border-cryptic-muted/20 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
+        onClick={() => handleRowClick(vault.id)}
+      >
+        <div className="flex items-center mb-3">
+          <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+            <span className="text-xl">{vault.icon}</span>
+          </div>
+          <div className="ml-4">
+            <div className="font-medium text-foreground text-lg">{vault.name}</div>
+            <div className="text-muted-foreground">{vault.value}</div>
+          </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div className="flex flex-wrap gap-2">
-            {(['All', 'ETH', 'BTC', 'USDC', 'DAI'] as Filter[]).map((filter) => (
-              <Button
-                key={filter}
-                variant={activeFilter === filter ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveFilter(filter)}
-                className={cn(
-                  "border-cryptic-muted text-base",
-                  activeFilter === filter && "bg-cryptic-accent hover:bg-cryptic-accent/90"
-                )}
-              >
-                {filter}
-              </Button>
-            ))}
+        <div className="grid grid-cols-2 gap-y-3 text-sm">
+          <div>
+            <div className="text-muted-foreground">Deposits</div>
+            <div className="text-foreground font-medium">{vault.deposits}</div>
+          </div>
+          
+          <div>
+            <div className="text-muted-foreground">APY</div>
+            <div className={cn(
+              "font-medium",
+              vault.apyTrend === 'up' ? "text-emerald-400" : 
+              vault.apyTrend === 'down' ? "text-rose-400" : 
+              "text-amber-400"
+            )}>
+              {vault.apy} 
+              <span className="ml-1">
+                {vault.apyTrend === 'up' && '↑'}
+                {vault.apyTrend === 'down' && '↓'}
+                {vault.apyTrend === 'stable' && '→'}
+              </span>
+            </div>
+          </div>
+          
+          <div>
+            <div className="text-muted-foreground">Curator</div>
+            <div className="flex items-center text-foreground">
+              <span className="mr-1">{vault.curatorIcon}</span> {vault.curator}
+            </div>
+          </div>
+          
+          <div>
+            <div className="text-muted-foreground">Collateral</div>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {vault.collateral.slice(0, 2).map((token, idx) => (
+                <span 
+                  key={idx} 
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight"
+                >
+                  {token}
+                </span>
+              ))}
+              {vault.collateral.length > 2 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight">
+                  +{vault.collateral.length - 2}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    ));
+  };
+
+  return (
+    <div className="py-8 sm:py-16 px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Encrypted Lending Vaults</h2>
+          <p className="text-muted-foreground text-base sm:text-lg">Discover our FHE-powered lending pools with private transactions and balances</p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto mb-4 sm:mb-0 overflow-x-auto pb-2 sm:pb-0">
+            <div className="flex space-x-2 min-w-max">
+              {(['All', 'ETH', 'BTC', 'USDC', 'DAI'] as Filter[]).map((filter) => (
+                <Button
+                  key={filter}
+                  variant={activeFilter === filter ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActiveFilter(filter)}
+                  className={cn(
+                    "border-cryptic-muted text-base",
+                    activeFilter === filter && "bg-cryptic-accent hover:bg-cryptic-accent/90"
+                  )}
+                >
+                  {filter}
+                </Button>
+              ))}
+            </div>
           </div>
           
           <div className="relative w-full sm:w-auto">
@@ -153,94 +236,95 @@ export function VaultTable() {
           </div>
         </div>
         
-        <div className="overflow-x-auto cryptic-shadow rounded-lg border border-cryptic-accent/20">
-          <table className="w-full text-base">
-            <thead className="bg-cryptic-darker">
-              <tr>
-                <th className="px-6 py-5 text-left font-medium text-muted-foreground">Vault</th>
-                <th className="px-6 py-5 text-left font-medium text-muted-foreground">Deposits</th>
-                <th className="px-6 py-5 text-left font-medium text-muted-foreground">Curator</th>
-                <th className="px-6 py-5 text-left font-medium text-muted-foreground">Collateral</th>
-                <th className="px-6 py-5 text-left font-medium text-muted-foreground">APY</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-cryptic-muted/20">
-              {filteredVaults.map((vault) => (
-                <tr 
-                  key={vault.id} 
-                  className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
-                  onClick={() => handleRowClick(vault.id)}
-                >
-                  <td className="px-6 py-5 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
-                        <span className="text-xl">{vault.icon}</span>
+        {isMobile ? (
+          <div className="space-y-4">
+            {renderMobileVaults()}
+          </div>
+        ) : (
+          <div className="overflow-x-auto cryptic-shadow rounded-lg border border-cryptic-accent/20">
+            <Table className="w-full text-base">
+              <TableHeader className="bg-cryptic-darker">
+                <TableRow>
+                  <TableHead className="text-left font-medium text-muted-foreground">Vault</TableHead>
+                  <TableHead className="text-left font-medium text-muted-foreground">Deposits</TableHead>
+                  <TableHead className="text-left font-medium text-muted-foreground">Curator</TableHead>
+                  <TableHead className="text-left font-medium text-muted-foreground">Collateral</TableHead>
+                  <TableHead className="text-left font-medium text-muted-foreground">APY</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-cryptic-muted/20">
+                {filteredVaults.map((vault) => (
+                  <TableRow 
+                    key={vault.id} 
+                    className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
+                    onClick={() => handleRowClick(vault.id)}
+                  >
+                    <TableCell className="whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+                          <span className="text-xl">{vault.icon}</span>
+                        </div>
+                        <div className="ml-4">
+                          <div className="font-medium text-foreground text-lg">{vault.name}</div>
+                          <div className="text-muted-foreground">{vault.value}</div>
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="font-medium text-foreground text-lg">{vault.name}</div>
-                        <div className="text-muted-foreground">{vault.value}</div>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-foreground">
+                      {vault.deposits}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+                          <span className="text-base">{vault.curatorIcon}</span>
+                        </div>
+                        <div className="ml-3 text-foreground">{vault.curator}</div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-foreground">
-                    {vault.deposits}
-                  </td>
-                  <td className="px-6 py-5 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
-                        <span className="text-base">{vault.curatorIcon}</span>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <div className="flex flex-wrap gap-1">
+                        {vault.collateral.map((token, idx) => (
+                          <span 
+                            key={idx} 
+                            className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cryptic-purple/10 text-cryptic-highlight"
+                          >
+                            {token}
+                          </span>
+                        ))}
                       </div>
-                      <div className="ml-3 text-foreground">{vault.curator}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-1">
-                      {vault.collateral.map((token, idx) => (
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <div className="flex items-center">
                         <span 
-                          key={idx} 
-                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cryptic-purple/10 text-cryptic-highlight"
+                          className={cn(
+                            "font-medium text-lg",
+                            vault.apyTrend === 'up' ? "text-emerald-400" : 
+                            vault.apyTrend === 'down' ? "text-rose-400" : 
+                            "text-amber-400"
+                          )}
                         >
-                          {token}
+                          {vault.apy}
                         </span>
-                      ))}
-                      {vault.collateral.length > 3 && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cryptic-purple/10 text-cryptic-highlight">
-                          +{vault.collateral.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <span 
-                        className={cn(
-                          "font-medium text-lg",
-                          vault.apyTrend === 'up' ? "text-emerald-400" : 
-                          vault.apyTrend === 'down' ? "text-rose-400" : 
-                          "text-amber-400"
-                        )}
-                      >
-                        {vault.apy}
-                      </span>
-                      <div 
-                        className={cn(
-                          "ml-2 text-xl",
-                          vault.apyTrend === 'up' ? "text-emerald-400" : 
-                          vault.apyTrend === 'down' ? "text-rose-400" : 
-                          "text-amber-400"
-                        )}
-                      >
-                        {vault.apyTrend === 'up' && '↑'}
-                        {vault.apyTrend === 'down' && '↓'}
-                        {vault.apyTrend === 'stable' && '→'}
+                        <div 
+                          className={cn(
+                            "ml-2 text-xl",
+                            vault.apyTrend === 'up' ? "text-emerald-400" : 
+                            vault.apyTrend === 'down' ? "text-rose-400" : 
+                            "text-amber-400"
+                          )}
+                        >
+                          {vault.apyTrend === 'up' && '↑'}
+                          {vault.apyTrend === 'down' && '↓'}
+                          {vault.apyTrend === 'stable' && '→'}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
         
         <div className="mt-6 flex justify-center">
           <div className="inline-flex rounded-md">
