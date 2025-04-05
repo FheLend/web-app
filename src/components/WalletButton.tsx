@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button'
 import { Lock, ExternalLink, LogOut } from 'lucide-react'
 import { useAccount, useDisconnect } from 'wagmi'
@@ -14,7 +15,7 @@ export function WalletButton() {
   const { disconnect } = useDisconnect()
   const { open } = useAppKit();
   
-  if (!isConnected) {
+  if (!isConnected || !address) {
     return (
       <Button 
         variant="outline" 
