@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
-import { Eye, EyeOff, Lock, Menu, Shield, Key } from 'lucide-react';
+import { Eye, EyeOff, Menu, Shield, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { WalletButton } from '@/components/WalletButton';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,10 +31,7 @@ export function Navbar() {
           <NavLink href="#">
             Vaults
           </NavLink>
-          <Button variant="outline" size="sm" className="ml-4 border-cryptic-accent/50 bg-transparent hover:bg-cryptic-accent/10 text-cryptic-accent text-base">
-            <Lock className="mr-2 h-4 w-4" />
-            Connect Wallet
-          </Button>
+          <WalletButton />
         </div>
 
         {/* Mobile menu button */}
@@ -63,10 +60,9 @@ export function Navbar() {
             <NavLink href="#" mobile>
               Vaults
             </NavLink>
-            <Button variant="outline" size="sm" className="mt-4 w-full border-cryptic-accent/50 bg-transparent hover:bg-cryptic-accent/10 text-cryptic-accent text-base">
-              <Lock className="mr-2 h-4 w-4" />
-              Connect Wallet
-            </Button>
+            <div className="mt-4">
+              <WalletButton />
+            </div>
           </div>
         </div>
       )}
