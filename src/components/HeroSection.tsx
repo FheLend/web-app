@@ -2,9 +2,12 @@
 import { Eye, Lock, Shield, CircuitBoard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import { WalletButton } from '@/components/WalletButton';
+import { useAccount } from 'wagmi';
 
 export function HeroSection() {
   const [encryptedValues, setEncryptedValues] = useState<string[]>([]);
+  const { isConnected } = useAccount();
   
   // Generate animated encrypted data representation
   useEffect(() => {
@@ -67,10 +70,7 @@ export function HeroSection() {
               FeLend is the first DeFi lending protocol that leverages Fully Homomorphic Encryption (FHE) to enable private computation, ensuring the confidentiality of all user data on the blockchain.
             </p>
             
-            <Button className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white">
-              <Lock className="mr-2 h-4 w-4" />
-              Connect Wallet
-            </Button>
+            {!isConnected && <WalletButton />}
           </div>
           
           <div className="hidden md:block relative">
