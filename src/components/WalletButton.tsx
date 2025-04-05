@@ -1,5 +1,3 @@
-
-import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Lock, ExternalLink, LogOut } from 'lucide-react'
 import { useAccount, useDisconnect } from 'wagmi'
@@ -9,10 +7,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { useAppKit } from "@reown/appkit/react";
 
 export function WalletButton() {
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
+  const { open } = useAppKit();
   
   if (!isConnected) {
     return (
@@ -20,11 +20,7 @@ export function WalletButton() {
         variant="outline" 
         size="sm" 
         className="border-cryptic-accent/50 bg-transparent hover:bg-cryptic-accent/10 text-cryptic-accent text-base"
-        onClick={() => {
-          // Use the web component to trigger the modal
-          const appkitButton = document.createElement('appkit-button')
-          appkitButton.click()
-        }}
+        onClick={() => open()}
       >
         <Lock className="mr-2 h-4 w-4" />
         Connect Wallet
