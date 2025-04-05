@@ -1,7 +1,7 @@
 
 import { createAppKit } from '@reown/appkit/react'
 import { WagmiProvider } from 'wagmi'
-import { mainnet, arbitrum, polygon } from '@reown/appkit/networks'
+import { mainnet, arbitrum, polygon } from 'viem/chains'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import React from 'react'
@@ -20,7 +20,7 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
-// Set networks
+// Set networks - using proper typing for AppKitNetwork
 const networks = [mainnet, arbitrum, polygon]
 
 // Create Wagmi Adapter
