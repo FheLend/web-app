@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Search, Shield, Star, Vault, Lock } from 'lucide-react';
+import { Search, Shield, Star, Vault, Lock, ArrowDown, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/table';
 
 type Filter = 'All' | 'ETH' | 'BTC' | 'USDC' | 'DAI';
+type SortField = 'deposits' | 'value' | 'apy' | null;
+type SortDirection = 'asc' | 'desc';
 
 interface Vault {
   id: string;
@@ -28,6 +30,10 @@ interface Vault {
   collateral: string[];
   apy: string;
   apyTrend: 'up' | 'down' | 'stable';
+  // Adding numeric values for sorting
+  depositsValue: number;
+  valueInUsd: number;
+  apyValue: number;
 }
 
 const vaults: Vault[] = [
@@ -41,7 +47,10 @@ const vaults: Vault[] = [
     curatorIcon: '🛡️',
     collateral: ['ETH', 'BTC', 'LINK', 'AAVE'],
     apy: '7.41%',
-    apyTrend: 'up'
+    apyTrend: 'up',
+    depositsValue: 350.06,
+    valueInUsd: 349.87,
+    apyValue: 7.41
   },
   {
     id: '2',
@@ -53,7 +62,10 @@ const vaults: Vault[] = [
     curatorIcon: '⚜️',
     collateral: ['ETH', 'SOL', 'AVAX', 'BNB', 'MATIC'],
     apy: '5.86%',
-    apyTrend: 'up'
+    apyTrend: 'up',
+    depositsValue: 214.36,
+    valueInUsd: 213.99,
+    apyValue: 5.86
   },
   {
     id: '3',
@@ -65,7 +77,10 @@ const vaults: Vault[] = [
     curatorIcon: '🔷',
     collateral: ['ETH', 'BTC', 'LTC', 'DOT', 'BNB'],
     apy: '5.59%',
-    apyTrend: 'down'
+    apyTrend: 'down',
+    depositsValue: 142.11,
+    valueInUsd: 141.92,
+    apyValue: 5.59
   },
   {
     id: '4',
@@ -77,7 +92,10 @@ const vaults: Vault[] = [
     curatorIcon: '🔷',
     collateral: ['ETH', 'BTC', 'SOL'],
     apy: '4.94%',
-    apyTrend: 'down'
+    apyTrend: 'down',
+    depositsValue: 124.78,
+    valueInUsd: 124.63,
+    apyValue: 4.94
   },
   {
     id: '5',
@@ -89,7 +107,10 @@ const vaults: Vault[] = [
     curatorIcon: '🔷',
     collateral: ['ETH', 'BNB'],
     apy: '5.05%',
-    apyTrend: 'stable'
+    apyTrend: 'stable',
+    depositsValue: 91.89,
+    valueInUsd: 91.85,
+    apyValue: 5.05
   },
   {
     id: '6',
@@ -101,15 +122,62 @@ const vaults: Vault[] = [
     curatorIcon: '🔱',
     collateral: ['ETH', 'BTC', 'SOL', 'DOT', 'LINK'],
     apy: '5.49%',
-    apyTrend: 'up'
+    apyTrend: 'up',
+    depositsValue: 84.54,
+    valueInUsd: 84.37,
+    apyValue: 5.49
   },
 ];
 
 export function VaultTable() {
   const [activeFilter, setActiveFilter] = useState<Filter>('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  
+  const handleSort = (field: SortField) => {
+    // If clicking the same field, toggle direction
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // If clicking a new field, set it and default to descending
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+  
+  const sortVaults = (vaultsToSort: Vault[]) => {
+    if (!sortField) return vaultsToSort;
+    
+    return [...vaultsToSort].sort((a, b) => {
+      let valueA: number, valueB: number;
+      
+      // Determine which field to sort by
+      switch (sortField) {
+        case 'deposits':
+          valueA = a.depositsValue;
+          valueB = b.depositsValue;
+          break;
+        case 'value':
+          valueA = a.valueInUsd;
+          valueB = b.valueInUsd;
+          break;
+        case 'apy':
+          valueA = a.apyValue;
+          valueB = b.apyValue;
+          break;
+        default:
+          return 0;
+      }
+      
+      // Sort based on direction
+      return sortDirection === 'asc' 
+        ? valueA - valueB 
+        : valueB - valueA;
+    });
+  };
   
   const filteredVaults = vaults.filter(vault => {
     const matchesSearch = searchTerm === '' || 
@@ -121,14 +189,25 @@ export function VaultTable() {
     
     return matchesSearch && matchesFilter;
   });
+  
+  const sortedVaults = sortVaults(filteredVaults);
 
   const handleRowClick = (vaultId: string) => {
     navigate(`/vault/${vaultId}`);
   };
 
+  // Helper to render sort indicator
+  const renderSortIndicator = (field: SortField) => {
+    if (sortField !== field) return null;
+    
+    return sortDirection === 'asc' 
+      ? <ArrowUp className="h-4 w-4 ml-1" /> 
+      : <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
   // Render a mobile card view for each vault
   const renderMobileVaults = () => {
-    return filteredVaults.map((vault) => (
+    return sortedVaults.map((vault) => (
       <div 
         key={vault.id}
         className="mb-4 p-4 bg-cryptic-dark/50 rounded-lg border border-cryptic-muted/20 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
@@ -246,14 +325,26 @@ export function VaultTable() {
               <TableHeader className="bg-cryptic-darker">
                 <TableRow>
                   <TableHead className="text-left font-medium text-muted-foreground">Vault</TableHead>
-                  <TableHead className="text-left font-medium text-muted-foreground">Deposits</TableHead>
+                  <TableHead 
+                    className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground flex items-center"
+                    onClick={() => handleSort('deposits')}
+                  >
+                    <span>Deposits</span>
+                    {renderSortIndicator('deposits')}
+                  </TableHead>
                   <TableHead className="text-left font-medium text-muted-foreground">Curator</TableHead>
                   <TableHead className="text-left font-medium text-muted-foreground">Collateral</TableHead>
-                  <TableHead className="text-left font-medium text-muted-foreground">APY</TableHead>
+                  <TableHead 
+                    className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground flex items-center"
+                    onClick={() => handleSort('apy')}
+                  >
+                    <span>APY</span>
+                    {renderSortIndicator('apy')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-cryptic-muted/20">
-                {filteredVaults.map((vault) => (
+                {sortedVaults.map((vault) => (
                   <TableRow 
                     key={vault.id} 
                     className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
