@@ -9,7 +9,7 @@ import React from "react";
 const queryClient = new QueryClient();
 
 // Get a temporary project ID - in production replace with your actual ID from Reown Cloud
-const projectId = "e806705b066bca1ee41f75d79cc0c607"; // Replace with your project ID from https://cloud.reown.com
+const projectId = "f2830e5577ce58788341bf77dc115ec0"; // Replace with your project ID from https://cloud.reown.com
 
 // Create metadata for the wallet app
 const metadata = {
