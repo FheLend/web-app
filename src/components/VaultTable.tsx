@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Search, Shield, Star, Vault, Lock, ArrowDown, ArrowUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Shield, Star, Vault, Lock, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -30,7 +29,6 @@ interface Vault {
   collateral: string[];
   apy: string;
   apyTrend: 'up' | 'down' | 'stable';
-  // Adding numeric values for sorting
   depositsValue: number;
   valueInUsd: number;
   apyValue: number;
@@ -138,11 +136,9 @@ export function VaultTable() {
   const isMobile = useIsMobile();
   
   const handleSort = (field: SortField) => {
-    // If clicking the same field, toggle direction
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // If clicking a new field, set it and default to descending
       setSortField(field);
       setSortDirection('desc');
     }
@@ -154,7 +150,6 @@ export function VaultTable() {
     return [...vaultsToSort].sort((a, b) => {
       let valueA: number, valueB: number;
       
-      // Determine which field to sort by
       switch (sortField) {
         case 'deposits':
           valueA = a.depositsValue;
@@ -172,7 +167,6 @@ export function VaultTable() {
           return 0;
       }
       
-      // Sort based on direction
       return sortDirection === 'asc' 
         ? valueA - valueB 
         : valueB - valueA;
@@ -196,19 +190,16 @@ export function VaultTable() {
     navigate(`/vault/${vaultId}`);
   };
 
-  // Helper to render sort indicator
   const renderSortIndicator = (field: SortField) => {
     if (sortField !== field) {
-      // Show the default sort icon when column is not being sorted
       return <ChevronDown className="h-4 w-4 ml-1 opacity-30" />;
     }
     
     return sortDirection === 'asc' 
-      ? <ArrowUp className="h-4 w-4 ml-1" /> 
-      : <ArrowDown className="h-4 w-4 ml-1" />;
+      ? <ChevronUp className="h-4 w-4 ml-1 text-white" /> 
+      : <ChevronDown className="h-4 w-4 ml-1 text-white" />;
   };
 
-  // Render a mobile card view for each vault
   const renderMobileVaults = () => {
     return sortedVaults.map((vault) => (
       <div 
