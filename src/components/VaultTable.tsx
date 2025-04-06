@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Search, Shield, Star, Vault, Lock, ArrowDown, ArrowUp } from 'lucide-react';
+import { Search, Shield, Star, Vault, Lock, ArrowDown, ArrowUp, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -198,7 +198,10 @@ export function VaultTable() {
 
   // Helper to render sort indicator
   const renderSortIndicator = (field: SortField) => {
-    if (sortField !== field) return null;
+    if (sortField !== field) {
+      // Show the default sort icon when column is not being sorted
+      return <ChevronDown className="h-4 w-4 ml-1 opacity-30" />;
+    }
     
     return sortDirection === 'asc' 
       ? <ArrowUp className="h-4 w-4 ml-1" /> 
