@@ -91,9 +91,6 @@ function NavLink({ href, children, active, mobile }: NavLinkProps) {
       )}
     >
       {children}
-      {active && !mobile && (
-        <div className="h-0.5 w-full bg-cryptic-accent absolute bottom-[-20px] left-0"></div>
-      )}
     </a>
   );
 }
