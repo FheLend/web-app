@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAppKit } from "@reown/appkit/react";
 import { formatEther } from 'viem'
+import { Image } from '@/components/ui/image'
 
 export function WalletButton() {
   const { address, isConnected, chain } = useAccount()
@@ -20,6 +21,7 @@ export function WalletButton() {
   const { open } = useAppKit();
   const { data: balanceData } = useBalance({ address })
   const { disconnect } = useDisconnect()
+  const { chainImages } = useAppKit()
   
   if (!isConnected || !address) {
     return (
@@ -48,7 +50,13 @@ export function WalletButton() {
   // Get native token symbol
   const tokenSymbol = balanceData?.symbol || 'ETH'
   
-  // Get chain logo or display symbol
+  // Get chain image URL
+  const getChainImage = (chainId?: number) => {
+    if (!chainId || !chainImages) return null;
+    return chainImages[chainId] || null;
+  }
+  
+  // Fallback to symbol if image not available
   const getChainLogo = (chainId?: number) => {
     if (!chainId) return null;
     
@@ -72,8 +80,18 @@ export function WalletButton() {
             size="sm" 
             className="border-cryptic-accent/50 bg-transparent hover:bg-cryptic-accent/10 text-cryptic-accent text-base flex items-center"
           >
-            <div className="w-4 h-4 rounded-full bg-foreground/10 mr-2 flex justify-center items-center">
-              {getChainLogo(chain?.id)}
+            <div className="w-5 h-5 rounded-full mr-2 flex justify-center items-center overflow-hidden">
+              {getChainImage(chain?.id) ? (
+                <img 
+                  src={getChainImage(chain?.id)} 
+                  alt={chain?.name || 'Chain'} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-foreground/10 flex justify-center items-center">
+                  {getChainLogo(chain?.id)}
+                </div>
+              )}
             </div>
             {formattedBalance} {tokenSymbol}
             <ChevronDown className="h-4 w-4 ml-1" />
@@ -88,8 +106,18 @@ export function WalletButton() {
               className={`cursor-pointer flex items-center hover:bg-cryptic-accent/10 ${chain?.id === availableChain.id ? 'text-cryptic-accent' : ''}`}
               onClick={() => switchChain({ chainId: availableChain.id })}
             >
-              <div className="w-4 h-4 rounded-full bg-foreground/10 mr-2 flex justify-center items-center">
-                {getChainLogo(availableChain.id)}
+              <div className="w-5 h-5 rounded-full overflow-hidden mr-2 flex justify-center items-center">
+                {getChainImage(availableChain.id) ? (
+                  <img 
+                    src={getChainImage(availableChain.id)} 
+                    alt={availableChain.name || 'Chain'} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-foreground/10 flex justify-center items-center">
+                    {getChainLogo(availableChain.id)}
+                  </div>
+                )}
               </div>
               {availableChain.name}
               {chain?.id === availableChain.id && <span className="ml-auto">✓</span>}
