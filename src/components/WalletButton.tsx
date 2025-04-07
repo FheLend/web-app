@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Lock, ExternalLink, LogOut, ChevronDown } from 'lucide-react'
-import { useAccount, useBalance, useConfig, useSwitchChain } from 'wagmi'
+import { useAccount, useBalance, useConfig, useSwitchChain, useDisconnect } from 'wagmi'
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +19,7 @@ export function WalletButton() {
   const { switchChain } = useSwitchChain()
   const { open } = useAppKit();
   const { data: balanceData } = useBalance({ address })
+  const { disconnect } = useDisconnect()
   
   if (!isConnected || !address) {
     return (
@@ -103,9 +104,7 @@ export function WalletButton() {
           </DropdownMenuItem>
           <DropdownMenuItem 
             className="cursor-pointer flex items-center text-destructive hover:bg-destructive/10"
-            onClick={() => {
-              open({ route: 'Account' }); // Use AppKit to handle disconnect
-            }}
+            onClick={() => disconnect()}
           >
             <LogOut className="mr-2 h-4 w-4" />
             Disconnect
