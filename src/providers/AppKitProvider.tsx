@@ -39,13 +39,13 @@ createAppKit({
   networks,
   defaultNetwork: mainnet,
   enableNetworkSwitch: true,
-  // Add chain images for better UI
+  // Updated chain images with the new URLs
   chainImages: {
-    1: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
-    42161: "https://assets.coingecko.com/coins/images/13029/small/Arbitrum_Logo.png",
-    137: "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png",
-    10: "https://assets.coingecko.com/coins/images/25244/small/Optimism.png",
-    8453: "https://assets.coingecko.com/coins/images/30347/small/BASE.png"
+    1: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
+    42161: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg?1721358242",
+    137: "https://assets.geckoterminal.com/dau5esiwuf9jj9r0jchj9qgdhy8g",
+    10: "https://assets.geckoterminal.com/o2v9hloio02gxzmtsz3lzjoi4bqs",
+    8453: "https://assets.geckoterminal.com/l8yo12s6ujq0884jp13udw6zp1an"
   },
   features: {
     analytics: true,
