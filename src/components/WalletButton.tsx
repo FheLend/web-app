@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Lock, ExternalLink, LogOut, ChevronDown } from 'lucide-react'
-import { useAccount, useDisconnect, useBalance } from 'wagmi'
+import { useAccount, useDisconnect, useBalance, useNetwork, useSwitchNetwork } from 'wagmi'
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -12,13 +12,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAppKit } from "@reown/appkit/react";
 import { formatEther } from 'viem'
-import { mainnet, arbitrum, polygon, optimism, base } from "@reown/appkit/networks";
 
 export function WalletButton() {
-  const { address, isConnected, chain, chains } = useAccount()
+  const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
-  const { open, switchNetwork } = useAppKit();
+  const { open } = useAppKit();
   const { data: balanceData } = useBalance({ address })
+  const { chain } = useNetwork()
+  const { switchNetwork, chains } = useSwitchNetwork()
   
   if (!isConnected || !address) {
     return (
@@ -46,15 +47,6 @@ export function WalletButton() {
   
   // Get native token symbol
   const tokenSymbol = balanceData?.symbol || 'ETH'
-
-  // Available networks
-  const availableNetworks = [
-    { id: 1, name: 'Ethereum', chainId: mainnet.id },
-    { id: 42161, name: 'Arbitrum', chainId: arbitrum.id },
-    { id: 137, name: 'Polygon', chainId: polygon.id },
-    { id: 10, name: 'Optimism', chainId: optimism.id },
-    { id: 8453, name: 'Base', chainId: base.id }
-  ]
   
   return (
     <div className="flex items-center space-x-2">
@@ -76,14 +68,14 @@ export function WalletButton() {
         <DropdownMenuContent align="end" className="w-56 bg-cryptic-darker border-cryptic-accent/20">
           <div className="px-2 py-1.5 text-sm font-semibold">Switch Network</div>
           <DropdownMenuSeparator className="bg-cryptic-accent/20" />
-          {availableNetworks.map((network) => (
+          {chains.map((availableChain) => (
             <DropdownMenuItem 
-              key={network.id}
-              className={`cursor-pointer flex items-center hover:bg-cryptic-accent/10 ${chain?.id === network.id ? 'text-cryptic-accent' : ''}`}
-              onClick={() => switchNetwork?.(network.chainId)}
+              key={availableChain.id}
+              className={`cursor-pointer flex items-center hover:bg-cryptic-accent/10 ${chain?.id === availableChain.id ? 'text-cryptic-accent' : ''}`}
+              onClick={() => switchNetwork?.(availableChain.id)}
             >
-              {network.name}
-              {chain?.id === network.id && <span className="ml-auto">✓</span>}
+              {availableChain.name}
+              {chain?.id === availableChain.id && <span className="ml-auto">✓</span>}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
