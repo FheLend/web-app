@@ -1,8 +1,8 @@
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Lock, ExternalLink, LogOut, ChevronDown } from 'lucide-react'
-import { useAccount, useDisconnect, useBalance, useNetwork, useSwitchNetwork } from 'wagmi'
+import { useAccount, useBalance, useConfig, useSwitchChain } from 'wagmi'
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -14,12 +14,11 @@ import { useAppKit } from "@reown/appkit/react";
 import { formatEther } from 'viem'
 
 export function WalletButton() {
-  const { address, isConnected } = useAccount()
-  const { disconnect } = useDisconnect()
+  const { address, isConnected, chain } = useAccount()
+  const { chains } = useConfig()
+  const { switchChain } = useSwitchChain()
   const { open } = useAppKit();
   const { data: balanceData } = useBalance({ address })
-  const { chain } = useNetwork()
-  const { switchNetwork, chains } = useSwitchNetwork()
   
   if (!isConnected || !address) {
     return (
@@ -72,7 +71,7 @@ export function WalletButton() {
             <DropdownMenuItem 
               key={availableChain.id}
               className={`cursor-pointer flex items-center hover:bg-cryptic-accent/10 ${chain?.id === availableChain.id ? 'text-cryptic-accent' : ''}`}
-              onClick={() => switchNetwork?.(availableChain.id)}
+              onClick={() => switchChain?.({ chainId: availableChain.id })}
             >
               {availableChain.name}
               {chain?.id === availableChain.id && <span className="ml-auto">✓</span>}
@@ -104,7 +103,9 @@ export function WalletButton() {
           </DropdownMenuItem>
           <DropdownMenuItem 
             className="cursor-pointer flex items-center text-destructive hover:bg-destructive/10"
-            onClick={() => disconnect()}
+            onClick={() => {
+              open({ route: 'Account' }); // Use AppKit to handle disconnect
+            }}
           >
             <LogOut className="mr-2 h-4 w-4" />
             Disconnect
