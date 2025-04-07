@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Eye, EyeOff, Menu, Shield, Key } from 'lucide-react';
+import { Menu, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';

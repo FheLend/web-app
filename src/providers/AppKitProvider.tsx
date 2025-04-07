@@ -1,6 +1,7 @@
+
 import { createAppKit } from "@reown/appkit/react";
-import { WagmiProvider } from "wagmi";
-import { mainnet, arbitrum, polygon } from "@reown/appkit/networks";
+import { WagmiProvider, createConfig } from "wagmi";
+import { mainnet, arbitrum, polygon, optimism, base } from "@reown/appkit/networks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import React from "react";
@@ -20,7 +21,7 @@ const metadata = {
 };
 
 // Set networks - using proper typing for AppKitNetwork
-const networks = [mainnet, arbitrum, polygon];
+const networks = [mainnet, arbitrum, polygon, optimism, base];
 
 // Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
@@ -32,10 +33,11 @@ const wagmiAdapter = new WagmiAdapter({
 // Create AppKit instance
 createAppKit({
   adapters: [wagmiAdapter],
-  // @ts-expect-error: 'networks' is already defined in the adapter and does not need to be passed explicitly
-  networks,
   projectId,
   metadata,
+  networks,
+  defaultNetwork: mainnet,
+  enableNetworkSwitch: true,
   features: {
     analytics: true,
   },
