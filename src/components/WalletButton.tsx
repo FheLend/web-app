@@ -48,6 +48,20 @@ export function WalletButton() {
   // Get native token symbol
   const tokenSymbol = balanceData?.symbol || 'ETH'
   
+  // Get chain logo or display symbol
+  const getChainLogo = (chainId?: number) => {
+    if (!chainId) return null;
+    
+    // Display chain symbol based on chainId
+    if (chainId === 1) return 'Ξ';
+    if (chainId === 137) return 'M';
+    if (chainId === 42161) return 'A';
+    if (chainId === 10) return 'O';
+    if (chainId === 8453) return 'B';
+    
+    return null;
+  }
+  
   return (
     <div className="flex items-center space-x-2">
       {/* Native Token Balance */}
@@ -59,7 +73,7 @@ export function WalletButton() {
             className="border-cryptic-accent/50 bg-transparent hover:bg-cryptic-accent/10 text-cryptic-accent text-base flex items-center"
           >
             <div className="w-4 h-4 rounded-full bg-foreground/10 mr-2 flex justify-center items-center">
-              {chain?.id === 1 ? 'Ξ' : ''}
+              {getChainLogo(chain?.id)}
             </div>
             {formattedBalance} {tokenSymbol}
             <ChevronDown className="h-4 w-4 ml-1" />
@@ -72,8 +86,11 @@ export function WalletButton() {
             <DropdownMenuItem 
               key={availableChain.id}
               className={`cursor-pointer flex items-center hover:bg-cryptic-accent/10 ${chain?.id === availableChain.id ? 'text-cryptic-accent' : ''}`}
-              onClick={() => switchChain?.({ chainId: availableChain.id })}
+              onClick={() => switchChain({ chainId: availableChain.id })}
             >
+              <div className="w-4 h-4 rounded-full bg-foreground/10 mr-2 flex justify-center items-center">
+                {getChainLogo(availableChain.id)}
+              </div>
               {availableChain.name}
               {chain?.id === availableChain.id && <span className="ml-auto">✓</span>}
             </DropdownMenuItem>

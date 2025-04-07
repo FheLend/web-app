@@ -35,10 +35,18 @@ createAppKit({
   adapters: [wagmiAdapter],
   projectId,
   metadata,
-// @ts-expect-error: 'networks' is already defined in the adapter and does not need to be passed explicitly
+  // @ts-expect-error: 'networks' is already defined in the adapter and does not need to be passed explicitly
   networks,
   defaultNetwork: mainnet,
   enableNetworkSwitch: true,
+  // Add chain images for better UI
+  chainImages: {
+    1: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+    42161: "https://assets.coingecko.com/coins/images/13029/small/Arbitrum_Logo.png",
+    137: "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png",
+    10: "https://assets.coingecko.com/coins/images/25244/small/Optimism.png",
+    8453: "https://assets.coingecko.com/coins/images/30347/small/BASE.png"
+  },
   features: {
     analytics: true,
   },
