@@ -31,11 +31,11 @@ const wagmiAdapter = new WagmiAdapter({
 });
 
 // Create AppKit instance
-// @ts-expect-error: 'networks' is already defined in the adapter and does not need to be passed explicitly
 createAppKit({
   adapters: [wagmiAdapter],
   projectId,
   metadata,
+// @ts-expect-error: 'networks' is already defined in the adapter and does not need to be passed explicitly
   networks,
   defaultNetwork: mainnet,
   enableNetworkSwitch: true,
