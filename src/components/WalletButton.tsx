@@ -18,10 +18,12 @@ export function WalletButton() {
   const { address, isConnected, chain } = useAccount()
   const { chains } = useConfig()
   const { switchChain } = useSwitchChain()
-  const { open } = useAppKit();
+  const appKit = useAppKit();
   const { data: balanceData } = useBalance({ address })
   const { disconnect } = useDisconnect()
-  const { chainImages } = useAppKit()
+  
+  // Access chainImages from the global window object where AppKit stores it
+  const chainImages = (window as any).__APPKIT__?.chainImages || {};
   
   if (!isConnected || !address) {
     return (
@@ -29,7 +31,7 @@ export function WalletButton() {
         variant="outline" 
         size="sm" 
         className="border-cryptic-accent/50 bg-transparent hover:bg-cryptic-accent/10 text-cryptic-accent text-base"
-        onClick={() => open()}
+        onClick={() => appKit.open()}
       >
         <Lock className="mr-2 h-4 w-4" />
         Connect Wallet
@@ -52,7 +54,7 @@ export function WalletButton() {
   
   // Get chain image URL
   const getChainImage = (chainId?: number) => {
-    if (!chainId || !chainImages) return null;
+    if (!chainId) return null;
     return chainImages[chainId] || null;
   }
   
