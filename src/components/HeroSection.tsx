@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useAppKit } from "@reown/appkit/react";
+import { useTheme } from '@/providers/ThemeProvider';
+import { cn } from '@/lib/utils';
 
 export function HeroSection() {
   const [encryptedValues, setEncryptedValues] = useState<string[]>([]);
   const { isConnected } = useAccount();
   const { open } = useAppKit();
+  const { theme } = useTheme();
   
   // Generate animated encrypted data representation
   useEffect(() => {
@@ -38,7 +41,10 @@ export function HeroSection() {
   }, []);
 
   return (
-    <div className="relative overflow-hidden py-16 md:py-24 bg-cryptic-dark">
+    <div className={cn(
+      "relative overflow-hidden py-16 md:py-24",
+      theme === "dark" ? "bg-cryptic-dark" : "bg-gradient-to-b from-white to-slate-50"
+    )}>
       {/* Animated background elements */}
       <div 
         className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-glow opacity-20 animate-float"
@@ -52,14 +58,17 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
         <div className="text-center sm:text-left mb-10">
           <p className="text-cryptic-accent font-medium tracking-wide mb-3">
-            Total Value Locked: <span className="text-cryptic-highlight animate-glow">₿ 72,538.45</span>
+            Total Value Locked: <span className={cn(
+              "text-cryptic-highlight",
+              theme === "dark" ? "animate-glow" : ""
+            )}>₿ 72,538.45</span>
           </p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-spaceGrotesk text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
-              <span className="text-glow">Fully</span>
+              <span className={theme === "dark" ? "text-glow" : "text-foreground"}>Fully</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">
                 Encrypted Lending

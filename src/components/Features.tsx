@@ -1,9 +1,16 @@
 
 import { Eye, Lock, Shield, Vault, Code, GanttChart, User } from 'lucide-react';
+import { useTheme } from '@/providers/ThemeProvider';
+import { cn } from '@/lib/utils';
 
 export function Features() {
+  const { theme } = useTheme();
+  
   return (
-    <div className="py-16 px-4 sm:px-6 bg-cryptic-darker">
+    <div className={cn(
+      "py-16 px-4 sm:px-6",
+      theme === "dark" ? "bg-cryptic-darker" : "bg-slate-50"
+    )}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-spaceGrotesk font-bold mb-6">
@@ -63,8 +70,15 @@ interface FeatureCardProps {
 }
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
+  const { theme } = useTheme();
+  
   return (
-    <div className="p-6 rounded-lg border border-cryptic-purple/20 bg-glass cryptic-shadow hover:border-cryptic-accent/30 transition duration-300">
+    <div className={cn(
+      "p-6 rounded-lg border cryptic-shadow transition duration-300",
+      theme === "dark" 
+        ? "border-cryptic-purple/20 bg-glass hover:border-cryptic-accent/30" 
+        : "border-slate-200 bg-white hover:border-cryptic-accent/30"
+    )}>
       <div className="h-12 w-12 rounded-full bg-cryptic-purple/10 flex items-center justify-center mb-4">
         {icon}
       </div>

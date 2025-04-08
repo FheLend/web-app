@@ -1,9 +1,18 @@
 
 import { Shield, Key } from 'lucide-react';
+import { useTheme } from '@/providers/ThemeProvider';
+import { cn } from '@/lib/utils';
 
 export function Footer() {
+  const { theme } = useTheme();
+  
   return (
-    <footer className="bg-cryptic-darker py-12 px-4 sm:px-6 border-t border-cryptic-purple/20">
+    <footer className={cn(
+      "py-12 px-4 sm:px-6 border-t",
+      theme === "dark" 
+        ? "bg-cryptic-darker border-cryptic-purple/20" 
+        : "bg-slate-50 border-slate-200"
+    )}>
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
@@ -49,7 +58,10 @@ export function Footer() {
           </div>
         </div>
         
-        <div className="mt-12 pt-8 border-t border-cryptic-purple/10">
+        <div className={cn(
+          "mt-12 pt-8 border-t", 
+          theme === "dark" ? "border-cryptic-purple/10" : "border-slate-200"
+        )}>
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-muted-foreground">
               © 2025 Felend. All rights reserved. Secured with Fully Homomorphic Encryption.

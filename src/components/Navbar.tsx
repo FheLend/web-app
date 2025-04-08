@@ -6,17 +6,27 @@ import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { WalletButton } from '@/components/WalletButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from '@/providers/ThemeProvider';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme } = useTheme();
   
   return (
-    <nav className="py-4 px-4 sm:px-6 border-b border-cryptic-accent/20 bg-cryptic-darker/80 backdrop-blur-md sticky top-0 z-50 dark:bg-cryptic-darker/80 dark:border-cryptic-accent/20">
+    <nav className={cn(
+      "py-4 px-4 sm:px-6 border-b sticky top-0 z-50 backdrop-blur-md",
+      theme === "dark" 
+        ? "bg-cryptic-darker/80 border-cryptic-accent/20" 
+        : "bg-white/90 border-slate-200"
+    )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
             <Key className="h-7 w-7 text-cryptic-accent mr-2" />
-            <span className="font-spaceGrotesk text-xl sm:text-2xl font-semibold text-glow">
+            <span className={cn(
+              "font-spaceGrotesk text-xl sm:text-2xl font-semibold",
+              theme === "dark" ? "text-glow" : ""
+            )}>
               Fe<span className="text-cryptic-accent">lend</span>
             </span>
           </Link>
@@ -53,7 +63,10 @@ export function Navbar() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden pt-4 pb-3 border-t border-cryptic-accent/20 mt-4">
+        <div className={cn(
+          "md:hidden pt-4 pb-3 mt-4",
+          theme === "dark" ? "border-t border-cryptic-accent/20" : "border-t border-slate-200"
+        )}>
           <div className="space-y-3 px-2">
             <NavLink href="#" active mobile>
               Lend
