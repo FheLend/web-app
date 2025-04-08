@@ -17,7 +17,7 @@ export function Navbar() {
       "py-4 px-4 sm:px-6 border-b sticky top-0 z-50 backdrop-blur-md",
       theme === "dark" 
         ? "bg-cryptic-darker/80 border-cryptic-accent/20" 
-        : "bg-white/90 border-slate-200"
+        : "bg-slate-50/90 border-slate-200"
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">

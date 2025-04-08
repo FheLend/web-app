@@ -74,9 +74,16 @@ export default {
 					dark: '#0A192F',
 					darker: '#071527',
 					purple: '#3B6EBF',
-					accent: '#1E9AC4 ',
-					highlight: '#5AB3DB ',
-					muted: '#4D5B7C'
+					accent: '#1E9AC4',
+					highlight: '#5AB3DB',
+					muted: '#4D5B7C',
+					// Light mode specific colors
+					light: {
+						background: '#F0F4F8',
+						card: '#EBF1F7',
+						border: '#D7E3ED',
+						muted: '#A3B8CC'
+					}
 				}
 			},
 			borderRadius: {
@@ -114,7 +121,9 @@ export default {
 			},
 			backgroundImage: {
 				'cryptic-gradient': 'linear-gradient(to bottom, #0A192F, #071527)',
-				'blue-glow': 'radial-gradient(circle, rgba(51, 195, 240, 0.2) 0%, rgba(51, 195, 240, 0.1) 30%, transparent 70%)'
+				'blue-glow': 'radial-gradient(circle, rgba(51, 195, 240, 0.2) 0%, rgba(51, 195, 240, 0.1) 30%, transparent 70%)',
+				'purple-glow': 'radial-gradient(circle, rgba(59, 110, 191, 0.2) 0%, rgba(59, 110, 191, 0.1) 30%, transparent 70%)',
+				'light-gradient': 'linear-gradient(to bottom, #F0F4F8, #E7EEF6)'
 			}
 		}
 	},
