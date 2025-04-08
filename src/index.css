@@ -7,6 +7,40 @@
 
 @layer base {
   :root {
+    /* Light mode */
+    --background: 210 40% 98%;
+    --foreground: 216 33% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 216 33% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 216 33% 11%;
+
+    --primary: 196 82% 58%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 216 33% 11%;
+
+    --muted: 214 32% 91%;
+    --muted-foreground: 216 33% 40%;
+
+    --accent: 196 82% 58%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 350 89% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 196 82% 58%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark mode - keep existing values */
     --background: 216 33% 11%;
     --foreground: 210 40% 98%;
 
@@ -34,8 +68,6 @@
     --border: 214 32% 20%;
     --input: 214 32% 20%;
     --ring: 196 82% 58%;
-
-    --radius: 0.75rem;
   }
 
   * {
@@ -43,12 +75,23 @@
   }
 
   body {
-    @apply bg-cryptic-dark text-foreground font-spaceGrotesk;
+    @apply bg-background text-foreground font-spaceGrotesk;
+    min-height: 100vh;
+    font-size: 1rem;
+  }
+  
+  /* Apply different background images based on theme */
+  body {
+    @apply dark:bg-cryptic-dark;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(51, 195, 240, 0.05) 0%, transparent 30%),
+      radial-gradient(circle at 80% 70%, rgba(51, 195, 240, 0.05) 0%, transparent 20%);
+  }
+  
+  body.dark {
     background-image: 
       radial-gradient(circle at 20% 30%, rgba(51, 195, 240, 0.15) 0%, transparent 30%),
       radial-gradient(circle at 80% 70%, rgba(51, 195, 240, 0.1) 0%, transparent 20%);
-    min-height: 100vh;
-    font-size: 1rem;
   }
   
   h1, h2, h3, h4, h5, h6 {

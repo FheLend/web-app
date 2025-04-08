@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { WalletButton } from '@/components/WalletButton';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
-    <nav className="py-4 px-4 sm:px-6 border-b border-cryptic-accent/20 bg-cryptic-darker/80 backdrop-blur-md sticky top-0 z-50">
+    <nav className="py-4 px-4 sm:px-6 border-b border-cryptic-accent/20 bg-cryptic-darker/80 backdrop-blur-md sticky top-0 z-50 dark:bg-cryptic-darker/80 dark:border-cryptic-accent/20">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
@@ -32,11 +33,13 @@ export function Navbar() {
           <NavLink href="#">
             Vaults
           </NavLink>
+          <ThemeToggle />
           <WalletButton />
         </div>
 
         {/* Mobile menu button */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+          <ThemeToggle />
           <Button 
             variant="ghost" 
             size="icon" 
