@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTheme } from '@/providers/ThemeProvider';
 import {
   Table,
   TableBody,
@@ -134,6 +135,7 @@ export function VaultTable() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
   
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -196,19 +198,27 @@ export function VaultTable() {
     }
     
     return sortDirection === 'asc' 
-      ? <ChevronUp className="h-4 w-4 ml-1 text-white" /> 
-      : <ChevronDown className="h-4 w-4 ml-1 text-white" />;
+      ? <ChevronUp className="h-4 w-4 ml-1" /> 
+      : <ChevronDown className="h-4 w-4 ml-1" />;
   };
 
   const renderMobileVaults = () => {
     return sortedVaults.map((vault) => (
       <div 
         key={vault.id}
-        className="mb-4 p-4 bg-cryptic-dark/50 rounded-lg border border-cryptic-muted/20 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
+        className={cn(
+          "mb-4 p-4 rounded-lg border hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer",
+          theme === "dark" 
+            ? "bg-cryptic-dark/50 border-cryptic-muted/20" 
+            : "bg-white border-slate-200 hover:bg-slate-50"
+        )}
         onClick={() => handleRowClick(vault.id)}
       >
         <div className="flex items-center mb-3">
-          <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+          <div className={cn(
+            "flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full",
+            theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+          )}>
             <span className="text-xl">{vault.icon}</span>
           </div>
           <div className="ml-4">
@@ -253,13 +263,23 @@ export function VaultTable() {
               {vault.collateral.slice(0, 2).map((token, idx) => (
                 <span 
                   key={idx} 
-                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight"
+                  className={cn(
+                    "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+                    theme === "dark" 
+                      ? "bg-cryptic-purple/10 text-cryptic-highlight" 
+                      : "bg-blue-50 text-cryptic-accent"
+                  )}
                 >
                   {token}
                 </span>
               ))}
               {vault.collateral.length > 2 && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight">
+                <span className={cn(
+                  "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+                  theme === "dark" 
+                    ? "bg-cryptic-purple/10 text-cryptic-highlight" 
+                    : "bg-blue-50 text-cryptic-accent"
+                )}>
                   +{vault.collateral.length - 2}
                 </span>
               )}
@@ -302,7 +322,12 @@ export function VaultTable() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               placeholder="Search vaults"
-              className="pl-10 w-full sm:w-64 bg-cryptic-darker border-cryptic-muted text-base"
+              className={cn(
+                "pl-10 w-full sm:w-64 text-base",
+                theme === "dark" 
+                  ? "bg-cryptic-darker border-cryptic-muted" 
+                  : "bg-white border-slate-200"
+              )}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -314,9 +339,12 @@ export function VaultTable() {
             {renderMobileVaults()}
           </div>
         ) : (
-          <div className="overflow-x-auto cryptic-shadow rounded-lg border border-cryptic-accent/20">
+          <div className={cn(
+            "overflow-x-auto cryptic-shadow rounded-lg border",
+            theme === "dark" ? "border-cryptic-accent/20" : "border-slate-200"
+          )}>
             <Table className="w-full text-base">
-              <TableHeader className="bg-cryptic-darker">
+              <TableHeader className={theme === "dark" ? "bg-cryptic-darker" : "bg-slate-50"}>
                 <TableRow>
                   <TableHead className="text-left font-medium text-muted-foreground">Vault</TableHead>
                   <TableHead 
@@ -337,16 +365,27 @@ export function VaultTable() {
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className="divide-y divide-cryptic-muted/20">
+              <TableBody className={cn(
+                "divide-y",
+                theme === "dark" ? "divide-cryptic-muted/20" : "divide-slate-100"
+              )}>
                 {sortedVaults.map((vault) => (
                   <TableRow 
                     key={vault.id} 
-                    className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer"
+                    className={cn(
+                      "transition duration-150 cursor-pointer",
+                      theme === "dark" 
+                        ? "bg-cryptic-dark/50 hover:bg-cryptic-purple/10" 
+                        : "bg-white hover:bg-slate-50"
+                    )}
                     onClick={() => handleRowClick(vault.id)}
                   >
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+                        <div className={cn(
+                          "flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full",
+                          theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                        )}>
                           <span className="text-xl">{vault.icon}</span>
                         </div>
                         <div className="ml-4">
@@ -360,7 +399,10 @@ export function VaultTable() {
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-cryptic-purple/10 rounded-full">
+                        <div className={cn(
+                          "flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full",
+                          theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                        )}>
                           <span className="text-base">{vault.curatorIcon}</span>
                         </div>
                         <div className="ml-3 text-foreground">{vault.curator}</div>
@@ -370,8 +412,13 @@ export function VaultTable() {
                       <div className="flex flex-wrap gap-1">
                         {vault.collateral.map((token, idx) => (
                           <span 
-                            key={idx} 
-                            className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cryptic-purple/10 text-cryptic-highlight"
+                            key={idx}
+                            className={cn(
+                              "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium",
+                              theme === "dark" 
+                                ? "bg-cryptic-purple/10 text-cryptic-highlight" 
+                                : "bg-blue-50 text-cryptic-accent"
+                            )}
                           >
                             {token}
                           </span>

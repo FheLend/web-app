@@ -43,7 +43,9 @@ export function HeroSection() {
   return (
     <div className={cn(
       "relative overflow-hidden py-16 md:py-24",
-      theme === "dark" ? "bg-cryptic-dark" : "bg-gradient-to-b from-white to-slate-50"
+      theme === "dark" 
+        ? "bg-cryptic-dark" 
+        : "bg-gradient-to-b from-slate-50 to-blue-50"
     )}>
       {/* Animated background elements */}
       <div 

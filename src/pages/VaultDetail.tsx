@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -9,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState } from "react";
+import { useTheme } from "@/providers/ThemeProvider";
+import { cn } from "@/lib/utils";
 
-// Mock data for the detailed vault
 const vaultDetails = {
   "1": {
     id: "1",
@@ -109,6 +109,7 @@ export default function VaultDetail() {
   const vault = vaultDetails[id as keyof typeof vaultDetails];
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const { theme } = useTheme();
   
   if (!vault) {
     return (
@@ -137,7 +138,10 @@ export default function VaultDetail() {
           {/* Vault Header */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-2">
-              <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-cryptic-purple/10 rounded-full text-2xl">
+              <div className={cn(
+                "flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full text-2xl",
+                theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+              )}>
                 {vault.icon}
               </div>
               <div>
@@ -166,21 +170,36 @@ export default function VaultDetail() {
             <div className="lg:col-span-2 space-y-8">
               {/* Key Metrics */}
               <div className="grid grid-cols-3 gap-4">
-                <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+                <Card className={cn(
+                  "cryptic-shadow",
+                  theme === "dark" 
+                    ? "bg-cryptic-darker border-cryptic-purple/20" 
+                    : "bg-white border-slate-200"
+                )}>
                   <CardContent className="pt-6">
                     <div className="text-sm text-muted-foreground">Total Value Locked</div>
                     <div className="mt-1 text-2xl font-bold text-foreground">{vault.tvl}</div>
                     <div className="text-sm text-muted-foreground">{vault.tvlValue}</div>
                   </CardContent>
                 </Card>
-                <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+                <Card className={cn(
+                  "cryptic-shadow",
+                  theme === "dark" 
+                    ? "bg-cryptic-darker border-cryptic-purple/20" 
+                    : "bg-white border-slate-200"
+                )}>
                   <CardContent className="pt-6">
                     <div className="text-sm text-muted-foreground">Current APY</div>
                     <div className="mt-1 text-2xl font-bold text-emerald-400">{vault.apy}</div>
                     <div className="text-sm text-emerald-400/70">↑ 0.2% from last week</div>
                   </CardContent>
                 </Card>
-                <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+                <Card className={cn(
+                  "cryptic-shadow",
+                  theme === "dark" 
+                    ? "bg-cryptic-darker border-cryptic-purple/20" 
+                    : "bg-white border-slate-200"
+                )}>
                   <CardContent className="pt-6">
                     <div className="text-sm text-muted-foreground">Depositors</div>
                     <div className="mt-1 text-2xl font-bold text-foreground">{vault.totalUsers}</div>
@@ -190,30 +209,50 @@ export default function VaultDetail() {
               </div>
 
               {/* Performance Metrics */}
-              <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+              <Card className={cn(
+                "cryptic-shadow",
+                theme === "dark" 
+                  ? "bg-cryptic-darker border-cryptic-purple/20" 
+                  : "bg-white border-slate-200"
+              )}>
                 <CardHeader>
                   <CardTitle>Performance</CardTitle>
                   <CardDescription>Historical yield performance</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">24H</div>
                       <div className="text-foreground font-semibold">{vault.performance.day}</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">7D</div>
                       <div className="text-foreground font-semibold">{vault.performance.week}</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">30D</div>
                       <div className="text-foreground font-semibold">{vault.performance.month}</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">YTD</div>
                       <div className="text-foreground font-semibold">{vault.performance.ytd}</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">All Time</div>
                       <div className="text-foreground font-semibold">{vault.performance.allTime}</div>
                     </div>
@@ -222,27 +261,44 @@ export default function VaultDetail() {
               </Card>
 
               {/* Risk Assessment */}
-              <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+              <Card className={cn(
+                "cryptic-shadow",
+                theme === "dark" 
+                  ? "bg-cryptic-darker border-cryptic-purple/20" 
+                  : "bg-white border-slate-200"
+              )}>
                 <CardHeader>
                   <CardTitle>Risk Assessment</CardTitle>
                   <CardDescription>Key risk parameters for this vault</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">Risk Score</div>
                       <div className="text-foreground font-semibold">{vault.risk.score}</div>
                       <div className="text-xs text-muted-foreground">Low risk</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">Collateralization</div>
                       <div className="text-foreground font-semibold">{vault.risk.collateralization}</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">Liquidation Threshold</div>
                       <div className="text-foreground font-semibold">{vault.risk.liquidationThreshold}</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-cryptic-purple/10">
+                    <div className={cn(
+                      "p-3 rounded-lg",
+                      theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                    )}>
                       <div className="text-xs text-muted-foreground mb-1">Reserve Factor</div>
                       <div className="text-foreground font-semibold">{vault.risk.reserveFactor}</div>
                     </div>
@@ -251,7 +307,12 @@ export default function VaultDetail() {
               </Card>
 
               {/* Collateral Assets */}
-              <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+              <Card className={cn(
+                "cryptic-shadow",
+                theme === "dark" 
+                  ? "bg-cryptic-darker border-cryptic-purple/20" 
+                  : "bg-white border-slate-200"
+              )}>
                 <CardHeader>
                   <CardTitle>Collateral Assets</CardTitle>
                   <CardDescription>Assets used to secure this vault</CardDescription>
@@ -259,7 +320,7 @@ export default function VaultDetail() {
                 <CardContent>
                   <div className="overflow-x-auto">
                     <Table>
-                      <TableHeader>
+                      <TableHeader className={theme === "dark" ? "" : "bg-slate-50"}>
                         <TableRow className="hover:bg-transparent">
                           <TableHead>Asset</TableHead>
                           <TableHead>Allocation</TableHead>
@@ -270,10 +331,18 @@ export default function VaultDetail() {
                       </TableHeader>
                       <TableBody>
                         {vault.assets.map((asset, index) => (
-                          <TableRow key={index} className="bg-cryptic-dark/50 hover:bg-cryptic-purple/10">
+                          <TableRow key={index} className={cn(
+                            "hover:bg-cryptic-purple/10",
+                            theme === "dark" 
+                              ? "bg-cryptic-dark/50" 
+                              : "bg-white hover:bg-slate-50"
+                          )}>
                             <TableCell>
                               <div className="flex items-center">
-                                <div className="h-8 w-8 flex items-center justify-center bg-cryptic-purple/10 rounded-full mr-2">
+                                <div className={cn(
+                                  "h-8 w-8 flex items-center justify-center rounded-full mr-2",
+                                  theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                                )}>
                                   <span className="text-lg">{asset.icon}</span>
                                 </div>
                                 <div>
@@ -285,7 +354,12 @@ export default function VaultDetail() {
                             <TableCell>{asset.allocation}</TableCell>
                             <TableCell>{asset.value}</TableCell>
                             <TableCell>
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cryptic-purple/10 text-cryptic-highlight">
+                              <span className={cn(
+                                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                                theme === "dark" 
+                                  ? "bg-cryptic-purple/10 text-cryptic-highlight" 
+                                  : "bg-blue-50 text-cryptic-accent"
+                              )}>
                                 {asset.status}
                               </span>
                             </TableCell>
@@ -301,7 +375,12 @@ export default function VaultDetail() {
               {/* Recent Activity & Depositors */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recent Transactions */}
-                <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+                <Card className={cn(
+                  "cryptic-shadow",
+                  theme === "dark" 
+                    ? "bg-cryptic-darker border-cryptic-purple/20" 
+                    : "bg-white border-slate-200"
+                )}>
                   <CardHeader>
                     <CardTitle>Recent Activity</CardTitle>
                     <CardDescription>Latest transactions in this vault</CardDescription>
@@ -309,7 +388,10 @@ export default function VaultDetail() {
                   <CardContent>
                     <div className="space-y-4">
                       {vault.transactions.map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg bg-cryptic-purple/5 hover:bg-cryptic-purple/10 transition-colors">
+                        <div key={tx.id} className={cn(
+                          "flex items-center justify-between p-3 rounded-lg hover:bg-cryptic-purple/10 transition-colors",
+                          theme === "dark" ? "bg-cryptic-purple/5" : "bg-slate-50"
+                        )}>
                           <div className="flex items-center">
                             <div className={`h-8 w-8 rounded-full flex items-center justify-center ${tx.type === 'deposit' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
                               {tx.type === 'deposit' ? <ArrowDownRight size={16} /> : <ArrowUpRight size={16} />}
@@ -333,7 +415,12 @@ export default function VaultDetail() {
                 </Card>
 
                 {/* Top Depositors */}
-                <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+                <Card className={cn(
+                  "cryptic-shadow",
+                  theme === "dark" 
+                    ? "bg-cryptic-darker border-cryptic-purple/20" 
+                    : "bg-white border-slate-200"
+                )}>
                   <CardHeader>
                     <CardTitle>Top Depositors</CardTitle>
                     <CardDescription>Largest depositors in this vault</CardDescription>
@@ -341,9 +428,15 @@ export default function VaultDetail() {
                   <CardContent>
                     <div className="space-y-4">
                       {vault.depositors.map((depositor) => (
-                        <div key={depositor.id} className="flex items-center justify-between p-3 rounded-lg bg-cryptic-purple/5 hover:bg-cryptic-purple/10 transition-colors">
+                        <div key={depositor.id} className={cn(
+                          "flex items-center justify-between p-3 rounded-lg hover:bg-cryptic-purple/10 transition-colors",
+                          theme === "dark" ? "bg-cryptic-purple/5" : "bg-slate-50"
+                        )}>
                           <div className="flex items-center">
-                            <div className="h-8 w-8 rounded-full bg-cryptic-purple/10 flex items-center justify-center text-cryptic-accent">
+                            <div className={cn(
+                              "h-8 w-8 rounded-full flex items-center justify-center text-cryptic-accent",
+                              theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                            )}>
                               <Shield size={16} />
                             </div>
                             <div className="ml-3">
@@ -369,7 +462,12 @@ export default function VaultDetail() {
             {/* Right Column - Deposit/Withdraw Form */}
             <div className="lg:col-span-1">
               <div className="sticky top-24">
-                <Card className="bg-cryptic-darker border-cryptic-purple/20 cryptic-shadow">
+                <Card className={cn(
+                  "cryptic-shadow",
+                  theme === "dark" 
+                    ? "bg-cryptic-darker border-cryptic-purple/20" 
+                    : "bg-white border-slate-200"
+                )}>
                   <CardHeader>
                     <CardTitle>Interact with Vault</CardTitle>
                     <CardDescription>Deposit or withdraw funds</CardDescription>
@@ -402,7 +500,10 @@ export default function VaultDetail() {
                             </div>
                           </div>
                           
-                          <div className="p-3 rounded-lg bg-cryptic-purple/10 flex items-center">
+                          <div className={cn(
+                            "p-3 rounded-lg flex items-center",
+                            theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                          )}>
                             <Info className="h-4 w-4 text-cryptic-accent mr-2" />
                             <span className="text-xs text-muted-foreground">
                               Deposits are encrypted using FHE technology for maximum privacy
@@ -447,7 +548,10 @@ export default function VaultDetail() {
                             </div>
                           </div>
                           
-                          <div className="p-3 rounded-lg bg-cryptic-purple/10 flex items-center">
+                          <div className={cn(
+                            "p-3 rounded-lg flex items-center",
+                            theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+                          )}>
                             <Clock className="h-4 w-4 text-yellow-400 mr-2" />
                             <span className="text-xs text-muted-foreground">
                               Withdrawals may take up to 24 hours to process
@@ -472,7 +576,10 @@ export default function VaultDetail() {
                       </TabsContent>
                     </Tabs>
                   </CardContent>
-                  <CardFooter className="border-t border-cryptic-purple/10 flex flex-col items-start pt-4">
+                  <CardFooter className={cn(
+                    "border-t pt-4 flex flex-col items-start",
+                    theme === "dark" ? "border-cryptic-purple/10" : "border-slate-100"
+                  )}>
                     <div className="flex items-center text-xs text-muted-foreground mb-2">
                       <Shield className="h-3 w-3 mr-1" />
                       <span>Protected by Fully Homomorphic Encryption</span>
