@@ -1,12 +1,13 @@
-
 import { useState } from 'react';
-import { Menu, Key } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { WalletButton } from '@/components/WalletButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useTheme } from '@/providers/ThemeProvider';
+import Logo from "@/assets/logo.svg";
+import LogoWhite from "@/assets/logo-white.svg";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -21,14 +22,12 @@ export function Navbar() {
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          <Link to="/" className="flex items-center">
-            <Key className="h-7 w-7 text-cryptic-accent mr-2" />
-            <span className={cn(
-              "font-spaceGrotesk text-xl sm:text-2xl font-semibold",
-              theme === "dark" ? "text-glow" : ""
-            )}>
-              Fe<span className="text-cryptic-accent">lend</span>
-            </span>
+          <Link to="/" className="flex items-center text-white">
+            <img 
+              src={theme === "dark" ? LogoWhite : Logo} 
+              alt="Felend Logo" 
+              className="h-8 mr-2"
+            />
           </Link>
         </div>
 

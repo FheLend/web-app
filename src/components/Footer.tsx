@@ -2,6 +2,8 @@
 import { Shield, Key } from 'lucide-react';
 import { useTheme } from '@/providers/ThemeProvider';
 import { cn } from '@/lib/utils';
+import Logo from "@/assets/logo.svg";
+import LogoWhite from "@/assets/logo-white.svg";
 
 export function Footer() {
   const { theme } = useTheme();
@@ -17,10 +19,7 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center mb-4">
-              <Key className="h-5 w-5 text-cryptic-accent mr-2" />
-              <span className="font-spaceGrotesk text-lg font-semibold">
-                Fe<span className="text-cryptic-accent">lend</span>
-              </span>
+            <img src={theme === 'dark' ? LogoWhite : Logo} alt="Felend Logo" className="h-8" />
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               A revolutionary lending protocol that leverages Fully Homomorphic Encryption to secure user financial data on the blockchain.

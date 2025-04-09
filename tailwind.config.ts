@@ -74,8 +74,8 @@ export default {
 					dark: '#0A192F',
 					darker: '#071527',
 					purple: '#3B6EBF',
-					accent: '#1E9AC4',
-					highlight: '#5AB3DB',
+					accent: '#01BAC6',
+					highlight: '#01BAC6',
 					muted: '#4D5B7C',
 					// Light mode specific colors
 					light: {

@@ -309,7 +309,7 @@ export function VaultTable() {
                   onClick={() => setActiveFilter(filter)}
                   className={cn(
                     "border-cryptic-muted text-base",
-                    activeFilter === filter && "bg-cryptic-accent hover:bg-cryptic-accent/90"
+                    activeFilter === filter && "bg-cryptic-accent hover:bg-cryptic-accent"
                   )}
                 >
                   {filter}
