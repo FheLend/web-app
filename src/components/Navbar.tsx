@@ -22,7 +22,14 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
-            <img src="/lovable-uploads/f827ceb2-3489-4cc1-9c82-c9d2a05cb1fc.png" alt="Felend Logo" className="h-8 mr-2" />
+            <img 
+              src="/lovable-uploads/f827ceb2-3489-4cc1-9c82-c9d2a05cb1fc.png" 
+              alt="Felend Logo" 
+              className={cn(
+                "h-8 mr-2",
+                theme === "dark" ? "brightness-100" : "brightness-90"
+              )} 
+            />
           </Link>
         </div>
 

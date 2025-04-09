@@ -69,9 +69,9 @@ export function HeroSection() {
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
             
-            {/* Lottie Animation */}
+            {/* Lottie Animation - Increased size */}
             <div className="relative z-10 flex justify-center">
-              <div className="w-96 h-96">
+              <div className="w-[450px] h-[450px]">
                 <Lottie 
                   animationData={animationData} 
                   loop={true}
