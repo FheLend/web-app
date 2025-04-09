@@ -74,8 +74,8 @@ export default {
 					dark: '#0A192F',
 					darker: '#071527',
 					purple: '#3B6EBF',
-					accent: '#1E9AC4',
-					highlight: '#5AB3DB',
+					accent: '#01B7C3',
+					highlight: '#33C3F0',
 					muted: '#4D5B7C',
 					// Light mode specific colors
 					light: {
@@ -102,10 +102,10 @@ export default {
 				},
 				'glow': {
 					'0%, 100%': { 
-						textShadow: '0 0 5px rgba(51, 195, 240, 0.3), 0 0 15px rgba(51, 195, 240, 0.3)' 
+						textShadow: '0 0 5px rgba(1, 183, 195, 0.3), 0 0 15px rgba(1, 183, 195, 0.3)' 
 					},
 					'50%': { 
-						textShadow: '0 0 20px rgba(51, 195, 240, 0.6), 0 0 30px rgba(51, 195, 240, 0.4)' 
+						textShadow: '0 0 20px rgba(1, 183, 195, 0.6), 0 0 30px rgba(1, 183, 195, 0.4)' 
 					}
 				},
 				'float': {
@@ -121,7 +121,7 @@ export default {
 			},
 			backgroundImage: {
 				'cryptic-gradient': 'linear-gradient(to bottom, #0A192F, #071527)',
-				'blue-glow': 'radial-gradient(circle, rgba(51, 195, 240, 0.2) 0%, rgba(51, 195, 240, 0.1) 30%, transparent 70%)',
+				'blue-glow': 'radial-gradient(circle, rgba(1, 183, 195, 0.2) 0%, rgba(1, 183, 195, 0.1) 30%, transparent 70%)',
 				'purple-glow': 'radial-gradient(circle, rgba(59, 110, 191, 0.2) 0%, rgba(59, 110, 191, 0.1) 30%, transparent 70%)',
 				'light-gradient': 'linear-gradient(to bottom, #F0F4F8, #E7EEF6)'
 			}

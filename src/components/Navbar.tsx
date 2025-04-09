@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Menu, Key } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -22,7 +22,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
-            <Key className="h-7 w-7 text-cryptic-accent mr-2" />
+            <img src="/lovable-uploads/f827ceb2-3489-4cc1-9c82-c9d2a05cb1fc.png" alt="Felend Logo" className="h-8 mr-2" />
             <span className={cn(
               "font-spaceGrotesk text-xl sm:text-2xl font-semibold",
               theme === "dark" ? "text-glow" : ""

@@ -8,66 +8,66 @@
 @layer base {
   :root {
     /* Light mode - softer colors for better eye comfort */
-    --background: 210 30% 98%;
-    --foreground: 220 33% 20%;
+    --background: #f5f7fa;
+    --foreground: #2c3139;
 
-    --card: 210 25% 96%;
-    --card-foreground: 220 33% 20%;
+    --card: #eef1f5;
+    --card-foreground: #2c3139;
 
-    --popover: 210 25% 98%;
-    --popover-foreground: 220 33% 20%;
+    --popover: #f5f7fa;
+    --popover-foreground: #2c3139;
 
-    --primary: 196 82% 45%;
-    --primary-foreground: 210 25% 98%;
+    --primary: #01B7C3;
+    --primary-foreground: #f5f7fa;
 
-    --secondary: 214 25% 91%;
-    --secondary-foreground: 220 33% 20%;
+    --secondary: #e8ecf2;
+    --secondary-foreground: #2c3139;
 
-    --muted: 214 25% 91%;
-    --muted-foreground: 220 33% 50%;
+    --muted: #e8ecf2;
+    --muted-foreground: #767e8d;
 
-    --accent: 196 82% 45%;
-    --accent-foreground: 210 25% 98%;
+    --accent: #01B7C3;
+    --accent-foreground: #f5f7fa;
 
-    --destructive: 350 89% 60%;
-    --destructive-foreground: 210 25% 98%;
+    --destructive: #f55e5e;
+    --destructive-foreground: #f5f7fa;
 
-    --border: 214 32% 85%;
-    --input: 214 25% 91%;
-    --ring: 196 82% 45%;
+    --border: #d7e0eb;
+    --input: #e8ecf2;
+    --ring: #01B7C3;
 
     --radius: 0.75rem;
   }
 
   .dark {
-    /* Dark mode - keep existing values */
-    --background: 216 33% 11%;
-    --foreground: 210 40% 98%;
+    /* Dark mode - updated to match new primary color */
+    --background: #0c1824;
+    --foreground: #f1f5f9;
 
-    --card: 216 33% 14%;
-    --card-foreground: 210 40% 98%;
+    --card: #111c29;
+    --card-foreground: #f1f5f9;
 
-    --popover: 216 33% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: #182638;
+    --popover-foreground: #f1f5f9;
 
-    --primary: 196 82% 58%;
-    --primary-foreground: 210 40% 98%;
+    --primary: #01B7C3;
+    --primary-foreground: #f1f5f9;
 
-    --secondary: 214 32% 20%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: #1a2433;
+    --secondary-foreground: #f1f5f9;
 
-    --muted: 214 32% 20%;
-    --muted-foreground: 214 25% 75%;
+    --muted: #1a2433;
+    --muted-foreground: #b4c0d3;
 
-    --accent: 196 82% 58%;
-    --accent-foreground: 210 40% 98%;
+    --accent: #01B7C3;
+    --accent-foreground: #f1f5f9;
 
-    --destructive: 350 89% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: #f55e5e;
+    --destructive-foreground: #f1f5f9;
 
-    --border: 214 32% 20%;
-    --input: 214 32% 20%;
-    --ring: 196 82% 58%;
+    --border: #1a2433;
+    --input: #1a2433;
+    --ring: #01B7C3;
   }
 
   * {
@@ -84,15 +84,15 @@
   body {
     @apply bg-slate-50;
     background-image: 
-      radial-gradient(circle at 20% 30%, rgba(30, 154, 219, 0.03) 0%, transparent 30%),
-      radial-gradient(circle at 80% 70%, rgba(30, 154, 219, 0.03) 0%, transparent 20%);
+      radial-gradient(circle at 20% 30%, rgba(1, 183, 195, 0.03) 0%, transparent 30%),
+      radial-gradient(circle at 80% 70%, rgba(1, 183, 195, 0.03) 0%, transparent 20%);
   }
   
   body.dark {
     @apply bg-cryptic-dark;
     background-image: 
-      radial-gradient(circle at 20% 30%, rgba(51, 195, 240, 0.15) 0%, transparent 30%),
-      radial-gradient(circle at 80% 70%, rgba(51, 195, 240, 0.1) 0%, transparent 20%);
+      radial-gradient(circle at 20% 30%, rgba(1, 183, 195, 0.15) 0%, transparent 30%),
+      radial-gradient(circle at 80% 70%, rgba(1, 183, 195, 0.1) 0%, transparent 20%);
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -107,24 +107,24 @@
 
 @layer utilities {
   .text-glow {
-    text-shadow: 0 0 5px rgba(51, 195, 240, 0.5), 0 0 15px rgba(51, 195, 240, 0.3);
+    text-shadow: 0 0 5px rgba(1, 183, 195, 0.5), 0 0 15px rgba(1, 183, 195, 0.3);
   }
   
   .border-glow {
-    box-shadow: 0 0 5px rgba(51, 195, 240, 0.5), 0 0 15px rgba(51, 195, 240, 0.2);
+    box-shadow: 0 0 5px rgba(1, 183, 195, 0.5), 0 0 15px rgba(1, 183, 195, 0.2);
   }
   
   .bg-glass {
     background: rgba(10, 25, 47, 0.7);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(51, 195, 240, 0.1);
+    border: 1px solid rgba(1, 183, 195, 0.1);
   }
 
   /* Light mode specific glass style */
   .light .bg-glass, :root:not(.dark) .bg-glass {
-    background: rgba(236, 242, 248, 0.8);
+    background: rgba(235, 240, 245, 0.8);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(30, 154, 219, 0.1);
+    border: 1px solid rgba(1, 183, 195, 0.1);
   }
 
   .cryptic-shadow {
