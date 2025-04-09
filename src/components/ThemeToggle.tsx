@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
-import { cn } from "@/lib/utils";
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -12,12 +11,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
-      className={cn(
-        "transition-colors duration-200",
-        theme === "dark" 
-          ? "text-white hover:bg-cryptic-accent/20" 
-          : "text-foreground hover:bg-cryptic-accent/20"
-      )}
+      className="text-foreground hover:bg-cryptic-accent/20 transition-colors duration-200"
       aria-label="Toggle theme"
     >
       {theme === "dark" ? (

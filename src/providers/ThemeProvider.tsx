@@ -33,15 +33,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.body.classList.add("dark");
       document.documentElement.classList.remove("light");
       document.body.classList.remove("light");
-      
-      // Force text color opacity to be 1 in dark mode for better visibility
-      document.documentElement.style.setProperty('--text-opacity', '1');
     } else {
       document.documentElement.classList.remove("dark");
       document.body.classList.remove("dark");
       document.documentElement.classList.add("light");
       document.body.classList.add("light");
-      document.documentElement.style.removeProperty('--text-opacity');
     }
   }, [theme]);
 

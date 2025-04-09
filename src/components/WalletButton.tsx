@@ -36,9 +36,7 @@ export function WalletButton() {
         className={cn(
           "border-cryptic-accent/50 bg-transparent text-cryptic-accent text-base",
           "hover:bg-cryptic-accent/10",
-          theme === "dark" 
-            ? "hover:text-foreground" 
-            : "hover:text-cryptic-accent"
+          theme === "light" && "hover:text-cryptic-accent"
         )}
         onClick={() => appKit.open()}
       >
@@ -92,9 +90,7 @@ export function WalletButton() {
             className={cn(
               "border-cryptic-accent/50 bg-transparent text-cryptic-accent text-base flex items-center",
               "hover:bg-cryptic-accent/10",
-              theme === "dark" 
-                ? "hover:text-foreground" 
-                : "hover:text-cryptic-accent"
+              theme === "light" && "hover:text-cryptic-accent"
             )}
           >
             <div className="w-5 h-5 rounded-full mr-2 flex justify-center items-center overflow-hidden">
@@ -159,9 +155,7 @@ export function WalletButton() {
             className={cn(
               "border-cryptic-accent/50 bg-transparent text-cryptic-accent text-base",
               "hover:bg-cryptic-accent/10",
-              theme === "dark" 
-                ? "hover:text-foreground" 
-                : "hover:text-cryptic-accent"
+              theme === "light" && "hover:text-cryptic-accent"
             )}
           >
             {displayAddress}

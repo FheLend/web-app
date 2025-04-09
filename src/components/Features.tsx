@@ -76,7 +76,7 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
     <div className={cn(
       "p-6 rounded-lg border cryptic-shadow transition duration-300",
       theme === "dark" 
-        ? "border-cryptic-purple/20 bg-glass hover:border-cryptic-accent/30 text-foreground" 
+        ? "border-cryptic-purple/20 bg-glass hover:border-cryptic-accent/30" 
         : "border-slate-200 bg-white hover:border-cryptic-accent/30"
     )}>
       <div className="h-12 w-12 rounded-full bg-cryptic-purple/10 flex items-center justify-center mb-4">

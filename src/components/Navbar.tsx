@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -16,20 +16,19 @@ export function Navbar() {
     <nav className={cn(
       "py-4 px-4 sm:px-6 border-b sticky top-0 z-50 backdrop-blur-md",
       theme === "dark" 
-        ? "bg-cryptic-darker/80 border-cryptic-accent/20 text-white" 
-        : "bg-slate-50/90 border-slate-200 text-foreground"
+        ? "bg-cryptic-darker/80 border-cryptic-accent/20" 
+        : "bg-slate-50/90 border-slate-200"
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
-            <img 
-              src="/lovable-uploads/f827ceb2-3489-4cc1-9c82-c9d2a05cb1fc.png" 
-              alt="Felend Logo" 
-              className={cn(
-                "h-8 mr-2",
-                theme === "dark" ? "brightness-100" : "brightness-90"
-              )} 
-            />
+            <Key className="h-7 w-7 text-cryptic-accent mr-2" />
+            <span className={cn(
+              "font-spaceGrotesk text-xl sm:text-2xl font-semibold",
+              theme === "dark" ? "text-glow" : ""
+            )}>
+              Fe<span className="text-cryptic-accent">lend</span>
+            </span>
           </Link>
         </div>
 
@@ -55,9 +54,7 @@ export function Navbar() {
             variant="ghost" 
             size="icon" 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={cn(
-              theme === "dark" ? "text-white hover:bg-cryptic-accent/20" : "text-foreground hover:bg-cryptic-accent/20"
-            )}
+            className="text-foreground hover:bg-cryptic-accent/20"
           >
             <Menu className="h-6 w-6" />
           </Button>
@@ -98,8 +95,6 @@ interface NavLinkProps {
 }
 
 function NavLink({ href, children, active, mobile }: NavLinkProps) {
-  const { theme } = useTheme();
-  
   return (
     <a
       href={href}
@@ -108,9 +103,7 @@ function NavLink({ href, children, active, mobile }: NavLinkProps) {
         mobile ? "block py-2 px-3 rounded-md" : "inline-flex items-center",
         active
           ? "text-cryptic-accent font-medium"
-          : theme === "dark" 
-            ? "text-white hover:text-cryptic-accent" 
-            : "text-muted-foreground hover:text-cryptic-accent",
+          : "text-muted-foreground hover:text-cryptic-accent",
         active && mobile && "bg-cryptic-accent/10"
       )}
     >

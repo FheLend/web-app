@@ -1,24 +1,51 @@
 
-import { Lock, Shield } from 'lucide-react';
+import { Eye, Lock, Shield, CircuitBoard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useAppKit } from "@reown/appkit/react";
 import { useTheme } from '@/providers/ThemeProvider';
 import { cn } from '@/lib/utils';
-import Lottie from 'lottie-react';
-import animationData from '@/assets/felend_animation.json';
 
 export function HeroSection() {
+  const [encryptedValues, setEncryptedValues] = useState<string[]>([]);
   const { isConnected } = useAccount();
   const { open } = useAppKit();
   const { theme } = useTheme();
   
+  // Generate animated encrypted data representation
+  useEffect(() => {
+    // Generate random encrypted-looking strings
+    const generateEncryptedData = () => {
+      const chars = '01αβγδεζηθικλμνξοπρστυφχψω$%#@!*^&';
+      const newValues = [];
+      
+      for (let i = 0; i < 8; i++) {
+        let str = '';
+        const length = Math.floor(Math.random() * 6) + 4;
+        
+        for (let j = 0; j < length; j++) {
+          str += chars[Math.floor(Math.random() * chars.length)];
+        }
+        
+        newValues.push(str);
+      }
+      
+      setEncryptedValues(newValues);
+    };
+    
+    generateEncryptedData();
+    const interval = setInterval(generateEncryptedData, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className={cn(
       "relative overflow-hidden py-16 md:py-24",
       theme === "dark" 
-        ? "bg-cryptic-dark text-white" 
-        : "bg-gradient-to-b from-blue-50/70 to-slate-100/90 text-foreground"
+        ? "bg-cryptic-dark" 
+        : "bg-gradient-to-b from-blue-50/70 to-slate-100/90"
     )}>
       {/* Animated background elements */}
       <div 
@@ -43,7 +70,7 @@ export function HeroSection() {
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-spaceGrotesk text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
-              <span className={theme === "dark" ? "text-glow text-white" : "text-foreground"}>Fully</span>
+              <span className={theme === "dark" ? "text-glow" : "text-foreground"}>Fully</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">
                 Encrypted Lending
@@ -69,19 +96,36 @@ export function HeroSection() {
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
             
-            {/* Lottie Animation - Increased size */}
+            {/* Dynamic FHE Visualization */}
             <div className="relative z-10 flex justify-center">
-              <div className="w-[600px] h-[600px]">
-                <Lottie 
-                  animationData={animationData} 
-                  loop={true}
-                  className="w-full h-full"
-                />
-              </div>
-              
-              {/* Shield icon */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <Shield className="text-cryptic-accent/40 w-10 h-10 animate-pulse" />
+              <div className="w-64 h-64 rounded-full border-4 border-cryptic-accent/30 flex items-center justify-center relative animate-slow-spin">
+                <div className="w-56 h-56 rounded-full border border-cryptic-accent/50 flex items-center justify-center animate-reverse-spin">
+                  <div className="w-40 h-40 rounded-full border-2 border-cryptic-accent/70 flex items-center justify-center relative">
+                    <CircuitBoard className="absolute text-cryptic-accent w-12 h-12 animate-pulse" />
+                    
+                    {/* Animated encrypted data points */}
+                    {encryptedValues.map((value, index) => {
+                      const angle = (index / 8) * Math.PI * 2;
+                      const x = Math.cos(angle) * 60;
+                      const y = Math.sin(angle) * 60;
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className="absolute text-xs font-mono text-cryptic-highlight animate-pulse"
+                          style={{ 
+                            transform: `translate(${x}px, ${y}px)`,
+                            animationDelay: `${index * 0.2}s`
+                          }}
+                        >
+                          {value}
+                        </div>
+                      );
+                    })}
+                    
+                    <Shield className="text-cryptic-accent w-10 h-10 animate-pulse" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
