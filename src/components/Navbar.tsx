@@ -23,12 +23,6 @@ export function Navbar() {
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
             <img src="/lovable-uploads/f827ceb2-3489-4cc1-9c82-c9d2a05cb1fc.png" alt="Felend Logo" className="h-8 mr-2" />
-            <span className={cn(
-              "font-spaceGrotesk text-xl sm:text-2xl font-semibold",
-              theme === "dark" ? "text-glow" : ""
-            )}>
-              Fe<span className="text-cryptic-accent">lend</span>
-            </span>
           </Link>
         </div>
 
