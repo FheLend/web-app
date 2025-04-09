@@ -89,7 +89,7 @@
   }
   
   body.dark {
-    @apply bg-cryptic-dark;
+    @apply bg-cryptic-dark text-foreground;
     background-image: 
       radial-gradient(circle at 20% 30%, rgba(1, 183, 195, 0.15) 0%, transparent 30%),
       radial-gradient(circle at 80% 70%, rgba(1, 183, 195, 0.1) 0%, transparent 20%);
@@ -161,3 +161,4 @@
     animation: reverse-spin 20s linear infinite;
   }
 }
+

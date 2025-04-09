@@ -17,7 +17,7 @@ export function HeroSection() {
     <div className={cn(
       "relative overflow-hidden py-16 md:py-24",
       theme === "dark" 
-        ? "bg-cryptic-dark" 
+        ? "bg-cryptic-dark text-foreground" 
         : "bg-gradient-to-b from-blue-50/70 to-slate-100/90"
     )}>
       {/* Animated background elements */}
@@ -43,7 +43,7 @@ export function HeroSection() {
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-spaceGrotesk text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
-              <span className={theme === "dark" ? "text-glow" : "text-foreground"}>Fully</span>
+              <span className={theme === "dark" ? "text-glow text-foreground" : "text-foreground"}>Fully</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">
                 Encrypted Lending

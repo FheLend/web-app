@@ -16,7 +16,7 @@ export function Navbar() {
     <nav className={cn(
       "py-4 px-4 sm:px-6 border-b sticky top-0 z-50 backdrop-blur-md",
       theme === "dark" 
-        ? "bg-cryptic-darker/80 border-cryptic-accent/20" 
+        ? "bg-cryptic-darker/80 border-cryptic-accent/20 text-foreground" 
         : "bg-slate-50/90 border-slate-200"
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -96,6 +96,8 @@ interface NavLinkProps {
 }
 
 function NavLink({ href, children, active, mobile }: NavLinkProps) {
+  const { theme } = useTheme();
+  
   return (
     <a
       href={href}
@@ -104,7 +106,9 @@ function NavLink({ href, children, active, mobile }: NavLinkProps) {
         mobile ? "block py-2 px-3 rounded-md" : "inline-flex items-center",
         active
           ? "text-cryptic-accent font-medium"
-          : "text-muted-foreground hover:text-cryptic-accent",
+          : theme === "dark" 
+            ? "text-foreground hover:text-cryptic-accent" 
+            : "text-muted-foreground hover:text-cryptic-accent",
         active && mobile && "bg-cryptic-accent/10"
       )}
     >
