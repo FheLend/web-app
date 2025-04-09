@@ -17,8 +17,8 @@ export function HeroSection() {
     <div className={cn(
       "relative overflow-hidden py-16 md:py-24",
       theme === "dark" 
-        ? "bg-cryptic-dark text-foreground" 
-        : "bg-gradient-to-b from-blue-50/70 to-slate-100/90"
+        ? "bg-cryptic-dark text-white" 
+        : "bg-gradient-to-b from-blue-50/70 to-slate-100/90 text-foreground"
     )}>
       {/* Animated background elements */}
       <div 
@@ -43,7 +43,7 @@ export function HeroSection() {
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-spaceGrotesk text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
-              <span className={theme === "dark" ? "text-glow text-foreground" : "text-foreground"}>Fully</span>
+              <span className={theme === "dark" ? "text-glow text-white" : "text-foreground"}>Fully</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cryptic-accent to-cryptic-highlight">
                 Encrypted Lending
@@ -71,7 +71,7 @@ export function HeroSection() {
             
             {/* Lottie Animation - Increased size */}
             <div className="relative z-10 flex justify-center">
-              <div className="w-[450px] h-[450px]">
+              <div className="w-[600px] h-[600px]">
                 <Lottie 
                   animationData={animationData} 
                   loop={true}

@@ -15,7 +15,7 @@ export function ThemeToggle() {
       className={cn(
         "transition-colors duration-200",
         theme === "dark" 
-          ? "text-foreground hover:bg-cryptic-accent/20" 
+          ? "text-white hover:bg-cryptic-accent/20" 
           : "text-foreground hover:bg-cryptic-accent/20"
       )}
       aria-label="Toggle theme"

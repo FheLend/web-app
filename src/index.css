@@ -40,7 +40,7 @@
   }
 
   .dark {
-    /* Dark mode - updated to match new primary color */
+    /* Dark mode - updated for better contrast and readability */
     --background: #0c1824;
     --foreground: #f1f5f9;
 
@@ -57,7 +57,7 @@
     --secondary-foreground: #f1f5f9;
 
     --muted: #1a2433;
-    --muted-foreground: #b4c0d3;
+    --muted-foreground: #d1dbe8; /* Lighter muted foreground for better contrast */
 
     --accent: #01B7C3;
     --accent-foreground: #f1f5f9;
@@ -161,4 +161,3 @@
     animation: reverse-spin 20s linear infinite;
   }
 }
-

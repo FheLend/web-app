@@ -16,8 +16,8 @@ export function Navbar() {
     <nav className={cn(
       "py-4 px-4 sm:px-6 border-b sticky top-0 z-50 backdrop-blur-md",
       theme === "dark" 
-        ? "bg-cryptic-darker/80 border-cryptic-accent/20 text-foreground" 
-        : "bg-slate-50/90 border-slate-200"
+        ? "bg-cryptic-darker/80 border-cryptic-accent/20 text-white" 
+        : "bg-slate-50/90 border-slate-200 text-foreground"
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
@@ -55,7 +55,9 @@ export function Navbar() {
             variant="ghost" 
             size="icon" 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-foreground hover:bg-cryptic-accent/20"
+            className={cn(
+              theme === "dark" ? "text-white hover:bg-cryptic-accent/20" : "text-foreground hover:bg-cryptic-accent/20"
+            )}
           >
             <Menu className="h-6 w-6" />
           </Button>
@@ -107,7 +109,7 @@ function NavLink({ href, children, active, mobile }: NavLinkProps) {
         active
           ? "text-cryptic-accent font-medium"
           : theme === "dark" 
-            ? "text-foreground hover:text-cryptic-accent" 
+            ? "text-white hover:text-cryptic-accent" 
             : "text-muted-foreground hover:text-cryptic-accent",
         active && mobile && "bg-cryptic-accent/10"
       )}
