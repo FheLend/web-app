@@ -348,7 +348,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 <div>
                   <CardTitle className="text-2xl">Total Borrow ({market.loanToken.symbol})</CardTitle>
                   <CardDescription className="text-3xl font-bold mt-1">
-                    {parseFloat(market.liquidityValue * 0.6).toFixed(2)}M
+                    {parseFloat(`${market.liquidityValue * 0.6}`).toFixed(2)}M
                   </CardDescription>
                 </div>
                 <div className="flex items-center space-x-2">
