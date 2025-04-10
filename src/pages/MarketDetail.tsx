@@ -9,7 +9,7 @@ const MarketDetail = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar activeItem="borrow" />
       <main className="flex-1">
         <MarketDetailView marketId={id || ''} />
       </main>
