@@ -1,10 +1,11 @@
-
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
+import Lottie from "lottie-react";
+import animationData from "@/assets/felend_animation.json";
 
 export function BorrowHero() {
   const { isConnected } = useAccount();
@@ -33,14 +34,14 @@ export function BorrowHero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
         <div className="text-center sm:text-left mb-10">
           <p className="text-cryptic-accent font-medium tracking-wide mb-3">
-            Total Active Loans:{" "}
+            Total Value Locked:{" "}
             <span
               className={cn(
                 "text-cryptic-highlight",
                 theme === "dark" ? "animate-glow" : ""
               )}
             >
-              $1,704,909,971
+              ₿ 72,538.45
             </span>
           </p>
         </div>
@@ -61,7 +62,8 @@ export function BorrowHero() {
             </h1>
 
             <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-              Use a variety of assets as collateral to borrow the tokens you need with privacy-preserving, encrypted transactions.
+              Use a variety of assets as collateral to borrow the tokens you
+              need with privacy-preserving, encrypted transactions.
             </p>
 
             {!isConnected && (
@@ -76,13 +78,18 @@ export function BorrowHero() {
           </div>
 
           <div className="hidden md:block relative">
-            {/* 3D illustration on the right side */}
+            <div className="absolute inset-0 bg-purple-glow opacity-40 blur-2xl rounded-full"></div>
+
+            {/* Lottie Animation - replacing the previous FHE Visualization */}
             <div className="relative z-10 flex justify-center items-center">
-              <img 
-                src="/lovable-uploads/833a3cd9-b671-44eb-a6d5-e169d3e8f254.png" 
-                alt="Borrow illustration" 
-                className="w-full max-w-md"
-              />
+              <div className="w-[700px] absolute translate-y-[-30px]">
+                <Lottie
+                  animationData={animationData}
+                  loop={true}
+                  className="w-full h-full"
+                  style={{ maxWidth: "100%", height: "auto" }}
+                />
+              </div>
             </div>
           </div>
         </div>

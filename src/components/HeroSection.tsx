@@ -63,8 +63,7 @@ export function HeroSection() {
 
             <p className="text-xl text-muted-foreground mb-8 max-w-lg">
               FeLend is the first DeFi lending protocol that leverages Fully
-              Homomorphic Encryption (FHE) to enable private computation,
-              ensuring the confidentiality of all user data on the blockchain.
+              Homomorphic Encryption (FHE) to enable private computation.
             </p>
 
             {!isConnected && (

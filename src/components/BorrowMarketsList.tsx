@@ -231,7 +231,7 @@ export function BorrowMarketsList() {
       >
         <div className="flex items-center mb-3 justify-between">
           <div className="flex items-center">
-            <div className="h-10 w-10 mr-3">
+            <div className="h-7 w-7 mr-3">
               <Image 
                 src={market.collateralToken.logo} 
                 alt={market.collateralToken.symbol}
@@ -246,7 +246,7 @@ export function BorrowMarketsList() {
             </div>
           </div>
           <div className="flex items-center">
-            <div className="h-10 w-10 mr-3">
+            <div className="h-7 w-7 mr-3">
               <Image 
                 src={market.loanToken.logo} 
                 alt={market.loanToken.symbol}
@@ -408,7 +408,7 @@ export function BorrowMarketsList() {
                   >
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 mr-3">
+                        <div className="flex-shrink-0 h-7 w-7 mr-3">
                           <Image 
                             src={market.collateralToken.logo} 
                             alt={market.collateralToken.symbol}
@@ -425,7 +425,7 @@ export function BorrowMarketsList() {
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 mr-3">
+                        <div className="flex-shrink-0 h-7 w-7 mr-3">
                           <Image 
                             src={market.loanToken.logo} 
                             alt={market.loanToken.symbol}

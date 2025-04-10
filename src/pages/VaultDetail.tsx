@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Shield, Star, Vault, ExternalLink, Info, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -114,7 +113,6 @@ export default function VaultDetail() {
   if (!vault) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-semibold">Vault not found</h1>
@@ -131,8 +129,6 @@ export default function VaultDetail() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
       <div className="flex-grow px-4 sm:px-6 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Vault Header */}
