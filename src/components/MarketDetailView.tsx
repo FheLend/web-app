@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Info, Lock, RefreshCw, Percent } from 'lucide-react';
+import { ArrowLeft, Info, Lock, RefreshCw, Percent, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -150,6 +149,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
   
   const [collateralAmount, setCollateralAmount] = useState('');
   const [borrowAmount, setBorrowAmount] = useState('');
+  const [timeframe, setTimeframe] = useState('3 months');
   
   const market = markets.find((m) => m.id === marketId);
   
@@ -207,23 +207,89 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
           Back to Markets
         </Button>
         
-        <div className="mb-8 text-center">
-          <p className="text-cryptic-accent font-medium tracking-wide mb-3">
-            Total Active Loans:{" "}
-            <span
-              className={cn(
-                "text-cryptic-highlight",
-                theme === "dark" ? "animate-glow" : ""
-              )}
-            >
-              {market.totalLoans}
-            </span>
-          </p>
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center">
+              <div className="h-12 w-12 mr-3 relative">
+                <Image 
+                  src={market.collateralToken.logo} 
+                  alt={market.collateralToken.symbol}
+                  className="rounded-full absolute"
+                />
+              </div>
+              <div className="h-12 w-12 relative -ml-6">
+                <Image 
+                  src={market.loanToken.logo} 
+                  alt={market.loanToken.symbol}
+                  className="rounded-full absolute"
+                />
+              </div>
+              <h1 className="text-3xl font-bold ml-3">{market.collateralToken.symbol} / {market.loanToken.symbol}</h1>
+            </div>
+            <div className={cn(
+              "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium",
+              theme === "dark" 
+                ? "bg-cryptic-purple/10 text-cryptic-highlight" 
+                : "bg-blue-50 text-cryptic-accent"
+            )}>
+              {market.ltv}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+            <Card className={cn(
+              "rounded-lg border transition-all duration-300",
+              theme === "dark" 
+                ? "border-cryptic-purple/20 bg-glass" 
+                : "border-slate-200 bg-white shadow-sm"
+            )}>
+              <CardContent className="pt-6">
+                <div className="text-muted-foreground text-sm mb-1">Total Supply ({market.loanToken.symbol})</div>
+                <div className="text-4xl font-bold">{parseFloat(market.liquidity).toFixed(2)}M</div>
+                <div className="text-muted-foreground text-sm">${parseFloat(market.liquidity).toFixed(2)}M</div>
+              </CardContent>
+            </Card>
+            <Card className={cn(
+              "rounded-lg border transition-all duration-300",
+              theme === "dark" 
+                ? "border-cryptic-purple/20 bg-glass" 
+                : "border-slate-200 bg-white shadow-sm"
+            )}>
+              <CardContent className="pt-6">
+                <div className="text-muted-foreground text-sm mb-1">Liquidity ({market.loanToken.symbol})</div>
+                <div className="text-4xl font-bold">{parseFloat(market.liquidity).toFixed(2)}M</div>
+                <div className="text-muted-foreground text-sm">${parseFloat(market.liquidity).toFixed(2)}M</div>
+              </CardContent>
+            </Card>
+            <Card className={cn(
+              "rounded-lg border transition-all duration-300",
+              theme === "dark" 
+                ? "border-cryptic-purple/20 bg-glass" 
+                : "border-slate-200 bg-white shadow-sm"
+            )}>
+              <CardContent className="pt-6">
+                <div className="text-muted-foreground text-sm mb-1">Rate</div>
+                <div className={cn(
+                  "text-4xl font-bold",
+                  market.rateChange === 'up' ? "text-emerald-400" : 
+                  market.rateChange === 'down' ? "text-rose-400" : 
+                  "text-amber-400"
+                )}>
+                  {market.rate}
+                  <span className="ml-2">
+                    {market.rateChange === 'up' && '↑'}
+                    {market.rateChange === 'down' && '↓'}
+                    {market.rateChange === 'stable' && '→'}
+                  </span>
+                </div>
+                <div className="text-muted-foreground text-sm">Variable rate</div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-8">
-            {/* Market Info */}
+        <div className="grid md:grid-cols-5 gap-8">
+          <div className="md:col-span-3 space-y-8">
             <Card className={cn(
               "rounded-lg border transition-all duration-300",
               theme === "dark" 
@@ -231,91 +297,135 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 : "border-slate-200 bg-white shadow-sm"
             )}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 mr-3">
+                <CardTitle className="text-2xl">Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                  <div>
+                    <p className="text-muted-foreground text-sm mb-1">Collateral Token</p>
+                    <div className="flex items-center">
                       <Image 
                         src={market.collateralToken.logo} 
                         alt={market.collateralToken.symbol}
-                        className="rounded-full"
+                        className="h-6 w-6 mr-2 rounded-full"
                       />
+                      <p className="font-medium">{market.collateralToken.symbol}</p>
                     </div>
-                    <span>{market.collateralToken.symbol}</span>
+                    {market.collateralToken.apy && (
+                      <p className="text-xs text-green-400 mt-1">APY: {market.collateralToken.apy}</p>
+                    )}
                   </div>
-                  <div className="text-lg text-muted-foreground">→</div>
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 mr-3">
+                  <div>
+                    <p className="text-muted-foreground text-sm mb-1">Loan Token</p>
+                    <div className="flex items-center">
                       <Image 
                         src={market.loanToken.logo} 
                         alt={market.loanToken.symbol}
-                        className="rounded-full"
+                        className="h-6 w-6 mr-2 rounded-full"
                       />
+                      <p className="font-medium">{market.loanToken.symbol}</p>
                     </div>
-                    <span>{market.loanToken.symbol}</span>
                   </div>
-                </CardTitle>
-                <CardDescription className="text-lg">
-                  Use {market.collateralToken.symbol} as collateral to borrow {market.loanToken.symbol}
-                </CardDescription>
+                  <div>
+                    <p className="text-muted-foreground text-sm mb-1">Loan-to-Value (LTV)</p>
+                    <p className="font-medium">{market.ltv}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-sm mb-1">Date of Creation</p>
+                    <p className="font-medium">10/04/2025</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className={cn(
+              "rounded-lg border transition-all duration-300",
+              theme === "dark" 
+                ? "border-cryptic-purple/20 bg-glass" 
+                : "border-slate-200 bg-white shadow-sm"
+            )}>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl">Total Borrow ({market.loanToken.symbol})</CardTitle>
+                  <CardDescription className="text-3xl font-bold mt-1">
+                    {parseFloat(market.liquidityValue * 0.6).toFixed(2)}M
+                  </CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="sm" className="text-sm">
+                    Borrow
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-sm">
+                    Supply
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-sm">
+                    Liquidity
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-sm flex items-center">
+                    {timeframe}
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-muted-foreground mb-1">Loan-to-Value (LTV)</p>
-                    <p className="text-2xl font-medium text-foreground">{market.ltv}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground mb-1">Borrow Rate</p>
-                    <p className={cn(
-                      "text-2xl font-medium",
+              <CardContent className="h-[300px] flex items-center justify-center">
+                <p className="text-muted-foreground">Chart visualization would go here</p>
+              </CardContent>
+            </Card>
+            
+            <Card className={cn(
+              "rounded-lg border transition-all duration-300",
+              theme === "dark" 
+                ? "border-cryptic-purple/20 bg-glass" 
+                : "border-slate-200 bg-white shadow-sm"
+            )}>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl flex items-center">
+                    Rate 
+                    <span className={cn(
+                      "ml-2",
                       market.rateChange === 'up' ? "text-emerald-400" : 
                       market.rateChange === 'down' ? "text-rose-400" : 
                       "text-amber-400"
                     )}>
-                      {market.rate}
-                      <span className="ml-2 text-xl">
-                        {market.rateChange === 'up' && '↑'}
-                        {market.rateChange === 'down' && '↓'}
-                        {market.rateChange === 'stable' && '→'}
-                      </span>
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground mb-1">Available Liquidity</p>
-                    <p className="text-2xl font-medium text-foreground">{market.liquidity}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground mb-1">Vault Rating</p>
-                    <div className="flex items-center">
-                      <span className={cn(
-                        "inline-flex items-center px-3 py-1 rounded-full text-base font-medium",
-                        theme === "dark" 
-                          ? "bg-cryptic-purple/10 text-cryptic-highlight" 
-                          : "bg-blue-50 text-cryptic-accent"
-                      )}>
-                        +{market.vaultRating}
-                      </span>
-                    </div>
-                  </div>
+                      {market.rateChange === 'up' && '↑'}
+                      {market.rateChange === 'down' && '↓'}
+                      {market.rateChange === 'stable' && '→'}
+                    </span>
+                  </CardTitle>
+                  <CardDescription className={cn(
+                    "text-3xl font-bold mt-1",
+                    market.rateChange === 'up' ? "text-emerald-400" : 
+                    market.rateChange === 'down' ? "text-rose-400" : 
+                    "text-amber-400"
+                  )}>
+                    {market.rate}
+                  </CardDescription>
                 </div>
-                
-                {market.collateralToken.apy && (
-                  <div className="mt-6 p-3 rounded-lg bg-green-400/10 text-green-400 flex items-center">
-                    <Info className="h-5 w-5 mr-2" />
-                    <p>
-                      Your {market.collateralToken.symbol} collateral earns {market.collateralToken.apy} APY while deposited
-                    </p>
-                  </div>
-                )}
+                <div>
+                  <Button variant="outline" size="sm" className="text-sm flex items-center">
+                    1 month
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="h-[200px] flex items-center justify-center">
+                <p className="text-muted-foreground">Rate chart visualization would go here</p>
               </CardContent>
+              <div className="px-6 py-4 border-t border-border">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium">Native Rate</div>
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="font-medium">{(market.rateValue - 0.15).toFixed(2)}%</div>
+                </div>
+              </div>
             </Card>
-            
-            {/* Skip chart section as per requirements */}
           </div>
           
-          {/* Borrow Form - Sticky on the right column */}
-          <div className="relative">
-            <div className="lg:sticky lg:top-24">
+          <div className="md:col-span-2 relative">
+            <div className="lg:sticky lg:top-24 space-y-6">
               <Card className={cn(
                 "rounded-lg border transition-all duration-300",
                 theme === "dark" 
@@ -323,33 +433,28 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                   : "border-slate-200 bg-white shadow-sm"
               )}>
                 <CardHeader>
-                  <CardTitle>Borrow {market.loanToken.symbol}</CardTitle>
-                  <CardDescription>
-                    Use {market.collateralToken.symbol} as collateral to borrow {market.loanToken.symbol} at {market.rate} variable rate
-                  </CardDescription>
+                  <CardTitle>Supply Collateral {market.collateralToken.symbol}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {!isConnected ? (
                     <div className="text-center py-6">
-                      <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-lg mb-6 text-muted-foreground">Connect your wallet to start borrowing</p>
+                      <div className="h-10 w-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-4">
+                        <span className="text-lg font-bold">X</span>
+                      </div>
+                      <p className="text-lg mb-2">0.00</p>
+                      <p className="text-muted-foreground text-sm mb-6">$0</p>
                       <Button
                         className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white w-full"
                         onClick={() => open()}
                       >
-                        <Lock className="mr-2 h-4 w-4" />
                         Connect Wallet
                       </Button>
                     </div>
                   ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                       <div>
-                        <label htmlFor="collateral" className="block text-muted-foreground mb-2">
-                          Collateral Amount
-                        </label>
                         <div className="relative">
                           <Input
-                            id="collateral"
                             type="number"
                             placeholder="0.00"
                             className="pl-4 pr-24 py-6 text-lg"
@@ -365,19 +470,50 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                             <span className="text-muted-foreground">{market.collateralToken.symbol}</span>
                           </div>
                         </div>
-                        <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                          <span>Balance: 0.00</span>
-                          <button className="text-cryptic-accent hover:underline">MAX</button>
+                        <div className="flex justify-end mt-1 text-xs text-muted-foreground">
+                          <span>$0</span>
                         </div>
                       </div>
                       
+                      <Button
+                        className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90 text-white text-lg py-6"
+                      >
+                        Supply
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <Card className={cn(
+                "rounded-lg border transition-all duration-300",
+                theme === "dark" 
+                  ? "border-cryptic-purple/20 bg-glass" 
+                  : "border-slate-200 bg-white shadow-sm"
+              )}>
+                <CardHeader>
+                  <CardTitle>Borrow {market.loanToken.symbol}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {!isConnected ? (
+                    <div className="text-center py-6">
+                      <div className="h-10 w-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mx-auto mb-4">
+                        <span className="text-lg font-bold">B</span>
+                      </div>
+                      <p className="text-lg mb-2">0.00</p>
+                      <p className="text-muted-foreground text-sm mb-6">$0</p>
+                      <Button
+                        className="bg-cryptic-accent hover:bg-cryptic-accent/90 text-white w-full"
+                        onClick={() => open()}
+                      >
+                        Connect Wallet
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
                       <div>
-                        <label htmlFor="borrow" className="block text-muted-foreground mb-2">
-                          Borrow Amount
-                        </label>
                         <div className="relative">
                           <Input
-                            id="borrow"
                             type="number"
                             placeholder="0.00"
                             className="pl-4 pr-24 py-6 text-lg"
@@ -393,36 +529,70 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                             <span className="text-muted-foreground">{market.loanToken.symbol}</span>
                           </div>
                         </div>
-                        <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                          <span>Available: {market.liquidity}</span>
-                          <button className="text-cryptic-accent hover:underline">MAX</button>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3 py-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Loan-to-Value</span>
-                          <span className="font-medium">{market.ltv}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Liquidation Threshold</span>
-                          <span className="font-medium">{(parseFloat(market.ltv) + 3).toFixed(2)}%</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Borrow Rate</span>
-                          <span className="font-medium">{market.rate}</span>
+                        <div className="flex justify-end mt-1 text-xs text-muted-foreground">
+                          <span>$0</span>
                         </div>
                       </div>
                       
                       <Button
                         className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90 text-white text-lg py-6"
                       >
-                        <Lock className="mr-2 h-5 w-5" />
-                        Borrow {market.loanToken.symbol}
+                        Borrow
                       </Button>
-                      
                     </div>
                   )}
+                </CardContent>
+              </Card>
+              
+              <Card className={cn(
+                "rounded-lg border transition-all duration-300",
+                theme === "dark" 
+                  ? "border-cryptic-purple/20 bg-glass" 
+                  : "border-slate-200 bg-white shadow-sm"
+              )}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Your position</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Your collateral position ({market.collateralToken.symbol})</span>
+                      <div className="flex items-center">
+                        <div className="h-4 w-4 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mr-1">
+                          <span className="text-xs font-bold">X</span>
+                        </div>
+                        <span>0.00</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-end text-xs text-muted-foreground">
+                      <span>$0</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Your loan position ({market.loanToken.symbol})</span>
+                      <div className="flex items-center">
+                        <div className="h-4 w-4 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mr-1">
+                          <span className="text-xs font-bold">B</span>
+                        </div>
+                        <span>0.00</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-end text-xs text-muted-foreground">
+                      <span>$0</span>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">LTV / Liquidation LTV</span>
+                      <span>0% / {market.ltv}</span>
+                    </div>
+                    <div className="mt-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" style={{ width: "0%" }}></div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

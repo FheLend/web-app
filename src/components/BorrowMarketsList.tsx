@@ -362,25 +362,31 @@ export function BorrowMarketsList() {
                   <TableHead className="text-left font-medium text-muted-foreground">Collateral</TableHead>
                   <TableHead className="text-left font-medium text-muted-foreground">Loan</TableHead>
                   <TableHead 
-                    className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground flex items-center"
+                    className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground"
                     onClick={() => handleSort('ltv')}
                   >
-                    <span>LTV</span>
-                    {renderSortIndicator('ltv')}
+                    <div className="flex items-center">
+                      <span>LTV</span>
+                      {renderSortIndicator('ltv')}
+                    </div>
                   </TableHead>
                   <TableHead 
-                    className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground flex items-center"
+                    className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground"
                     onClick={() => handleSort('liquidity')}
                   >
-                    <span>Liquidity</span>
-                    {renderSortIndicator('liquidity')}
+                    <div className="flex items-center">
+                      <span>Liquidity</span>
+                      {renderSortIndicator('liquidity')}
+                    </div>
                   </TableHead>
                   <TableHead 
-                    className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground flex items-center"
+                    className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground"
                     onClick={() => handleSort('rate')}
                   >
-                    <span>Rate</span>
-                    {renderSortIndicator('rate')}
+                    <div className="flex items-center">
+                      <span>Rate</span>
+                      {renderSortIndicator('rate')}
+                    </div>
                   </TableHead>
                   <TableHead className="text-left font-medium text-muted-foreground">Vault Rating</TableHead>
                 </TableRow>

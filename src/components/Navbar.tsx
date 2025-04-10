@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { WalletButton } from '@/components/WalletButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -13,6 +13,10 @@ import LogoWhite from "@/assets/logo-white.svg";
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme } = useTheme();
+  const location = useLocation();
+  
+  const isLendingActive = location.pathname === '/' || location.pathname === '/lending' || location.pathname.startsWith('/vault');
+  const isBorrowActive = location.pathname === '/borrow' || location.pathname.startsWith('/market');
   
   return (
     <nav className={cn(
@@ -34,10 +38,10 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8 items-center text-base">
-          <NavLink href="/lending" active>
+          <NavLink href="/lending" active={isLendingActive}>
             Lend
           </NavLink>
-          <NavLink href="/borrow">
+          <NavLink href="/borrow" active={isBorrowActive}>
             Borrow
           </NavLink>
           <ThemeToggle />
@@ -65,10 +69,10 @@ export function Navbar() {
           theme === "dark" ? "border-t border-cryptic-accent/20" : "border-t border-slate-200"
         )}>
           <div className="space-y-3 px-2">
-            <NavLink href="/lending" active mobile>
+            <NavLink href="/lending" active={isLendingActive} mobile>
               Lend
             </NavLink>
-            <NavLink href="/borrow" mobile>
+            <NavLink href="/borrow" active={isBorrowActive} mobile>
               Borrow
             </NavLink>
             <div className="mt-4">
