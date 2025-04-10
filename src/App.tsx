@@ -5,6 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Lending from "./pages/Lending";
+import Borrow from "./pages/Borrow";
+import MarketDetail from "./pages/MarketDetail";
 import NotFound from "./pages/NotFound";
 import VaultDetail from "./pages/VaultDetail";
 import { AppKitProvider } from "./providers/AppKitProvider";
@@ -22,6 +25,9 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/lending" element={<Lending />} />
+              <Route path="/borrow" element={<Borrow />} />
+              <Route path="/market/:id" element={<MarketDetail />} />
               <Route path="/vault/:id" element={<VaultDetail />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

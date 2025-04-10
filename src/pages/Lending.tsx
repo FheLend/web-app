@@ -4,7 +4,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { VaultTable } from '@/components/VaultTable';
 import { Footer } from '@/components/Footer';
 
-const Index = () => {
+const Lending = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -17,4 +17,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Lending;

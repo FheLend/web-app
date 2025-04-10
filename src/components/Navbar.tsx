@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,14 +34,11 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8 items-center text-base">
-          <NavLink href="#" active>
+          <NavLink href="/lending" active>
             Lend
           </NavLink>
-          <NavLink href="#">
+          <NavLink href="/borrow">
             Borrow
-          </NavLink>
-          <NavLink href="#">
-            Vaults
           </NavLink>
           <ThemeToggle />
           <WalletButton />
@@ -67,14 +65,11 @@ export function Navbar() {
           theme === "dark" ? "border-t border-cryptic-accent/20" : "border-t border-slate-200"
         )}>
           <div className="space-y-3 px-2">
-            <NavLink href="#" active mobile>
+            <NavLink href="/lending" active mobile>
               Lend
             </NavLink>
-            <NavLink href="#" mobile>
+            <NavLink href="/borrow" mobile>
               Borrow
-            </NavLink>
-            <NavLink href="#" mobile>
-              Vaults
             </NavLink>
             <div className="mt-4">
               <WalletButton />
@@ -95,8 +90,8 @@ interface NavLinkProps {
 
 function NavLink({ href, children, active, mobile }: NavLinkProps) {
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className={cn(
         "transition-colors duration-200 text-base",
         mobile ? "block py-2 px-3 rounded-md" : "inline-flex items-center",
@@ -107,6 +102,6 @@ function NavLink({ href, children, active, mobile }: NavLinkProps) {
       )}
     >
       {children}
-    </a>
+    </Link>
   );
 }
