@@ -1,6 +1,7 @@
-import { HeroSection } from "@/components/HeroSection";
-import { VaultTable } from "@/components/VaultTable";
-import { Footer } from "@/components/Footer";
+
+import { HeroSection } from '@/components/HeroSection';
+import { VaultTable } from '@/components/VaultTable';
+import { Footer } from '@/components/Footer';
 
 const Lending = () => {
   return (

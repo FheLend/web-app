@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,15 +5,13 @@ import { cn } from '@/lib/utils';
 import { Link, useLocation } from 'react-router-dom';
 import { WalletButton } from '@/components/WalletButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useTheme } from '@/providers/ThemeProvider';
 import { useThemeStyles } from '@/lib/themeUtils';
 import Logo from "@/assets/logo.svg";
 import LogoWhite from "@/assets/logo-white.svg";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { theme } = useTheme();
-  const { navbarStyles } = useThemeStyles();
+  const { isDark, navbarStyles, mobileMenuDivider } = useThemeStyles();
   const location = useLocation();
   
   const isLendingActive = location.pathname === '/' || location.pathname === '/lending' || location.pathname.startsWith('/vault');
@@ -26,7 +23,7 @@ export function Navbar() {
         <div className="flex items-center">
           <Link to="/" className="flex items-center text-white">
             <img 
-              src={theme === "dark" ? LogoWhite : Logo} 
+              src={isDark ? LogoWhite : Logo} 
               alt="Felend Logo" 
               className="h-8 mr-2"
             />
@@ -61,10 +58,7 @@ export function Navbar() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className={cn(
-          "md:hidden pt-4 pb-3 mt-4",
-          theme === "dark" ? "border-t border-cryptic-accent/20" : "border-t border-slate-200"
-        )}>
+        <div className={mobileMenuDivider}>
           <div className="space-y-3 px-2">
             <NavLink href="/lending" active={isLendingActive} mobile>
               Lend

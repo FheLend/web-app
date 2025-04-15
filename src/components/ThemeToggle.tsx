@@ -2,9 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
+import { useThemeStyles } from "@/lib/themeUtils";
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const { isDark } = useThemeStyles();
 
   return (
     <Button
@@ -14,13 +16,13 @@ export function ThemeToggle() {
       className="text-foreground hover:bg-cryptic-accent/20 transition-colors duration-200"
       aria-label="Toggle theme"
     >
-      {theme === "dark" ? (
+      {isDark ? (
         <Sun className="h-5 w-5 text-cryptic-accent" />
       ) : (
         <Moon className="h-5 w-5 text-cryptic-accent" />
       )}
       <span className="sr-only">
-        {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        {isDark ? "Switch to light mode" : "Switch to dark mode"}
       </span>
     </Button>
   );

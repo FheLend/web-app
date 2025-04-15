@@ -1,25 +1,20 @@
 
 import { Shield, Key } from 'lucide-react';
-import { useTheme } from '@/providers/ThemeProvider';
+import { useThemeStyles } from '@/lib/themeUtils';
 import { cn } from '@/lib/utils';
 import Logo from "@/assets/logo.svg";
 import LogoWhite from "@/assets/logo-white.svg";
 
 export function Footer() {
-  const { theme } = useTheme();
+  const { isDark, footerStyles, footerDivider } = useThemeStyles();
   
   return (
-    <footer className={cn(
-      "py-12 px-4 sm:px-6 border-t",
-      theme === "dark" 
-        ? "bg-cryptic-darker border-cryptic-purple/20" 
-        : "bg-slate-50 border-slate-200"
-    )}>
+    <footer className={footerStyles}>
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center mb-4">
-            <img src={theme === 'dark' ? LogoWhite : Logo} alt="Felend Logo" className="h-8" />
+              <img src={isDark ? LogoWhite : Logo} alt="Felend Logo" className="h-8" />
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               A revolutionary lending protocol that leverages Fully Homomorphic Encryption to secure user financial data on the blockchain.
@@ -57,10 +52,7 @@ export function Footer() {
           </div>
         </div>
         
-        <div className={cn(
-          "mt-12 pt-8 border-t", 
-          theme === "dark" ? "border-cryptic-purple/10" : "border-slate-200"
-        )}>
+        <div className={footerDivider}>
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-muted-foreground">
               © 2025 Felend. All rights reserved. Secured with Fully Homomorphic Encryption.

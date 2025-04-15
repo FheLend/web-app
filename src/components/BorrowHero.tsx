@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useAccount } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import { useThemeStyles } from "@/lib/themeUtils";
-import { cn } from "@/lib/utils";
 import Lottie from "lottie-react";
 import animationData from "@/assets/felend_animation.json";
 
