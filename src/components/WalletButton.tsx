@@ -13,8 +13,8 @@ import {
 import { useAppKit } from "@reown/appkit/react";
 import { formatEther } from 'viem'
 import { Image } from '@/components/ui/image'
-import { useTheme } from '@/providers/ThemeProvider'
 import { cn } from '@/lib/utils'
+import { useThemeStyles } from '@/lib/themeUtils'
 
 export function WalletButton() {
   const { address, isConnected, chain } = useAccount()
@@ -23,7 +23,7 @@ export function WalletButton() {
   const appKit = useAppKit();
   const { data: balanceData } = useBalance({ address })
   const { disconnect } = useDisconnect()
-  const { theme } = useTheme();
+  const { walletButtonStyles, dropdownMenuContent, dropdownMenuItem } = useThemeStyles();
   
   // Access chainImages from the global window object where AppKit stores it
   const chainImages = (window as any).__APPKIT__?.chainImages || {};
@@ -33,11 +33,7 @@ export function WalletButton() {
       <Button 
         variant="outline" 
         size="sm" 
-        className={cn(
-          "border-cryptic-accent/50 bg-transparent text-cryptic-accent text-base",
-          "hover:bg-cryptic-accent/10",
-          theme === "light" && "hover:text-cryptic-accent"
-        )}
+        className={walletButtonStyles}
         onClick={() => appKit.open()}
       >
         <Lock className="mr-2 h-4 w-4" />
@@ -87,11 +83,7 @@ export function WalletButton() {
           <Button 
             variant="outline" 
             size="sm" 
-            className={cn(
-              "border-cryptic-accent/50 bg-transparent text-cryptic-accent text-base flex items-center",
-              "hover:bg-cryptic-accent/10",
-              theme === "light" && "hover:text-cryptic-accent"
-            )}
+            className={cn(walletButtonStyles, "flex items-center")}
           >
             <div className="w-5 h-5 rounded-full mr-2 flex justify-center items-center overflow-hidden">
               {getChainImage(chain?.id) ? (
@@ -110,19 +102,15 @@ export function WalletButton() {
             <ChevronDown className="h-4 w-4 ml-1" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className={cn(
-          "w-56 border-cryptic-accent/20",
-          theme === "dark" ? "bg-cryptic-darker" : "bg-card"
-        )}>
+        <DropdownMenuContent align="end" className={dropdownMenuContent}>
           <div className="px-2 py-1.5 text-sm font-semibold">Switch Network</div>
           <DropdownMenuSeparator className="bg-cryptic-accent/20" />
           {chains.map((availableChain) => (
             <DropdownMenuItem 
               key={availableChain.id}
               className={cn(
-                "cursor-pointer flex items-center",
-                chain?.id === availableChain.id ? "text-cryptic-accent" : "",
-                theme === "dark" ? "hover:bg-cryptic-accent/10" : "hover:bg-secondary"
+                dropdownMenuItem,
+                chain?.id === availableChain.id ? "text-cryptic-accent" : ""
               )}
               onClick={() => switchChain({ chainId: availableChain.id })}
             >
@@ -152,24 +140,14 @@ export function WalletButton() {
           <Button 
             variant="outline" 
             size="sm" 
-            className={cn(
-              "border-cryptic-accent/50 bg-transparent text-cryptic-accent text-base",
-              "hover:bg-cryptic-accent/10",
-              theme === "light" && "hover:text-cryptic-accent"
-            )}
+            className={walletButtonStyles}
           >
             {displayAddress}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className={cn(
-          "w-56 border-cryptic-accent/20",
-          theme === "dark" ? "bg-cryptic-darker" : "bg-card"
-        )}>
+        <DropdownMenuContent align="end" className={dropdownMenuContent}>
           <DropdownMenuItem 
-            className={cn(
-              "cursor-pointer flex items-center",
-              theme === "dark" ? "hover:bg-cryptic-accent/10" : "hover:bg-secondary"
-            )}
+            className={dropdownMenuItem}
             onClick={() => {
               window.open(`https://etherscan.io/address/${address}`, '_blank')
             }}

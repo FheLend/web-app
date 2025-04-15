@@ -5,7 +5,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useThemeStyles } from "@/lib/themeUtils";
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
   const { isDark } = useThemeStyles();
 
   return (

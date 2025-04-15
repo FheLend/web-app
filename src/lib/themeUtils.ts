@@ -97,6 +97,19 @@ export function useThemeStyles() {
       isDark 
         ? "bg-cryptic-darker border-cryptic-muted" 
         : "bg-white border-slate-200"
+    ),
+    walletButtonStyles: cn(
+      "border-cryptic-accent/50 bg-transparent text-cryptic-accent text-base",
+      "hover:bg-cryptic-accent/10",
+      isDark ? "" : "hover:text-cryptic-accent"
+    ),
+    dropdownMenuContent: cn(
+      "w-56 border-cryptic-accent/20",
+      isDark ? "bg-cryptic-darker" : "bg-card"
+    ),
+    dropdownMenuItem: cn(
+      "cursor-pointer flex items-center",
+      isDark ? "hover:bg-cryptic-accent/10" : "hover:bg-secondary"
     )
   };
 }
