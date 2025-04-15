@@ -251,9 +251,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 {market.collateralToken.symbol} / {market.loanToken.symbol}
               </span>
             </div>
-            <div className={marketBadge}>
-              {market.ltv}
-            </div>
+            <div className={marketBadge}>{market.ltv}</div>
           </div>
         </div>
 
@@ -1019,14 +1017,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                   </CardContent>
                 </Card>
 
-                <Card
-                  className={cn(
-                    "cryptic-shadow",
-                    theme === "dark"
-                      ? "bg-cryptic-darker border-cryptic-purple/20"
-                      : "bg-white border-slate-200"
-                  )}
-                >
+                <Card className={cardStyles}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-2xl">
                       Oracle Configuration
@@ -1078,14 +1069,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
 
           <div className="md:col-span-1 relative">
             <div className="lg:sticky lg:top-24 space-y-6">
-              <Card
-                className={cn(
-                  "cryptic-shadow",
-                  theme === "dark"
-                    ? "bg-cryptic-darker border-cryptic-purple/20"
-                    : "bg-white border-slate-200"
-                )}
-              >
+              <Card className={cardStyles}>
                 <CardHeader>
                   <CardTitle className="text-xl">
                     Supply Collateral {market.collateralToken.symbol}
@@ -1141,14 +1125,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 </CardContent>
               </Card>
 
-              <Card
-                className={cn(
-                  "cryptic-shadow",
-                  theme === "dark"
-                    ? "bg-cryptic-darker border-cryptic-purple/20"
-                    : "bg-white border-slate-200"
-                )}
-              >
+              <Card className={cardStyles}>
                 <CardHeader>
                   <CardTitle className="text-xl">
                     Borrow {market.loanToken.symbol}
@@ -1204,14 +1181,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 </CardContent>
               </Card>
 
-              <Card
-                className={cn(
-                  "cryptic-shadow",
-                  theme === "dark"
-                    ? "bg-cryptic-darker border-cryptic-purple/20"
-                    : "bg-white border-slate-200"
-                )}
-              >
+              <Card className={cardStyles}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">Your position</CardTitle>
                 </CardHeader>
