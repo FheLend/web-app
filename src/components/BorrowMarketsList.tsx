@@ -1,12 +1,10 @@
-
 import { useState } from 'react';
-import { Search, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useTheme } from '@/providers/ThemeProvider';
 import { Image } from '@/components/ui/image';
 import {
   Table,
@@ -16,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useThemeStyles } from '@/lib/themeUtils';
 
 type Filter = 'All' | 'ETH' | 'USDC' | 'USDT' | 'WBTC';
 type SortField = 'ltv' | 'liquidity' | 'rate' | null;
@@ -149,7 +148,15 @@ export function BorrowMarketsList() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { theme } = useTheme();
+  const { 
+    badgeStyles, 
+    inputStyles, 
+    tableContainerStyles, 
+    tableHeaderStyles, 
+    tableRowStyles, 
+    tableDividerStyles,
+    mobileTileStyles
+  } = useThemeStyles();
   
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -221,12 +228,7 @@ export function BorrowMarketsList() {
     return sortedMarkets.map((market) => (
       <div 
         key={market.id}
-        className={cn(
-          "mb-4 p-4 rounded-lg border hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer",
-          theme === "dark" 
-            ? "bg-cryptic-dark/50 border-cryptic-muted/20" 
-            : "bg-white border-slate-200 hover:bg-slate-50"
-        )}
+        className={mobileTileStyles}
         onClick={() => handleRowClick(market.id)}
       >
         <div className="flex items-center mb-3 justify-between">
@@ -288,12 +290,7 @@ export function BorrowMarketsList() {
           <div>
             <div className="text-muted-foreground">Vault Rating</div>
             <div className="flex items-center">
-              <span className={cn(
-                "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                theme === "dark" 
-                  ? "bg-cryptic-purple/10 text-cryptic-highlight" 
-                  : "bg-blue-50 text-cryptic-accent"
-              )}>
+              <span className={badgeStyles}>
                 +{market.vaultRating}
               </span>
             </div>
@@ -337,9 +334,7 @@ export function BorrowMarketsList() {
               placeholder="Search markets"
               className={cn(
                 "pl-10 w-full sm:w-64 text-base",
-                theme === "dark" 
-                  ? "bg-cryptic-darker border-cryptic-muted" 
-                  : "bg-white border-slate-200"
+                inputStyles
               )}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -352,12 +347,9 @@ export function BorrowMarketsList() {
             {renderMobileMarkets()}
           </div>
         ) : (
-          <div className={cn(
-            "overflow-x-auto cryptic-shadow rounded-lg border",
-            theme === "dark" ? "border-cryptic-accent/20" : "border-slate-200"
-          )}>
+          <div className={tableContainerStyles}>
             <Table className="w-full text-base">
-              <TableHeader className={theme === "dark" ? "bg-cryptic-darker" : "bg-slate-50"}>
+              <TableHeader className={tableHeaderStyles}>
                 <TableRow>
                   <TableHead className="text-left font-medium text-muted-foreground">Collateral</TableHead>
                   <TableHead className="text-left font-medium text-muted-foreground">Loan</TableHead>
@@ -391,19 +383,11 @@ export function BorrowMarketsList() {
                   <TableHead className="text-left font-medium text-muted-foreground">Vault Rating</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className={cn(
-                "divide-y",
-                theme === "dark" ? "divide-cryptic-muted/20" : "divide-slate-100"
-              )}>
+              <TableBody className={tableDividerStyles}>
                 {sortedMarkets.map((market) => (
                   <TableRow 
                     key={market.id} 
-                    className={cn(
-                      "transition duration-150 cursor-pointer",
-                      theme === "dark" 
-                        ? "bg-cryptic-dark/50 hover:bg-cryptic-purple/10" 
-                        : "bg-white hover:bg-slate-50"
-                    )}
+                    className={tableRowStyles}
                     onClick={() => handleRowClick(market.id)}
                   >
                     <TableCell className="whitespace-nowrap">
@@ -469,12 +453,7 @@ export function BorrowMarketsList() {
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">
-                        <span className={cn(
-                          "inline-flex items-center px-2 py-1 rounded-full text-sm font-medium",
-                          theme === "dark" 
-                            ? "bg-cryptic-purple/10 text-cryptic-highlight" 
-                            : "bg-blue-50 text-cryptic-accent"
-                        )}>
+                        <span className={badgeStyles}>
                           +{market.vaultRating}
                         </span>
                       </div>

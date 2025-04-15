@@ -1,3 +1,4 @@
+
 import { HeroSection } from "@/components/HeroSection";
 import { VaultTable } from "@/components/VaultTable";
 import { Footer } from "@/components/Footer";
