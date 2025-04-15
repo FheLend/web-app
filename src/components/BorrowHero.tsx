@@ -1,8 +1,9 @@
+
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useThemeStyles } from "@/lib/themeUtils";
 import { cn } from "@/lib/utils";
 import Lottie from "lottie-react";
 import animationData from "@/assets/felend_animation.json";
@@ -10,17 +11,10 @@ import animationData from "@/assets/felend_animation.json";
 export function BorrowHero() {
   const { isConnected } = useAccount();
   const { open } = useAppKit();
-  const { theme } = useTheme();
+  const { heroContainer, glowText, headingText } = useThemeStyles();
 
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden py-16 md:py-24",
-        theme === "dark"
-          ? "bg-cryptic-dark"
-          : "bg-gradient-to-b from-accent/5 to-accent/10"
-      )}
-    >
+    <div className={heroContainer}>
       {/* Animated background elements */}
       <div
         className="absolute top-1/3 right-1/4 w-72 h-72 bg-purple-glow opacity-20 animate-float"
@@ -35,12 +29,7 @@ export function BorrowHero() {
         <div className="text-center sm:text-left mb-10">
           <p className="text-cryptic-accent font-medium tracking-wide mb-3">
             Total Value Locked:{" "}
-            <span
-              className={cn(
-                "text-cryptic-highlight",
-                theme === "dark" ? "animate-glow" : ""
-              )}
-            >
+            <span className={glowText}>
               ₿ 72,538.45
             </span>
           </p>
@@ -49,9 +38,7 @@ export function BorrowHero() {
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h1 className="font-spaceGrotesk text-4xl md:text-5xl lg:text-6xl font-bold mb-6 relative">
-              <span
-                className={theme === "dark" ? "text-glow" : "text-foreground"}
-              >
+              <span className={headingText}>
                 Provide collateral
               </span>
               <br />

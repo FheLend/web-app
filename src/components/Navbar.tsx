@@ -7,24 +7,21 @@ import { Link, useLocation } from 'react-router-dom';
 import { WalletButton } from '@/components/WalletButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useTheme } from '@/providers/ThemeProvider';
+import { useThemeStyles } from '@/lib/themeUtils';
 import Logo from "@/assets/logo.svg";
 import LogoWhite from "@/assets/logo-white.svg";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme } = useTheme();
+  const { navbarStyles } = useThemeStyles();
   const location = useLocation();
   
   const isLendingActive = location.pathname === '/' || location.pathname === '/lending' || location.pathname.startsWith('/vault');
   const isBorrowActive = location.pathname === '/borrow' || location.pathname.startsWith('/market');
   
   return (
-    <nav className={cn(
-      "py-4 px-4 sm:px-6 border-b sticky top-0 z-50 backdrop-blur-md",
-      theme === "dark" 
-        ? "bg-cryptic-darker/80 border-cryptic-accent/20" 
-        : "bg-slate-50/90 border-slate-200"
-    )}>
+    <nav className={navbarStyles}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center text-white">
