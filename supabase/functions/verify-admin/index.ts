@@ -28,9 +28,6 @@ serve(async (req) => {
       // Recover the address from the signature
       recoveredAddress = ethers.verifyMessage(message, signature)
       
-      console.log('Recovered address:', recoveredAddress)
-      console.log('Provided address:', walletAddress)
-      
       // Check if addresses match (case insensitive)
       if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
         return new Response(
@@ -43,33 +40,20 @@ serve(async (req) => {
       const { data, error } = await supabase
         .from('admin_wallets')
         .select('wallet_address')
-        .eq('wallet_address', walletAddress.toLowerCase())
+        .eq('wallet_address', walletAddress)
         .single()
       
-      console.log('Admin check result:', data, error)
-      
       if (error || !data) {
-        // Try again with uppercase
-        const { data: upperData, error: upperError } = await supabase
-          .from('admin_wallets')
-          .select('wallet_address')
-          .eq('wallet_address', walletAddress)
-          .single()
-          
-        console.log('Second admin check result:', upperData, upperError)
-        
-        if (upperError || !upperData) {
-          return new Response(
-            JSON.stringify({ success: false, error: "Not authorized as admin" }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
-          )
-        }
+        return new Response(
+          JSON.stringify({ success: false, error: "Not authorized as admin" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+        )
       }
       
       // Generate a JWT with the wallet address claim
       const jwtResponse = await supabase.auth.admin.createToken({
         claims: {
-          wallet_address: walletAddress.toLowerCase()
+          wallet_address: walletAddress
         }
       })
       

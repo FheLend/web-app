@@ -35,6 +35,7 @@ const App = () => (
                 <Route path="/market/:id" element={<MarketDetail />} />
                 <Route path="/vault/:id" element={<VaultDetail />} />
                 <Route path="/settings" element={<Settings />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
