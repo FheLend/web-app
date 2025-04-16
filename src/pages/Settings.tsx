@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -64,6 +63,7 @@ const initialFormData: FormData = {
 
 export default function Settings() {
   const { isAdmin, isLoading, error, verifyAdmin } = useAdminAuthContext();
+  const { isConnected } = useAccount();
   const [verifyingAdmin, setVerifyingAdmin] = useState(false);
   const [configs, setConfigs] = useState<ContractConfig[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,7 +143,6 @@ export default function Settings() {
     
     try {
       if (editingId) {
-        // Update existing config
         const { error } = await supabase
           .from('contract_configs')
           .update({
@@ -159,7 +158,6 @@ export default function Settings() {
           description: "Contract configuration updated successfully.",
         });
       } else {
-        // Create new config
         const { error } = await supabase
           .from('contract_configs')
           .insert([formData]);
@@ -227,7 +225,6 @@ export default function Settings() {
     }
   };
 
-  // If not yet verified as admin, show verification UI
   if (!isAdmin) {
     return (
       <div className="container mx-auto py-12 px-4">
