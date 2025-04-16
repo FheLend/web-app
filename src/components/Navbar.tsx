@@ -1,11 +1,13 @@
+
 import { useState } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link, useLocation } from 'react-router-dom';
 import { WalletButton } from '@/components/WalletButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useThemeStyles } from '@/lib/themeUtils';
+import { useAdminAuthContext } from '@/providers/AdminAuthProvider';
 import Logo from "@/assets/logo.svg";
 import LogoWhite from "@/assets/logo-white.svg";
 
@@ -13,9 +15,11 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDark, navbarStyles, mobileMenuDivider } = useThemeStyles();
   const location = useLocation();
+  const { isAdmin } = useAdminAuthContext();
   
   const isLendingActive = location.pathname === '/' || location.pathname === '/lending' || location.pathname.startsWith('/vault');
   const isBorrowActive = location.pathname === '/borrow' || location.pathname.startsWith('/market');
+  const isSettingsActive = location.pathname === '/settings';
   
   return (
     <nav className={navbarStyles}>
@@ -38,6 +42,12 @@ export function Navbar() {
           <NavLink href="/borrow" active={isBorrowActive}>
             Borrow
           </NavLink>
+          {isAdmin && (
+            <NavLink href="/settings" active={isSettingsActive}>
+              <Settings className="h-4 w-4 mr-1" />
+              Settings
+            </NavLink>
+          )}
           <ThemeToggle />
           <WalletButton />
         </div>
@@ -66,6 +76,12 @@ export function Navbar() {
             <NavLink href="/borrow" active={isBorrowActive} mobile>
               Borrow
             </NavLink>
+            {isAdmin && (
+              <NavLink href="/settings" active={isSettingsActive} mobile>
+                <Settings className="h-4 w-4 mr-1" />
+                Settings
+              </NavLink>
+            )}
             <div className="mt-4">
               <WalletButton />
             </div>

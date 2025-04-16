@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,8 +10,10 @@ import Borrow from "./pages/Borrow";
 import MarketDetail from "./pages/MarketDetail";
 import NotFound from "./pages/NotFound";
 import VaultDetail from "./pages/VaultDetail";
+import Settings from "./pages/Settings";
 import { AppKitProvider } from "./providers/AppKitProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
+import { AdminAuthProvider } from "./providers/AdminAuthProvider";
 import { Navbar } from "./components/Navbar";
 
 const queryClient = new QueryClient();
@@ -19,22 +22,25 @@ const App = () => (
   <ThemeProvider>
     <AppKitProvider>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/lending" element={<Lending />} />
-              <Route path="/borrow" element={<Borrow />} />
-              <Route path="/market/:id" element={<MarketDetail />} />
-              <Route path="/vault/:id" element={<VaultDetail />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <AdminAuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/lending" element={<Lending />} />
+                <Route path="/borrow" element={<Borrow />} />
+                <Route path="/market/:id" element={<MarketDetail />} />
+                <Route path="/vault/:id" element={<VaultDetail />} />
+                <Route path="/settings" element={<Settings />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AdminAuthProvider>
       </QueryClientProvider>
     </AppKitProvider>
   </ThemeProvider>

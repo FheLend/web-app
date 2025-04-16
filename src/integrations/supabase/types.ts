@@ -9,13 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_wallets: {
+        Row: {
+          created_at: string
+          id: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      contract_configs: {
+        Row: {
+          active: boolean | null
+          contract_address: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          network: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          contract_address: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          network: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          contract_address?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          network?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin_wallet: {
+        Args: { _wallet_address: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
