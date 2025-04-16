@@ -10,7 +10,7 @@ export function useAdminAuth() {
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
-  // Check if wallet is admin on mount
+  // Check if wallet is admin on mount and when wallet changes
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (!isConnected || !address) {
@@ -20,17 +20,38 @@ export function useAdminAuth() {
       }
 
       try {
-        // Try to get the stored token
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          const claims = session.user.user_metadata?.wallet_address;
-          if (claims && claims.toLowerCase() === address.toLowerCase()) {
-            setIsAdmin(true);
-            setIsLoading(false);
-            return;
+        // Check if the wallet is in admin_wallets table
+        const { data, error: fetchError } = await supabase
+          .from('admin_wallets')
+          .select('wallet_address')
+          .eq('wallet_address', address.toLowerCase())
+          .single();
+
+        if (fetchError) {
+          console.log('Not found in admin table:', fetchError);
+          // Try to get the stored token
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            const claims = session.user.user_metadata?.wallet_address;
+            if (claims && claims.toLowerCase() === address.toLowerCase()) {
+              setIsAdmin(true);
+              setIsLoading(false);
+              return;
+            }
           }
+          
+          setIsAdmin(false);
+          setIsLoading(false);
+          return;
         }
 
+        if (data) {
+          console.log('Found in admin table:', data);
+          setIsAdmin(true);
+          setIsLoading(false);
+          return;
+        }
+        
         setIsAdmin(false);
         setIsLoading(false);
       } catch (err) {
