@@ -1,38 +1,38 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Shield, 
-  Loader2, 
-  PlusCircle, 
-  Trash, 
-  Edit, 
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Shield,
+  Loader2,
+  PlusCircle,
+  Trash,
+  Edit,
   Save,
-  X 
-} from 'lucide-react';
-import { useAdminAuthContext } from '@/providers/AdminAuthProvider';
-import { useAccount } from 'wagmi';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+  X,
+} from "lucide-react";
+import { useAdminAuthContext } from "@/providers/AdminAuthProvider";
+import { useAccount } from "wagmi";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogDescription,
-  DialogFooter
-} from '@/components/ui/dialog';
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useThemeStyles } from '@/lib/themeUtils';
+  TableRow,
+} from "@/components/ui/table";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useThemeStyles } from "@/lib/themeUtils";
 
 interface ContractConfig {
   id: string;
@@ -54,10 +54,10 @@ interface FormData {
 }
 
 const initialFormData: FormData = {
-  name: '',
-  contract_address: '',
-  network: '',
-  description: '',
+  name: "",
+  contract_address: "",
+  network: "",
+  description: "",
   active: true,
 };
 
@@ -77,7 +77,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (!isAdmin && !isLoading && !verifyingAdmin) {
-      navigate('/');
+      navigate("/");
     }
   }, [isAdmin, isLoading, verifyingAdmin, navigate]);
 
@@ -85,7 +85,7 @@ export default function Settings() {
     setVerifyingAdmin(true);
     const success = await verifyAdmin();
     setVerifyingAdmin(false);
-    
+
     if (success) {
       toast({
         title: "Verification Successful",
@@ -102,17 +102,18 @@ export default function Settings() {
   };
 
   const fetchConfigs = async () => {
+    console.log("Fetching contract configurations...");
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('contract_configs')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
+        .from("contract_configs")
+        .select("*")
+        .order("created_at", { ascending: false });
+
       if (error) throw error;
       setConfigs(data || []);
     } catch (err) {
-      console.error('Error fetching configs:', err);
+      console.error("Error fetching configs:", err);
       toast({
         title: "Error",
         description: "Failed to load contract configurations.",
@@ -123,11 +124,17 @@ export default function Settings() {
     }
   };
 
+  useEffect(() => {
+    if (isAdmin) {
+      fetchConfigs();
+    }
+  }, [isAdmin]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
@@ -140,40 +147,40 @@ export default function Settings() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    
+
     try {
       if (editingId) {
         const { error } = await supabase
-          .from('contract_configs')
+          .from("contract_configs")
           .update({
             ...formData,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', editingId);
-        
+          .eq("id", editingId);
+
         if (error) throw error;
-        
+
         toast({
           title: "Success",
           description: "Contract configuration updated successfully.",
         });
       } else {
         const { error } = await supabase
-          .from('contract_configs')
+          .from("contract_configs")
           .insert([formData]);
-        
+
         if (error) throw error;
-        
+
         toast({
           title: "Success",
           description: "Contract configuration created successfully.",
         });
       }
-      
+
       resetForm();
       fetchConfigs();
     } catch (err) {
-      console.error('Error saving config:', err);
+      console.error("Error saving config:", err);
       toast({
         title: "Error",
         description: "Failed to save contract configuration.",
@@ -189,7 +196,7 @@ export default function Settings() {
       name: config.name,
       contract_address: config.contract_address,
       network: config.network,
-      description: config.description || '',
+      description: config.description || "",
       active: config.active,
     });
     setEditingId(config.id);
@@ -197,26 +204,28 @@ export default function Settings() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this configuration?')) {
+    if (
+      !window.confirm("Are you sure you want to delete this configuration?")
+    ) {
       return;
     }
-    
+
     try {
       const { error } = await supabase
-        .from('contract_configs')
+        .from("contract_configs")
         .delete()
-        .eq('id', id);
-      
+        .eq("id", id);
+
       if (error) throw error;
-      
+
       toast({
         title: "Success",
         description: "Contract configuration deleted successfully.",
       });
-      
+
       fetchConfigs();
     } catch (err) {
-      console.error('Error deleting config:', err);
+      console.error("Error deleting config:", err);
       toast({
         title: "Error",
         description: "Failed to delete contract configuration.",
@@ -233,10 +242,11 @@ export default function Settings() {
             <Shield className="h-16 w-16 text-cryptic-accent" />
             <h1 className="text-2xl font-bold">Admin Access Required</h1>
             <p className="text-muted-foreground">
-              This page requires admin privileges. Please verify that you own the admin wallet.
+              This page requires admin privileges. Please verify that you own
+              the admin wallet.
             </p>
-            <Button 
-              onClick={handleVerifyAdmin} 
+            <Button
+              onClick={handleVerifyAdmin}
               disabled={verifyingAdmin || !isConnected}
               className="w-full"
             >
@@ -245,11 +255,11 @@ export default function Settings() {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Verifying...
                 </>
-              ) : "Verify Admin Status"}
+              ) : (
+                "Verify Admin Status"
+              )}
             </Button>
-            {error && (
-              <p className="text-destructive text-sm">{error}</p>
-            )}
+            {error && <p className="text-destructive text-sm">{error}</p>}
           </div>
         </div>
       </div>
@@ -272,7 +282,9 @@ export default function Settings() {
         </div>
       ) : configs.length === 0 ? (
         <div className={`${cardStyles} p-8 text-center`}>
-          <p className="text-muted-foreground">No contract configurations found.</p>
+          <p className="text-muted-foreground">
+            No contract configurations found.
+          </p>
           <Button onClick={() => setShowForm(true)} className="mt-4">
             Add Your First Configuration
           </Button>
@@ -294,12 +306,21 @@ export default function Settings() {
                 <TableRow key={config.id} className={tableRow}>
                   <TableCell className="font-medium">{config.name}</TableCell>
                   <TableCell className="font-mono text-sm">
-                    {config.contract_address.substring(0, 6)}...{config.contract_address.substring(config.contract_address.length - 4)}
+                    {config.contract_address.substring(0, 6)}...
+                    {config.contract_address.substring(
+                      config.contract_address.length - 4
+                    )}
                   </TableCell>
                   <TableCell>{config.network}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${config.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {config.active ? 'Active' : 'Inactive'}
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        config.active
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {config.active ? "Active" : "Inactive"}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
@@ -330,14 +351,16 @@ export default function Settings() {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit Configuration' : 'Add New Configuration'}</DialogTitle>
+            <DialogTitle>
+              {editingId ? "Edit Configuration" : "Add New Configuration"}
+            </DialogTitle>
             <DialogDescription>
-              {editingId 
-                ? 'Update the contract configuration details below.' 
-                : 'Enter the details for the new contract configuration.'}
+              {editingId
+                ? "Update the contract configuration details below."
+                : "Enter the details for the new contract configuration."}
             </DialogDescription>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4 pt-4">
             <div className="grid gap-4">
               <div className="grid gap-2">
@@ -350,7 +373,7 @@ export default function Settings() {
                   required
                 />
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="contract_address">Contract Address</Label>
                 <Input
@@ -361,7 +384,7 @@ export default function Settings() {
                   required
                 />
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="network">Network</Label>
                 <Input
@@ -372,7 +395,7 @@ export default function Settings() {
                   required
                 />
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="description">Description</Label>
                 <Input
@@ -382,7 +405,7 @@ export default function Settings() {
                   onChange={handleInputChange}
                 />
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -395,7 +418,7 @@ export default function Settings() {
                 <Label htmlFor="active">Active</Label>
               </div>
             </div>
-            
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={resetForm}>
                 <X className="mr-2 h-4 w-4" />
@@ -410,7 +433,7 @@ export default function Settings() {
                 ) : (
                   <>
                     <Save className="mr-2 h-4 w-4" />
-                    {editingId ? 'Update' : 'Save'}
+                    {editingId ? "Update" : "Save"}
                   </>
                 )}
               </Button>
