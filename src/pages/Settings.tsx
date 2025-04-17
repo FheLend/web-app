@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -67,7 +66,7 @@ export default function Settings() {
   const { isConnected } = useAccount();
   const [verifyingAdmin, setVerifyingAdmin] = useState(false);
   const [configs, setConfigs] = useState<ContractConfig[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -77,17 +76,10 @@ export default function Settings() {
   const { cardStyles, tableHeader, tableBody, tableRow } = useThemeStyles();
 
   useEffect(() => {
-    if (isAdmin && !loading) {
+    if (isAdmin) {
       fetchConfigs();
     }
   }, [isAdmin]);
-
-  useEffect(() => {
-    if (!isAdmin && !isLoading && !verifyingAdmin) {
-      // Don't redirect, just show the verification page
-      console.log("User is not an admin, showing verification UI");
-    }
-  }, [isAdmin, isLoading, verifyingAdmin, navigate]);
 
   const handleVerifyAdmin = async () => {
     setVerifyingAdmin(true);
@@ -233,6 +225,14 @@ export default function Settings() {
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-12 px-4 flex justify-center items-center">
+        <Loader2 className="h-8 w-8 animate-spin text-cryptic-accent" />
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (

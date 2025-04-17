@@ -22,6 +22,7 @@ export function useAdminAuth() {
       try {
         // Try to get the stored token
         const { data: { session } } = await supabase.auth.getSession();
+        
         if (session) {
           const claims = session.user.user_metadata?.wallet_address;
           if (claims && claims.toLowerCase() === address.toLowerCase()) {
@@ -31,7 +32,22 @@ export function useAdminAuth() {
           }
         }
 
-        setIsAdmin(false);
+        // If there's no session but we have a connected wallet, check if it's in the admin list
+        // but don't set isAdmin=true yet (require verification first)
+        const { data, error: queryError } = await supabase
+          .from('admin_wallets')
+          .select('wallet_address')
+          .ilike('wallet_address', address)
+          .single();
+        
+        if (queryError) {
+          console.log("Not an admin wallet:", queryError);
+          setIsAdmin(false);
+        } else if (data) {
+          console.log("Potential admin wallet found, needs verification:", data);
+          // Don't set isAdmin true yet, just finish loading
+        }
+        
         setIsLoading(false);
       } catch (err) {
         console.error('Error checking admin status:', err);
