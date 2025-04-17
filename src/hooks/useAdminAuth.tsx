@@ -78,9 +78,10 @@ export function useAdminAuth() {
       // Create a message to sign
       const message = `I am verifying that I control the wallet address ${address} to access admin settings. Timestamp: ${Date.now()}`;
       
-      // Request signature
+      // Request signature - Fix: add the account parameter
       const signature = await signMessageAsync({ 
-        message 
+        message,
+        account: address
       });
       
       console.log("Signature obtained:", signature);
