@@ -57,11 +57,15 @@ export function useAdminAuth() {
       // Create a message to sign
       const message = `I am verifying that I control the wallet address ${address} to access admin settings. Timestamp: ${Date.now()}`;
       
-      // Request signature - Fix: Include the account property in the parameter object
+      // Request signature with the correct parameter format including account
       const signature = await signMessageAsync({ 
         message,
         account: address
       });
+      
+      console.log("Signature obtained:", signature);
+      console.log("Message signed:", message);
+      console.log("Wallet address:", address);
       
       // Verify the signature using our edge function
       const response = await supabase.functions.invoke('verify-admin', {
@@ -71,6 +75,8 @@ export function useAdminAuth() {
           walletAddress: address
         }
       });
+
+      console.log("Edge function response:", response);
 
       if (response.error) {
         setError(response.error.message || 'Verification failed');

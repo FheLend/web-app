@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -76,13 +77,21 @@ export default function Settings() {
   const { cardStyles, tableHeader, tableBody, tableRow } = useThemeStyles();
 
   useEffect(() => {
+    if (isAdmin && !loading) {
+      fetchConfigs();
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
     if (!isAdmin && !isLoading && !verifyingAdmin) {
-      navigate('/');
+      // Don't redirect, just show the verification page
+      console.log("User is not an admin, showing verification UI");
     }
   }, [isAdmin, isLoading, verifyingAdmin, navigate]);
 
   const handleVerifyAdmin = async () => {
     setVerifyingAdmin(true);
+    console.log("Starting admin verification...");
     const success = await verifyAdmin();
     setVerifyingAdmin(false);
     

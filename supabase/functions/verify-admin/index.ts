@@ -22,14 +22,21 @@ serve(async (req) => {
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || ''
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
     
-    // Verify the signature
-    let recoveredAddress: string
+    console.log("Verifying signature for wallet:", walletAddress);
+    console.log("Message to verify:", message);
+    
     try {
       // Recover the address from the signature
-      recoveredAddress = ethers.verifyMessage(message, signature)
+      const recoveredAddress = ethers.verifyMessage(message, signature);
+      console.log("Recovered address:", recoveredAddress);
       
       // Check if addresses match (case insensitive)
       if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+        console.log("Signature verification failed. Addresses don't match:", {
+          recovered: recoveredAddress.toLowerCase(),
+          provided: walletAddress.toLowerCase()
+        });
+        
         return new Response(
           JSON.stringify({ success: false, error: "Signature verification failed" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
@@ -40,10 +47,13 @@ serve(async (req) => {
       const { data, error } = await supabase
         .from('admin_wallets')
         .select('wallet_address')
-        .eq('wallet_address', walletAddress)
+        .ilike('wallet_address', walletAddress)
         .single()
       
+      console.log("Found in admin table:", data);
+      
       if (error || !data) {
+        console.log("Not authorized as admin:", error);
         return new Response(
           JSON.stringify({ success: false, error: "Not authorized as admin" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
@@ -58,6 +68,7 @@ serve(async (req) => {
       })
       
       if (jwtResponse.error) {
+        console.log("JWT creation error:", jwtResponse.error);
         return new Response(
           JSON.stringify({ success: false, error: jwtResponse.error.message }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
@@ -74,14 +85,14 @@ serve(async (req) => {
       )
       
     } catch (error) {
-      console.error("Signature verification error:", error)
+      console.error("Signature verification error:", error);
       return new Response(
         JSON.stringify({ success: false, error: "Invalid signature" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       )
     }
   } catch (error) {
-    console.error("Error:", error)
+    console.error("Error:", error);
     return new Response(
       JSON.stringify({ success: false, error: "Internal server error" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
