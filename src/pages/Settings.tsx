@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -62,7 +63,7 @@ const initialFormData: FormData = {
 };
 
 export default function Settings() {
-  const { isAdmin, isLoading, error, verifyAdmin } = useAdminAuthContext();
+  const { isAdmin, potentialAdmin, isLoading, error, verifyAdmin } = useAdminAuthContext();
   const { isConnected } = useAccount();
   const [verifyingAdmin, setVerifyingAdmin] = useState(false);
   const [configs, setConfigs] = useState<ContractConfig[]>([]);
@@ -234,7 +235,7 @@ export default function Settings() {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAdmin && potentialAdmin) {
     return (
       <div className="container mx-auto py-12 px-4">
         <div className={`${cardStyles} max-w-md mx-auto p-6 rounded-lg`}>
@@ -259,6 +260,22 @@ export default function Settings() {
             {error && (
               <p className="text-destructive text-sm">{error}</p>
             )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!potentialAdmin) {
+    return (
+      <div className="container mx-auto py-12 px-4">
+        <div className={`${cardStyles} max-w-md mx-auto p-6 rounded-lg`}>
+          <div className="flex flex-col items-center justify-center text-center space-y-4">
+            <Shield className="h-16 w-16 text-destructive" />
+            <h1 className="text-2xl font-bold">Unauthorized Access</h1>
+            <p className="text-muted-foreground">
+              You don't have permission to access this page. Only admin wallets can view and manage contract configurations.
+            </p>
           </div>
         </div>
       </div>

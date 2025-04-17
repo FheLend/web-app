@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export function useAdminAuth() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [potentialAdmin, setPotentialAdmin] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { address, isConnected } = useAccount();
@@ -15,6 +16,7 @@ export function useAdminAuth() {
     const checkAdminStatus = async () => {
       if (!isConnected || !address) {
         setIsAdmin(false);
+        setPotentialAdmin(false);
         setIsLoading(false);
         return;
       }
@@ -27,13 +29,13 @@ export function useAdminAuth() {
           const claims = session.user.user_metadata?.wallet_address;
           if (claims && claims.toLowerCase() === address.toLowerCase()) {
             setIsAdmin(true);
+            setPotentialAdmin(true);
             setIsLoading(false);
             return;
           }
         }
 
         // If there's no session but we have a connected wallet, check if it's in the admin list
-        // but don't set isAdmin=true yet (require verification first)
         const { data, error: queryError } = await supabase
           .from('admin_wallets')
           .select('wallet_address')
@@ -43,9 +45,11 @@ export function useAdminAuth() {
         if (queryError) {
           console.log("Not an admin wallet:", queryError);
           setIsAdmin(false);
+          setPotentialAdmin(false);
         } else if (data) {
           console.log("Potential admin wallet found, needs verification:", data);
-          // Don't set isAdmin true yet, just finish loading
+          setPotentialAdmin(true);
+          setIsAdmin(false);
         }
         
         setIsLoading(false);
@@ -53,6 +57,7 @@ export function useAdminAuth() {
         console.error('Error checking admin status:', err);
         setError('Failed to check admin status');
         setIsAdmin(false);
+        setPotentialAdmin(false);
         setIsLoading(false);
       }
     };
@@ -73,10 +78,9 @@ export function useAdminAuth() {
       // Create a message to sign
       const message = `I am verifying that I control the wallet address ${address} to access admin settings. Timestamp: ${Date.now()}`;
       
-      // Request signature with the correct parameter format including account
+      // Request signature
       const signature = await signMessageAsync({ 
-        message,
-        account: address
+        message 
       });
       
       console.log("Signature obtained:", signature);
@@ -101,7 +105,7 @@ export function useAdminAuth() {
         return false;
       }
 
-      if (response.data.success && response.data.token) {
+      if (response.data && response.data.success && response.data.token) {
         // Set the session with the token
         await supabase.auth.setSession({
           access_token: response.data.token,
@@ -126,5 +130,5 @@ export function useAdminAuth() {
     }
   };
 
-  return { isAdmin, isLoading, error, verifyAdmin };
+  return { isAdmin, potentialAdmin, isLoading, error, verifyAdmin };
 }

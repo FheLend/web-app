@@ -8,6 +8,7 @@ import { WalletButton } from '@/components/WalletButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useThemeStyles } from '@/lib/themeUtils';
 import { useAdminAuthContext } from '@/providers/AdminAuthProvider';
+import { useAccount } from 'wagmi';
 import Logo from "@/assets/logo.svg";
 import LogoWhite from "@/assets/logo-white.svg";
 
@@ -15,7 +16,8 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDark, navbarStyles, mobileMenuDivider } = useThemeStyles();
   const location = useLocation();
-  const { isAdmin } = useAdminAuthContext();
+  const { potentialAdmin } = useAdminAuthContext();
+  const { address } = useAccount();
   
   const isLendingActive = location.pathname === '/' || location.pathname === '/lending' || location.pathname.startsWith('/vault');
   const isBorrowActive = location.pathname === '/borrow' || location.pathname.startsWith('/market');
@@ -42,7 +44,7 @@ export function Navbar() {
           <NavLink href="/borrow" active={isBorrowActive}>
             Borrow
           </NavLink>
-          {isAdmin && (
+          {potentialAdmin && (
             <NavLink href="/settings" active={isSettingsActive}>
               <Settings className="h-4 w-4 mr-1" />
               Settings
@@ -76,7 +78,7 @@ export function Navbar() {
             <NavLink href="/borrow" active={isBorrowActive} mobile>
               Borrow
             </NavLink>
-            {isAdmin && (
+            {potentialAdmin && (
               <NavLink href="/settings" active={isSettingsActive} mobile>
                 <Settings className="h-4 w-4 mr-1" />
                 Settings

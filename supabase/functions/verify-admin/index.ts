@@ -20,13 +20,15 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || ''
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const adminSupabase = createClient(supabaseUrl, supabaseServiceKey)
     
     console.log("Verifying signature for wallet:", walletAddress);
     console.log("Message to verify:", message);
     
     try {
-      // Recover the address from the signature
+      // Try verifying with ethers.js recoverAddress
       const recoveredAddress = ethers.verifyMessage(message, signature);
       console.log("Recovered address:", recoveredAddress);
       
@@ -60,29 +62,38 @@ serve(async (req) => {
         )
       }
       
-      // Generate a JWT with the wallet address claim
-      const jwtResponse = await supabase.auth.admin.createToken({
-        claims: {
-          wallet_address: walletAddress
+      try {
+        // Generate a JWT with the wallet address claim using service role
+        const jwtResponse = await adminSupabase.auth.admin.createToken({
+          user_id: "00000000-0000-0000-0000-000000000000", // Placeholder ID
+          user_metadata: {
+            wallet_address: walletAddress
+          }
+        })
+        
+        if (jwtResponse.error) {
+          console.log("JWT creation error:", jwtResponse.error);
+          return new Response(
+            JSON.stringify({ success: false, error: jwtResponse.error.message }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+          )
         }
-      })
-      
-      if (jwtResponse.error) {
-        console.log("JWT creation error:", jwtResponse.error);
+        
         return new Response(
-          JSON.stringify({ success: false, error: jwtResponse.error.message }),
+          JSON.stringify({ 
+            success: true, 
+            token: jwtResponse.data.token,
+            isAdmin: true 
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        )
+      } catch (tokenError) {
+        console.error("Token creation error:", tokenError);
+        return new Response(
+          JSON.stringify({ success: false, error: "Failed to create authentication token" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
         )
       }
-      
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          token: jwtResponse.data.token,
-          isAdmin: true 
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      )
       
     } catch (error) {
       console.error("Signature verification error:", error);
