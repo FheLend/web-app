@@ -226,14 +226,6 @@ export default function Settings() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-12 px-4 flex justify-center items-center">
-        <Loader2 className="h-8 w-8 animate-spin text-cryptic-accent" />
-      </div>
-    );
-  }
-
   if (!isAdmin && potentialAdmin) {
     return (
       <div className="container mx-auto py-12 px-4">
