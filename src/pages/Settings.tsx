@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Shield, 
-  Loader2, 
   PlusCircle, 
+  Loader2, 
   Trash, 
   Edit, 
   Save,
@@ -33,6 +32,8 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useThemeStyles } from '@/lib/themeUtils';
+import { AdminVerification } from '@/components/AdminVerification';
+import NotFound from './NotFound';
 
 interface ContractConfig {
   id: string;
@@ -226,36 +227,18 @@ export default function Settings() {
     }
   };
 
+  if (!isLoading && !potentialAdmin) {
+    return <NotFound />;
+  }
+
   if (!isAdmin && potentialAdmin) {
     return (
-      <div className="container mx-auto py-12 px-4">
-        <div className={`${cardStyles} max-w-md mx-auto p-6 rounded-lg`}>
-          <div className="flex flex-col items-center justify-center text-center space-y-4">
-            <Shield className="h-16 w-16 text-cryptic-accent" />
-            <h1 className="text-2xl font-bold">Admin Access Required</h1>
-            <p className="text-muted-foreground">
-              This page requires admin privileges. Please verify that you own the admin wallet.
-            </p>
-            <Button 
-              onClick={handleVerifyAdmin} 
-              disabled={verifyingAdmin || !isConnected}
-              className="w-full"
-            >
-              {verifyingAdmin ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="ml-2">Verifying...</span>
-                </>
-              ) : (
-                "Verify Admin Status"
-              )}
-            </Button>
-            {error && (
-              <p className="text-destructive text-sm">{error}</p>
-            )}
-          </div>
-        </div>
-      </div>
+      <AdminVerification
+        error={error}
+        verifyingAdmin={verifyingAdmin}
+        handleVerifyAdmin={handleVerifyAdmin}
+        isConnected={isConnected}
+      />
     );
   }
 
