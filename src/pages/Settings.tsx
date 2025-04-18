@@ -1,68 +1,17 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  PlusCircle, 
-  Loader2, 
-  Trash, 
-  Edit, 
-  Save,
-  X,
-  Shield
-} from 'lucide-react';
+import { PlusCircle, Loader2, Shield } from 'lucide-react';
 import { useAdminAuthContext } from '@/providers/AdminAuthProvider';
 import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogFooter
-} from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useThemeStyles } from '@/lib/themeUtils';
 import { AdminVerification } from '@/components/AdminVerification';
 import NotFound from './NotFound';
-
-interface ContractConfig {
-  id: string;
-  name: string;
-  contract_address: string;
-  network: string;
-  description: string | null;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface FormData {
-  name: string;
-  contract_address: string;
-  network: string;
-  description: string;
-  active: boolean;
-}
-
-const initialFormData: FormData = {
-  name: '',
-  contract_address: '',
-  network: '',
-  description: '',
-  active: true,
-};
+import { ContractConfigForm } from '@/components/settings/ContractConfigForm';
+import { ContractConfigTable } from '@/components/settings/ContractConfigTable';
+import { ContractConfig, ContractFormData, initialFormData } from '@/types/contract';
 
 export default function Settings() {
   const { isAdmin, potentialAdmin, isLoading, error, verifyAdmin } = useAdminAuthContext();
@@ -71,12 +20,10 @@ export default function Settings() {
   const [configs, setConfigs] = useState<ContractConfig[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] = useState<ContractFormData>(initialFormData);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const { cardStyles, tableHeader, tableBody, tableRow } = useThemeStyles();
+  const { cardStyles } = useThemeStyles();
 
   useEffect(() => {
     if (isAdmin) {
@@ -127,67 +74,6 @@ export default function Settings() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
-  };
-
-  const resetForm = () => {
-    setFormData(initialFormData);
-    setEditingId(null);
-    setShowForm(false);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    
-    try {
-      if (editingId) {
-        const { error } = await supabase
-          .from('contract_configs')
-          .update({
-            ...formData,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', editingId);
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Success",
-          description: "Contract configuration updated successfully.",
-        });
-      } else {
-        const { error } = await supabase
-          .from('contract_configs')
-          .insert([formData]);
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Success",
-          description: "Contract configuration created successfully.",
-        });
-      }
-      
-      resetForm();
-      fetchConfigs();
-    } catch (err) {
-      console.error('Error saving config:', err);
-      toast({
-        title: "Error",
-        description: "Failed to save contract configuration.",
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const handleEdit = (config: ContractConfig) => {
     setFormData({
       name: config.name,
@@ -198,35 +84,6 @@ export default function Settings() {
     });
     setEditingId(config.id);
     setShowForm(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this configuration?')) {
-      return;
-    }
-    
-    try {
-      const { error } = await supabase
-        .from('contract_configs')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: "Contract configuration deleted successfully.",
-      });
-      
-      fetchConfigs();
-    } catch (err) {
-      console.error('Error deleting config:', err);
-      toast({
-        title: "Error",
-        description: "Failed to delete contract configuration.",
-        variant: "destructive",
-      });
-    }
   };
 
   if (!isLoading && !potentialAdmin) {
@@ -282,146 +139,21 @@ export default function Settings() {
           </Button>
         </div>
       ) : (
-        <div className={`${cardStyles} overflow-hidden rounded-lg`}>
-          <Table>
-            <TableHeader className={tableHeader}>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Contract Address</TableHead>
-                <TableHead>Network</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className={tableBody}>
-              {configs.map((config) => (
-                <TableRow key={config.id} className={tableRow}>
-                  <TableCell className="font-medium">{config.name}</TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {config.contract_address.substring(0, 6)}...{config.contract_address.substring(config.contract_address.length - 4)}
-                  </TableCell>
-                  <TableCell>{config.network}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${config.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {config.active ? 'Active' : 'Inactive'}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEdit(config)}
-                      className="mr-1"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(config.id)}
-                      className="text-destructive"
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <ContractConfigTable 
+          configs={configs} 
+          onEdit={handleEdit}
+          onDelete={fetchConfigs}
+        />
       )}
 
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit Configuration' : 'Add New Configuration'}</DialogTitle>
-            <DialogDescription>
-              {editingId 
-                ? 'Update the contract configuration details below.' 
-                : 'Enter the details for the new contract configuration.'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="contract_address">Contract Address</Label>
-                <Input
-                  id="contract_address"
-                  name="contract_address"
-                  value={formData.contract_address}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="network">Network</Label>
-                <Input
-                  id="network"
-                  name="network"
-                  value={formData.network}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                />
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="active"
-                  name="active"
-                  checked={formData.active}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 rounded border-gray-300 text-cryptic-accent focus:ring-cryptic-accent"
-                />
-                <Label htmlFor="active">Active</Label>
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={resetForm}>
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-              <Button type="submit" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    {editingId ? 'Update' : 'Save'}
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <ContractConfigForm
+        showForm={showForm}
+        setShowForm={setShowForm}
+        editingId={editingId}
+        formData={formData}
+        setFormData={setFormData}
+        onSuccess={fetchConfigs}
+      />
     </div>
   );
 }
