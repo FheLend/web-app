@@ -64,10 +64,17 @@ serve(async (req) => {
       
       try {
         // Generate a JWT with the wallet address claim using service role
+        // We'll use the wallet address as the unique identifier instead of a fixed UUID
+        // This creates a custom token without requiring an actual auth user
+        const walletAddressClean = walletAddress.toLowerCase();
+        const customUserId = crypto.randomUUID(); // Generate a unique UUID for this session
+        
+        console.log("Creating token with custom user ID:", customUserId);
+        
         const jwtResponse = await adminSupabase.auth.admin.createToken({
-          user_id: "436b9ec9-5529-43e7-8806-afba31bfb300", // Placeholder ID
+          user_id: customUserId,
           user_metadata: {
-            wallet_address: walletAddress
+            wallet_address: walletAddressClean
           }
         })
         
