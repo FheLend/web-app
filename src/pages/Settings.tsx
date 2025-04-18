@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -252,10 +251,12 @@ export default function Settings() {
             >
               {verifyingAdmin ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Verifying...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="ml-2">Verifying...</span>
                 </>
-              ) : "Verify Admin Status"}
+              ) : (
+                "Verify Admin Status"
+              )}
             </Button>
             {error && (
               <p className="text-destructive text-sm">{error}</p>
