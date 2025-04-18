@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -6,7 +7,8 @@ import {
   Trash, 
   Edit, 
   Save,
-  X 
+  X,
+  Shield
 } from 'lucide-react';
 import { useAdminAuthContext } from '@/providers/AdminAuthProvider';
 import { useAccount } from 'wagmi';
