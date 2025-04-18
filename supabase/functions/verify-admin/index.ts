@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 import { ethers } from "https://esm.sh/ethers@6.7.1"
+import * as jose from "https://deno.land/x/jose@v4.14.4/index.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -63,33 +64,36 @@ serve(async (req) => {
       }
       
       try {
-        // Generate a JWT with the wallet address claim using service role
-        // We'll use the wallet address as the unique identifier instead of a fixed UUID
-        // This creates a custom token without requiring an actual auth user
+        // Generate a JWT manually since createToken is not available
         const walletAddressClean = walletAddress.toLowerCase();
         const customUserId = crypto.randomUUID(); // Generate a unique UUID for this session
         
         console.log("Creating token with custom user ID:", customUserId);
         
-        const jwtResponse = await adminSupabase.auth.admin.createToken({
-          user_id: customUserId,
+        // Create a JWT token with necessary claims
+        const secret = new TextEncoder().encode(supabaseServiceKey);
+        const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 24 hours from now
+        
+        const token = await new jose.SignJWT({
+          sub: customUserId,
+          email: `${customUserId}@admin.wallet`,
+          role: 'authenticated',
+          aud: 'authenticated',
           user_metadata: {
             wallet_address: walletAddressClean
           }
         })
+          .setProtectedHeader({ alg: 'HS256' })
+          .setIssuedAt()
+          .setExpirationTime(expirationTime)
+          .sign(secret);
         
-        if (jwtResponse.error) {
-          console.log("JWT creation error:", jwtResponse.error);
-          return new Response(
-            JSON.stringify({ success: false, error: jwtResponse.error.message }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-          )
-        }
+        console.log("Token created successfully");
         
         return new Response(
           JSON.stringify({ 
             success: true, 
-            token: jwtResponse.data.token,
+            token: token,
             isAdmin: true 
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -97,7 +101,7 @@ serve(async (req) => {
       } catch (tokenError) {
         console.error("Token creation error:", tokenError);
         return new Response(
-          JSON.stringify({ success: false, error: "Failed to create authentication token" }),
+          JSON.stringify({ success: false, error: "Failed to create authentication token", details: tokenError.message }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
         )
       }
