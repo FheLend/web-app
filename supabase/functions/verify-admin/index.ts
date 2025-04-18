@@ -65,7 +65,7 @@ serve(async (req) => {
       try {
         // Generate a JWT with the wallet address claim using service role
         const jwtResponse = await adminSupabase.auth.admin.createToken({
-          user_id: "00000000-0000-0000-0000-000000000000", // Placeholder ID
+          user_id: "436b9ec9-5529-43e7-8806-afba31bfb300", // Placeholder ID
           user_metadata: {
             wallet_address: walletAddress
           }
