@@ -24,6 +24,7 @@ export function useAdminAuth() {
       try {
         // Try to get the stored token
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("Current session:", session);
         
         if (session) {
           const claims = session.user.user_metadata?.wallet_address;
@@ -71,7 +72,6 @@ export function useAdminAuth() {
       return false;
     }
 
-    setIsLoading(true);
     setError(null);
 
     try {
@@ -102,31 +102,25 @@ export function useAdminAuth() {
       if (response.error) {
         setError(response.error.message || 'Verification failed');
         setIsAdmin(false);
-        setIsLoading(false);
         return false;
       }
-
       if (response.data && response.data.success && response.data.token) {
-        // Set the session with the token
-        await supabase.auth.setSession({
+        const x = await supabase.auth.setSession({
           access_token: response.data.token,
           refresh_token: ''
         });
         
         setIsAdmin(true);
-        setIsLoading(false);
         return true;
       } else {
         setError('Not authorized as admin');
         setIsAdmin(false);
-        setIsLoading(false);
         return false;
       }
     } catch (err) {
       console.error('Error verifying admin:', err);
       setError('Failed to verify admin status');
       setIsAdmin(false);
-      setIsLoading(false);
       return false;
     }
   };

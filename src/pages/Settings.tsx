@@ -1,20 +1,24 @@
-
-import { useEffect, useState } from 'react';
-import { PlusCircle, Loader2, Shield } from 'lucide-react';
-import { useAdminAuthContext } from '@/providers/AdminAuthProvider';
-import { useAccount } from 'wagmi';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useThemeStyles } from '@/lib/themeUtils';
-import { AdminVerification } from '@/components/AdminVerification';
-import NotFound from './NotFound';
-import { ContractConfigForm } from '@/components/settings/ContractConfigForm';
-import { ContractConfigTable } from '@/components/settings/ContractConfigTable';
-import { ContractConfig, ContractFormData, initialFormData } from '@/types/contract';
+import { useEffect, useState } from "react";
+import { PlusCircle, Loader2, Shield } from "lucide-react";
+import { useAdminAuthContext } from "@/providers/AdminAuthProvider";
+import { useAccount } from "wagmi";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useThemeStyles } from "@/lib/themeUtils";
+import { AdminVerification } from "@/components/AdminVerification";
+import NotFound from "./NotFound";
+import { ContractConfigForm } from "@/components/settings/ContractConfigForm";
+import { ContractConfigTable } from "@/components/settings/ContractConfigTable";
+import {
+  ContractConfig,
+  ContractFormData,
+  initialFormData,
+} from "@/types/contract";
 
 export default function Settings() {
-  const { isAdmin, potentialAdmin, isLoading, error, verifyAdmin } = useAdminAuthContext();
+  const { isAdmin, potentialAdmin, isLoading, error, verifyAdmin } =
+    useAdminAuthContext();
   const { isConnected } = useAccount();
   const [verifyingAdmin, setVerifyingAdmin] = useState(false);
   const [configs, setConfigs] = useState<ContractConfig[]>([]);
@@ -25,18 +29,12 @@ export default function Settings() {
   const { toast } = useToast();
   const { cardStyles } = useThemeStyles();
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetchConfigs();
-    }
-  }, [isAdmin]);
-
   const handleVerifyAdmin = async () => {
     setVerifyingAdmin(true);
     console.log("Starting admin verification...");
     const success = await verifyAdmin();
     setVerifyingAdmin(false);
-    
+
     if (success) {
       toast({
         title: "Verification Successful",
@@ -56,14 +54,14 @@ export default function Settings() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('contract_configs')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
+        .from("contract_configs")
+        .select("*")
+        .order("created_at", { ascending: false });
+
       if (error) throw error;
       setConfigs(data || []);
     } catch (err) {
-      console.error('Error fetching configs:', err);
+      console.error("Error fetching configs:", err);
       toast({
         title: "Error",
         description: "Failed to load contract configurations.",
@@ -74,19 +72,25 @@ export default function Settings() {
     }
   };
 
+  useEffect(() => {
+    if (isAdmin) {
+      fetchConfigs();
+    }
+  }, [isAdmin]);
+
   const handleEdit = (config: ContractConfig) => {
     setFormData({
       name: config.name,
       contract_address: config.contract_address,
       network: config.network,
-      description: config.description || '',
+      description: config.description || "",
       active: config.active,
     });
     setEditingId(config.id);
     setShowForm(true);
   };
 
-  if (!isLoading && !potentialAdmin) {
+  if (isLoading || (!isLoading && !potentialAdmin)) {
     return <NotFound />;
   }
 
@@ -109,7 +113,8 @@ export default function Settings() {
             <Shield className="h-16 w-16 text-destructive" />
             <h1 className="text-2xl font-bold">Unauthorized Access</h1>
             <p className="text-muted-foreground">
-              You don't have permission to access this page. Only admin wallets can view and manage contract configurations.
+              You don't have permission to access this page. Only admin wallets
+              can view and manage contract configurations.
             </p>
           </div>
         </div>
@@ -133,14 +138,16 @@ export default function Settings() {
         </div>
       ) : configs.length === 0 ? (
         <div className={`${cardStyles} p-8 text-center`}>
-          <p className="text-muted-foreground">No contract configurations found.</p>
+          <p className="text-muted-foreground">
+            No contract configurations found.
+          </p>
           <Button onClick={() => setShowForm(true)} className="mt-4">
             Add Your First Configuration
           </Button>
         </div>
       ) : (
-        <ContractConfigTable 
-          configs={configs} 
+        <ContractConfigTable
+          configs={configs}
           onEdit={handleEdit}
           onDelete={fetchConfigs}
         />
