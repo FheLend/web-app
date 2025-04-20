@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Menu, Settings } from 'lucide-react';
+import { Menu, Settings, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link, useLocation } from 'react-router-dom';
@@ -51,7 +52,7 @@ export function Navbar() {
                 Settings
               </NavLink>
               <NavLink href="/ui-library" active={isUiLibraryActive}>
-                <component className="h-4 w-4 mr-1" />
+                <LayoutGrid className="h-4 w-4 mr-1" />
                 UI Library
               </NavLink>
             </>
@@ -91,7 +92,7 @@ export function Navbar() {
                   Settings
                 </NavLink>
                 <NavLink href="/ui-library" active={isUiLibraryActive} mobile>
-                  <component className="h-4 w-4 mr-1" />
+                  <LayoutGrid className="h-4 w-4 mr-1" />
                   UI Library
                 </NavLink>
               </>
