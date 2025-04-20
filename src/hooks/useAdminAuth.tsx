@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useSignMessage } from 'wagmi';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export function useAdminAuth() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -10,6 +11,7 @@ export function useAdminAuth() {
   const [error, setError] = useState<string | null>(null);
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
+  const { toast } = useToast();
 
   // Check if wallet is admin on mount
   useEffect(() => {
@@ -22,21 +24,19 @@ export function useAdminAuth() {
       }
 
       try {
-        // Try to get the stored token
+        // Check current session first
         const { data: { session } } = await supabase.auth.getSession();
         console.log("Current session:", session);
         
-        if (session) {
-          const claims = session.user.user_metadata?.wallet_address;
-          if (claims && claims.toLowerCase() === address.toLowerCase()) {
-            setIsAdmin(true);
-            setPotentialAdmin(true);
-            setIsLoading(false);
-            return;
-          }
+        if (session?.user?.user_metadata?.wallet_address?.toLowerCase() === address.toLowerCase()) {
+          console.log("User is already authenticated as admin");
+          setIsAdmin(true);
+          setPotentialAdmin(true);
+          setIsLoading(false);
+          return;
         }
 
-        // If there's no session but we have a connected wallet, check if it's in the admin list
+        // If no valid session, check if wallet is in admin list
         const { data, error: queryError } = await supabase
           .from('admin_wallets')
           .select('wallet_address')
@@ -75,18 +75,16 @@ export function useAdminAuth() {
     setError(null);
 
     try {
-      // Create a message to sign
+      // Create message to sign
       const message = `I am verifying that I control the wallet address ${address} to access admin settings. Timestamp: ${Date.now()}`;
       
-      // Request signature - Fix: add the account parameter
+      // Request signature
       const signature = await signMessageAsync({ 
         message,
         account: address
       });
       
       console.log("Signature obtained:", signature);
-      console.log("Message signed:", message);
-      console.log("Wallet address:", address);
       
       // Verify the signature using our edge function
       const response = await supabase.functions.invoke('verify-admin', {
@@ -100,27 +98,61 @@ export function useAdminAuth() {
       console.log("Edge function response:", response);
 
       if (response.error) {
-        setError(response.error.message || 'Verification failed');
+        const errorMessage = response.error.message || 'Verification failed';
+        console.error("Verification error:", errorMessage);
+        setError(errorMessage);
         setIsAdmin(false);
-        return false;
-      }
-      if (response.data && response.data.success && response.data.token) {
-        const x = await supabase.auth.setSession({
-          access_token: response.data.token,
-          refresh_token: ''
+        toast({
+          title: "Verification Failed",
+          description: errorMessage,
+          variant: "destructive"
         });
-        
-        setIsAdmin(true);
-        return true;
-      } else {
-        setError('Not authorized as admin');
-        setIsAdmin(false);
         return false;
       }
+
+      if (response.data?.success && response.data?.session) {
+        // Set the new session
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: response.data.session.access_token,
+          refresh_token: response.data.session.refresh_token
+        });
+
+        if (sessionError) {
+          console.error("Session setting error:", sessionError);
+          setError('Failed to set authentication session');
+          toast({
+            title: "Authentication Error",
+            description: "Failed to set authentication session",
+            variant: "destructive"
+          });
+          return false;
+        }
+
+        setIsAdmin(true);
+        toast({
+          title: "Verification Successful",
+          description: "You have been verified as an admin.",
+        });
+        return true;
+      }
+
+      setError('Verification failed');
+      setIsAdmin(false);
+      toast({
+        title: "Verification Failed",
+        description: "Could not verify admin status",
+        variant: "destructive"
+      });
+      return false;
     } catch (err) {
       console.error('Error verifying admin:', err);
       setError('Failed to verify admin status');
       setIsAdmin(false);
+      toast({
+        title: "Error",
+        description: "Failed to verify admin status",
+        variant: "destructive"
+      });
       return false;
     }
   };

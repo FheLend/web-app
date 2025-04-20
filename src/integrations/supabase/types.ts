@@ -65,8 +65,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      greet: {
+        Args: { name: string }
+        Returns: string
+      }
       is_admin_wallet: {
         Args: { _wallet_address: string }
+        Returns: boolean
+      }
+      is_verified_admin: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }

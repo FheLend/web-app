@@ -2,7 +2,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 import { ethers } from "https://esm.sh/ethers@6.7.1"
-import * as jose from "https://deno.land/x/jose@v4.14.4/index.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,7 +9,6 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -18,103 +16,98 @@ serve(async (req) => {
   try {
     const { signature, message, walletAddress } = await req.json()
     
-    // Initialize Supabase client
+    // Initialize Supabase admin client
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || ''
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
     const adminSupabase = createClient(supabaseUrl, supabaseServiceKey)
     
-    console.log("Verifying signature for wallet:", walletAddress);
-    console.log("Message to verify:", message);
+    console.log("Verifying signature for wallet:", walletAddress)
+    console.log("Message to verify:", message)
     
     try {
-      // Try verifying with ethers.js recoverAddress
-      const recoveredAddress = ethers.verifyMessage(message, signature);
-      console.log("Recovered address:", recoveredAddress);
+      // Verify signature
+      const recoveredAddress = ethers.verifyMessage(message, signature)
+      console.log("Recovered address:", recoveredAddress)
       
-      // Check if addresses match (case insensitive)
       if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
-        console.log("Signature verification failed. Addresses don't match:", {
-          recovered: recoveredAddress.toLowerCase(),
-          provided: walletAddress.toLowerCase()
-        });
-        
+        console.log("Signature verification failed")
         return new Response(
           JSON.stringify({ success: false, error: "Signature verification failed" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
         )
       }
       
-      // Check if wallet is an admin
-      const { data, error } = await supabase
+      // Check if wallet is in admin list
+      const { data: adminData, error: adminError } = await adminSupabase
         .from('admin_wallets')
         .select('wallet_address')
         .ilike('wallet_address', walletAddress)
         .single()
       
-      console.log("Found in admin table:", data);
-      
-      if (error || !data) {
-        console.log("Not authorized as admin:", error);
+      if (adminError || !adminData) {
+        console.log("Not authorized as admin:", adminError)
         return new Response(
           JSON.stringify({ success: false, error: "Not authorized as admin" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
         )
       }
-      
-      try {
-        // Generate a JWT manually since createToken is not available
-        const walletAddressClean = walletAddress.toLowerCase();
-        const customUserId = crypto.randomUUID(); // Generate a unique UUID for this session
-        
-        console.log("Creating token with custom user ID:", customUserId);
-        
-        // Create a JWT token with necessary claims
-        const secret = new TextEncoder().encode(supabaseServiceKey);
-        const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 24 hours from now
-        
-        const token = await new jose.SignJWT({
-          sub: customUserId,
-          email: `${customUserId}@admin.wallet`,
-          role: 'authenticated',
-          aud: 'authenticated',
-          user_metadata: {
-            wallet_address: walletAddressClean
-          }
-        })
-          .setProtectedHeader({ alg: 'HS256' })
-          .setIssuedAt()
-          .setExpirationTime(expirationTime)
-          .sign(secret);
-        
-        console.log("Token created successfully");
-        
+
+      // Create a deterministic email for the admin wallet
+      const adminEmail = `${walletAddress.toLowerCase()}@admin.wallet`
+      const adminPassword = `admin-${walletAddress.toLowerCase()}`
+
+      // Try to create the admin user if they don't exist
+      const { data: userData, error: createError } = await adminSupabase.auth.admin.createUser({
+        email: adminEmail,
+        password: adminPassword,
+        email_confirm: true,
+        user_metadata: { wallet_address: walletAddress.toLowerCase(), is_admin: true }
+      })
+
+      if (createError && createError.message !== 'User already registered') {
+        console.error("Error creating admin user:", createError)
         return new Response(
-          JSON.stringify({ 
-            success: true, 
-            token: token,
-            isAdmin: true 
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        )
-      } catch (tokenError) {
-        console.error("Token creation error:", tokenError);
-        return new Response(
-          JSON.stringify({ success: false, error: "Failed to create authentication token", details: tokenError.message }),
+          JSON.stringify({ success: false, error: "Failed to create admin user" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
         )
       }
+
+      // Sign in the admin user to get session tokens
+      const { data: signInData, error: signInError } = await adminSupabase.auth.signInWithPassword({
+        email: adminEmail,
+        password: adminPassword
+      })
+
+      if (signInError || !signInData.session) {
+        console.error("Error signing in admin:", signInError)
+        return new Response(
+          JSON.stringify({ success: false, error: "Failed to sign in admin" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+        )
+      }
+
+      console.log("Admin signed in successfully")
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          session: {
+            access_token: signInData.session.access_token,
+            refresh_token: signInData.session.refresh_token,
+          }
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
       
     } catch (error) {
-      console.error("Signature verification error:", error);
+      console.error("Signature verification error:", error)
       return new Response(
         JSON.stringify({ success: false, error: "Invalid signature" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       )
     }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error:", error)
     return new Response(
       JSON.stringify({ success: false, error: "Internal server error" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
