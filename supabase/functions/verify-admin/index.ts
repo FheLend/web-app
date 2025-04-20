@@ -51,31 +51,11 @@ serve(async (req) => {
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
         )
       }
-
-      // Create a deterministic email for the admin wallet
-      const adminEmail = `${walletAddress.toLowerCase()}@admin.wallet`
-      const adminPassword = `admin-${walletAddress.toLowerCase()}`
-
-      // Try to create the admin user if they don't exist
-      const { data: userData, error: createError } = await adminSupabase.auth.admin.createUser({
-        email: adminEmail,
-        password: adminPassword,
-        email_confirm: true,
-        user_metadata: { wallet_address: walletAddress.toLowerCase(), is_admin: true }
-      })
-
-      if (createError && createError.message !== 'User already registered') {
-        console.error("Error creating admin user:", createError)
-        return new Response(
-          JSON.stringify({ success: false, error: "Failed to create admin user" }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-        )
-      }
-
+      
       // Sign in the admin user to get session tokens
       const { data: signInData, error: signInError } = await adminSupabase.auth.signInWithPassword({
-        email: adminEmail,
-        password: adminPassword
+        email: 'huy23121994@gmail.com',
+        password: 'Uc.:7ZBTSgK:35s'
       })
 
       if (signInError || !signInData.session) {
