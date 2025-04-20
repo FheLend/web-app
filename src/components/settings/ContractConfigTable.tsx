@@ -60,8 +60,7 @@ export const ContractConfigTable = ({ configs, onEdit, onDelete }: ContractConfi
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Contract Address</TableHead>
-            <TableHead>Network</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>Description</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -72,12 +71,7 @@ export const ContractConfigTable = ({ configs, onEdit, onDelete }: ContractConfi
               <TableCell className="font-mono text-sm">
                 {config.contract_address.substring(0, 6)}...{config.contract_address.substring(config.contract_address.length - 4)}
               </TableCell>
-              <TableCell>{config.network}</TableCell>
-              <TableCell>
-                <span className={`px-2 py-1 rounded-full text-xs ${config.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                  {config.active ? 'Active' : 'Inactive'}
-                </span>
-              </TableCell>
+              <TableCell>{config.description || '-'}</TableCell>
               <TableCell className="text-right">
                 <Button
                   variant="ghost"

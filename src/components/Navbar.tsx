@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Menu, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,7 @@ export function Navbar() {
   const isLendingActive = location.pathname === '/' || location.pathname === '/lending' || location.pathname.startsWith('/vault');
   const isBorrowActive = location.pathname === '/borrow' || location.pathname.startsWith('/market');
   const isSettingsActive = location.pathname === '/settings';
+  const isUiLibraryActive = location.pathname === '/ui-library';
   
   return (
     <nav className={navbarStyles}>
@@ -45,10 +45,16 @@ export function Navbar() {
             Borrow
           </NavLink>
           {potentialAdmin && (
-            <NavLink href="/settings" active={isSettingsActive}>
-              <Settings className="h-4 w-4 mr-1" />
-              Settings
-            </NavLink>
+            <>
+              <NavLink href="/settings" active={isSettingsActive}>
+                <Settings className="h-4 w-4 mr-1" />
+                Settings
+              </NavLink>
+              <NavLink href="/ui-library" active={isUiLibraryActive}>
+                <component className="h-4 w-4 mr-1" />
+                UI Library
+              </NavLink>
+            </>
           )}
           <ThemeToggle />
           <WalletButton />
@@ -79,10 +85,16 @@ export function Navbar() {
               Borrow
             </NavLink>
             {potentialAdmin && (
-              <NavLink href="/settings" active={isSettingsActive} mobile>
-                <Settings className="h-4 w-4 mr-1" />
-                Settings
-              </NavLink>
+              <>
+                <NavLink href="/settings" active={isSettingsActive} mobile>
+                  <Settings className="h-4 w-4 mr-1" />
+                  Settings
+                </NavLink>
+                <NavLink href="/ui-library" active={isUiLibraryActive} mobile>
+                  <component className="h-4 w-4 mr-1" />
+                  UI Library
+                </NavLink>
+              </>
             )}
             <div className="mt-4">
               <WalletButton />

@@ -11,6 +11,7 @@ import MarketDetail from "./pages/MarketDetail";
 import NotFound from "./pages/NotFound";
 import VaultDetail from "./pages/VaultDetail";
 import Settings from "./pages/Settings";
+import UILibrary from "./pages/UILibrary";
 import { AppKitProvider } from "./providers/AppKitProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import { AdminAuthProvider } from "./providers/AdminAuthProvider";
@@ -35,7 +36,7 @@ const App = () => (
                 <Route path="/market/:id" element={<MarketDetail />} />
                 <Route path="/vault/:id" element={<VaultDetail />} />
                 <Route path="/settings" element={<Settings />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="/ui-library" element={<UILibrary />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
