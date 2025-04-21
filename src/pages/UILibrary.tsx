@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAdminAuthContext } from "@/providers/AdminAuthProvider";
 import { Button } from "@/components/ui/button";
 import { useThemeStyles } from "@/lib/themeUtils";
@@ -60,17 +59,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { TransactionLoadingDemo } from "@/components/ui/transaction-loading-demo";
 
 const UILibrary = () => {
-  const { isAdmin } = useAdminAuthContext();
-  const navigate = useNavigate();
-  const { cardStyles } = useThemeStyles();
+  const { potentialAdmin } = useAdminAuthContext();
 
-  useEffect(() => {
-    if (!isAdmin) {
-      navigate("/404");
-    }
-  }, [isAdmin, navigate]);
+  if (!potentialAdmin) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-3xl font-bold mb-4">Access Restricted</h1>
+        <p>Please connect your wallet to view the UI Library.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -406,6 +407,13 @@ const UILibrary = () => {
             <ResizableHandle />
             <ResizablePanel>Right panel</ResizablePanel>
           </ResizablePanelGroup>
+        </section>
+
+        <section className={`${cardStyles} p-6 rounded-lg`}>
+          <h2 className="text-2xl font-bold mb-4">Transaction Loading</h2>
+          <div className="flex flex-wrap gap-4">
+            <TransactionLoadingDemo />
+          </div>
         </section>
       </div>
     </div>
