@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -28,7 +27,6 @@ export function TransactionLoading({
   const { isDark } = useThemeStyles();
 
   const getExplorerLink = () => {
-    // This is a simplified version. In production, you'd want to support more chains
     const baseUrl = chainId === 1 ? "https://etherscan.io" : "https://goerli.etherscan.io";
     return `${baseUrl}/tx/${txHash}`;
   };
@@ -47,10 +45,9 @@ export function TransactionLoading({
     }
   };
 
-  // Helper function to truncate transaction hash
   const truncateTxHash = (hash: string) => {
     if (!hash) return "";
-    return `${hash.substring(0, 10)}...${hash.substring(hash.length - 8)}`;
+    return `${hash.substring(0, 16)}...${hash.substring(hash.length - 12)}`;
   };
 
   useEffect(() => {
@@ -73,7 +70,6 @@ export function TransactionLoading({
     };
 
     if (isOpen && txHash) {
-      // Reset status to pending when dialog opens
       setStatus("pending");
       checkTransaction();
     }
@@ -83,21 +79,18 @@ export function TransactionLoading({
     };
   }, [txHash, publicClient, isOpen]);
 
-  // Reset status when dialog closes
   const handleClose = () => {
     onClose();
-    // We don't reset the status immediately to avoid UI flicker during closing animation
   };
 
-  // Status icons and messages
   const getStatusIcon = () => {
     switch (status) {
       case "pending":
-        return <Loader2 className="h-8 w-8 animate-spin text-primary" />;
+        return <Loader2 className="h-7 w-7 animate-spin text-blue-500" />;
       case "success":
-        return <Check className="h-8 w-8 text-green-500" />;
+        return <Check className="h-7 w-7 text-green-500" />;
       case "failed":
-        return <X className="h-8 w-8 text-red-500" />;
+        return <X className="h-7 w-7 text-red-500" />;
     }
   };
 
@@ -112,28 +105,45 @@ export function TransactionLoading({
     }
   };
 
+  const getStatusColor = () => {
+    switch (status) {
+      case "pending":
+        return "text-blue-500";
+      case "success":
+        return "text-green-500";
+      case "failed":
+        return "text-red-500";
+    }
+  };
+
+  const getButtonColor = () => {
+    switch (status) {
+      case "pending":
+        return "bg-blue-500 hover:bg-blue-600";
+      case "success":
+        return "bg-green-500 hover:bg-green-600";
+      case "failed":
+        return "bg-red-500 hover:bg-red-600";
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-gradient-to-br from-background/95 to-muted/50 backdrop-blur-xl border-2">
-        <div className="flex flex-col items-center gap-6 py-8">
-          {/* Status Icon with Glow Effect */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-xl rounded-full" />
-            <div className="relative bg-gradient-to-br from-background/80 to-muted/50 p-6 rounded-full border border-primary/10">
-              {getStatusIcon()}
+      <DialogContent className="sm:max-w-2xl bg-gradient-to-br from-background/95 to-muted/50 backdrop-blur-xl border-2">
+        <div className="flex flex-col items-center gap-6 py-6 px-4">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className={`absolute inset-0 ${getStatusColor()} opacity-20 blur-xl rounded-full`} />
+              <div className="relative bg-gradient-to-br from-background/80 to-muted/50 p-4 rounded-full border border-primary/10">
+                {getStatusIcon()}
+              </div>
+            </div>
+            <div className={`text-xl font-semibold ${getStatusColor()} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
+              {getStatusMessage()}
             </div>
           </div>
-          
-          {/* Status Message */}
-          <div className={`text-lg font-semibold ${
-            status === "success" ? "text-green-500" : 
-            status === "failed" ? "text-red-500" : "text-primary"
-          } animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-            {getStatusMessage()}
-          </div>
 
-          {/* Transaction Hash Display */}
-          <div className="w-full max-w-full px-4">
+          <div className="w-full">
             <div className="flex items-center gap-2 p-4 rounded-xl border bg-card/50 backdrop-blur-sm shadow-inner hover:bg-card/80 transition-colors duration-200">
               <button
                 onClick={() => window.open(getExplorerLink(), "_blank")}
@@ -162,8 +172,7 @@ export function TransactionLoading({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 mt-2">
+          <div className="flex gap-4">
             <Button 
               variant="outline" 
               onClick={handleClose}
@@ -173,7 +182,7 @@ export function TransactionLoading({
             </Button>
             <Button 
               onClick={() => window.open(getExplorerLink(), "_blank")}
-              className="bg-primary/90 hover:bg-primary transition-colors duration-200"
+              className={`${getButtonColor()} text-white transition-colors duration-200`}
             >
               View in Explorer 
               <ExternalLink className="ml-2 h-4 w-4" />
