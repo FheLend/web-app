@@ -119,7 +119,7 @@ export function TransactionLoading({
   const getButtonColor = () => {
     switch (status) {
       case "pending":
-        return "bg-primary-500 hover:bg-primary-600";
+        return "bg-primary hover:bg-primary-600";
       case "success":
         return "bg-green-500 hover:bg-green-600";
       case "failed":
