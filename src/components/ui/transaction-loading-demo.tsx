@@ -13,12 +13,15 @@ export function TransactionLoadingDemo() {
 
   return (
     <div className="flex flex-wrap gap-4">
-      <Button onClick={() => setIsSuccessOpen(true)}>
+      <Button 
+        onClick={() => setIsSuccessOpen(true)}
+        className="bg-green-500/90 hover:bg-green-500 transition-colors duration-200"
+      >
         Show Success Transaction
       </Button>
       <Button 
         onClick={() => setIsFailedOpen(true)}
-        variant="destructive"
+        className="bg-red-500/90 hover:bg-red-500 transition-colors duration-200"
       >
         Show Failed Transaction
       </Button>

@@ -115,14 +115,16 @@ export function TransactionLoading({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md bg-gradient-to-br from-background/95 to-muted/50 backdrop-blur-xl border-2">
-        <div className="flex flex-col items-center gap-6 py-6">
+        <div className="flex flex-col items-center gap-6 py-8">
+          {/* Status Icon with Glow Effect */}
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-xl rounded-full" />
-            <div className="relative">
+            <div className="relative bg-gradient-to-br from-background/80 to-muted/50 p-6 rounded-full border border-primary/10">
               {getStatusIcon()}
             </div>
           </div>
           
+          {/* Status Message */}
           <div className={`text-lg font-semibold ${
             status === "success" ? "text-green-500" : 
             status === "failed" ? "text-red-500" : "text-primary"
@@ -130,8 +132,9 @@ export function TransactionLoading({
             {getStatusMessage()}
           </div>
 
+          {/* Transaction Hash Display */}
           <div className="w-full max-w-full px-4">
-            <div className="flex items-center gap-2 p-3 rounded-lg border bg-card/50 backdrop-blur-sm shadow-inner hover:bg-card/80 transition-colors duration-200">
+            <div className="flex items-center gap-2 p-4 rounded-xl border bg-card/50 backdrop-blur-sm shadow-inner hover:bg-card/80 transition-colors duration-200">
               <button
                 onClick={() => window.open(getExplorerLink(), "_blank")}
                 className="truncate text-primary/90 hover:text-primary flex-grow text-center font-mono text-sm transition-colors duration-200"
@@ -139,16 +142,27 @@ export function TransactionLoading({
               >
                 {truncateTxHash(txHash)}
               </button>
-              <button 
-                onClick={copyToClipboard}
-                className="flex-shrink-0 p-1.5 rounded-md hover:bg-primary/10 transition-colors duration-200"
-                title="Copy transaction hash"
-              >
-                <Copy className="h-4 w-4 text-primary/70 hover:text-primary" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={copyToClipboard}
+                  className="flex-shrink-0 p-2 rounded-lg hover:bg-primary/10 transition-colors duration-200"
+                  title="Copy transaction hash"
+                >
+                  <Copy className="h-4 w-4 text-primary/70 hover:text-primary" />
+                </button>
+                <div className="w-px h-6 bg-border/50" />
+                <button 
+                  onClick={() => window.open(getExplorerLink(), "_blank")}
+                  className="flex-shrink-0 p-2 rounded-lg hover:bg-primary/10 transition-colors duration-200"
+                  title="View in explorer"
+                >
+                  <ExternalLink className="h-4 w-4 text-primary/70 hover:text-primary" />
+                </button>
+              </div>
             </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="flex gap-4 mt-2">
             <Button 
               variant="outline" 
@@ -161,7 +175,7 @@ export function TransactionLoading({
               onClick={() => window.open(getExplorerLink(), "_blank")}
               className="bg-primary/90 hover:bg-primary transition-colors duration-200"
             >
-              Open Explorer 
+              View in Explorer 
               <ExternalLink className="ml-2 h-4 w-4" />
             </Button>
           </div>
