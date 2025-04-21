@@ -108,7 +108,7 @@ export function TransactionLoading({
   const getStatusColor = () => {
     switch (status) {
       case "pending":
-        return "text-blue-500";
+        return "text-primary-500";
       case "success":
         return "text-green-500";
       case "failed":
