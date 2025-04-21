@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useAdminAuthContext } from "@/providers/AdminAuthProvider";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,7 @@ import { TransactionLoadingDemo } from "@/components/ui/transaction-loading-demo
 
 const UILibrary = () => {
   const { potentialAdmin } = useAdminAuthContext();
+  const { cardStyles } = useThemeStyles();
 
   if (!potentialAdmin) {
     return (
