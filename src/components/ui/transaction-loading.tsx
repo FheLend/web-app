@@ -86,7 +86,7 @@ export function TransactionLoading({
   const getStatusIcon = () => {
     switch (status) {
       case "pending":
-        return <Loader2 className="h-7 w-7 animate-spin text-primary-500" />;
+        return <Loader2 className="h-7 w-7 animate-spin text-primary" />;
       case "success":
         return <Check className="h-7 w-7 text-green-500" />;
       case "failed":
@@ -108,7 +108,7 @@ export function TransactionLoading({
   const getStatusColor = () => {
     switch (status) {
       case "pending":
-        return "text-primary-500";
+        return "text-primary";
       case "success":
         return "text-green-500";
       case "failed":
