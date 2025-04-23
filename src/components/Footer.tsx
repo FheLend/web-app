@@ -4,9 +4,12 @@ import { useThemeStyles } from '@/lib/themeUtils';
 import { cn } from '@/lib/utils';
 import Logo from "@/assets/logo.svg";
 import LogoWhite from "@/assets/logo-white.svg";
+import { Link } from 'react-router-dom';
+import { useAdminAuthContext } from '@/providers/AdminAuthProvider';
 
 export function Footer() {
   const { isDark, footerStyles, footerDivider } = useThemeStyles();
+  const { potentialAdmin } = useAdminAuthContext();
   
   return (
     <footer className={footerStyles}>
@@ -48,6 +51,16 @@ export function Footer() {
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Twitter</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Forum</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Governance</a></li>
+              {potentialAdmin && (
+                <li>
+                  <Link 
+                    to="/ui-library" 
+                    className="text-muted-foreground hover:text-cryptic-accent inline-flex items-center"
+                  >
+                    UI Library
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </div>

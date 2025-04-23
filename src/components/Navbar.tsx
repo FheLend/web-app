@@ -46,16 +46,10 @@ export function Navbar() {
             Borrow
           </NavLink>
           {potentialAdmin && (
-            <>
-              <NavLink href="/settings" active={isSettingsActive}>
-                <Settings className="h-4 w-4 mr-1" />
-                Settings
-              </NavLink>
-              <NavLink href="/ui-library" active={isUiLibraryActive}>
-                <LayoutGrid className="h-4 w-4 mr-1" />
-                UI Library
-              </NavLink>
-            </>
+            <NavLink href="/settings" active={isSettingsActive}>
+              <Settings className="h-4 w-4 mr-1" />
+              Settings
+            </NavLink>
           )}
           <ThemeToggle />
           <WalletButton />
@@ -90,10 +84,6 @@ export function Navbar() {
                 <NavLink href="/settings" active={isSettingsActive} mobile>
                   <Settings className="h-4 w-4 mr-1" />
                   Settings
-                </NavLink>
-                <NavLink href="/ui-library" active={isUiLibraryActive} mobile>
-                  <LayoutGrid className="h-4 w-4 mr-1" />
-                  UI Library
                 </NavLink>
               </>
             )}
