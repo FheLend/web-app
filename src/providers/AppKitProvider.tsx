@@ -1,10 +1,9 @@
-
 import { createAppKit } from "@reown/appkit/react";
-import { WagmiProvider, createConfig } from "wagmi";
-import { mainnet, arbitrum, polygon, optimism, base } from "@reown/appkit/networks";
+import { WagmiProvider } from "wagmi";
+import { mainnet, arbitrum, arbitrumSepolia } from "@reown/appkit/networks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import React, { useEffect } from "react";
+import React from "react";
 
 // Create Query Client
 const queryClient = new QueryClient();
@@ -21,15 +20,13 @@ const metadata = {
 };
 
 // Set networks - using proper typing for AppKitNetwork
-const networks = [mainnet, arbitrum, polygon, optimism, base];
+const networks = [arbitrum, arbitrumSepolia];
 
 // Chain images configuration
 const chainImages = {
-  1: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-  42161: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg?1721358242",
-  137: "https://assets.geckoterminal.com/dau5esiwuf9jj9r0jchj9qgdhy8g",
-  10: "https://assets.geckoterminal.com/o2v9hloio02gxzmtsz3lzjoi4bqs",
-  8453: "https://assets.geckoterminal.com/l8yo12s6ujq0884jp13udw6zp1an"
+  // 1: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
+  42161: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg",
+  421614: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg",
 };
 
 // Create Wagmi Adapter
@@ -55,7 +52,7 @@ createAppKit({
 });
 
 // Make chainImages available globally for components to access
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   (window as any).__APPKIT__ = (window as any).__APPKIT__ || {};
   (window as any).__APPKIT__.chainImages = chainImages;
 }
