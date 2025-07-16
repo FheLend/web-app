@@ -267,20 +267,20 @@ export function VaultTable() {
         });
         console.log("Cofhejs initialized:", provider, signer, result);
 
-        const permit = await cofhejs.createPermit({
-          type: "self",
-          issuer: "0x9E97A40996c749C8C86F16b4F412dD96467da69C",
-        });
-        console.log(permit);
+        // const permit = await cofhejs.createPermit({
+        //   type: "self",
+        //   issuer: "0x9E97A40996c749C8C86F16b4F412dD96467da69C",
+        // });
+        // console.log(permit);
 
-        // When creating a permit cofhejs will use it automatically, but you can pass it manually as well
-        const unsealed = await cofhejs.unseal(
-          encTotalDeposits.result as bigint,
-          FheTypes.Uint64,
-          permit.data.issuer,
-          permit.data.getHash()
-        );
-        console.log(unsealed);
+        // // When creating a permit cofhejs will use it automatically, but you can pass it manually as well
+        // const unsealed = await cofhejs.unseal(
+        //   encTotalDeposits.result as bigint,
+        //   FheTypes.Uint64,
+        //   permit.data.issuer,
+        //   permit.data.getHash()
+        // );
+        // console.log(unsealed);
 
         setVaults([
           {

@@ -1,6 +1,6 @@
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiProvider } from "wagmi";
-import { mainnet, arbitrum, arbitrumSepolia } from "@reown/appkit/networks";
+import { arbitrum, arbitrumSepolia } from "@reown/appkit/networks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import React from "react";
@@ -27,6 +27,7 @@ const chainImages = {
   // 1: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
   42161: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg",
   421614: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg",
+  31337: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png", // Hardhat network
 };
 
 // Create Wagmi Adapter
@@ -43,7 +44,7 @@ createAppKit({
   metadata,
   // @ts-expect-error: 'networks' is already defined in the adapter and does not need to be passed explicitly
   networks,
-  defaultNetwork: mainnet,
+  defaultNetwork: arbitrumSepolia,
   enableNetworkSwitch: true,
   chainImages,
   features: {

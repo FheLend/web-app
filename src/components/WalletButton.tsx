@@ -1,95 +1,102 @@
-
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Lock, ExternalLink, LogOut, ChevronDown } from 'lucide-react'
-import { useAccount, useBalance, useConfig, useSwitchChain, useDisconnect } from 'wagmi'
-import { 
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Lock, ExternalLink, LogOut, ChevronDown } from "lucide-react";
+import {
+  useAccount,
+  useBalance,
+  useConfig,
+  useSwitchChain,
+  useDisconnect,
+} from "wagmi";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from '@/components/ui/dropdown-menu'
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { useAppKit } from "@reown/appkit/react";
-import { formatEther } from 'viem'
-import { Image } from '@/components/ui/image'
-import { cn } from '@/lib/utils'
-import { useThemeStyles } from '@/lib/themeUtils'
+import { formatEther } from "viem";
+import { Image } from "@/components/ui/image";
+import { cn } from "@/lib/utils";
+import { useThemeStyles } from "@/lib/themeUtils";
+import { CofhejsPortal } from "./cofhe/CofhejsPortal";
 
 export function WalletButton() {
-  const { address, isConnected, chain } = useAccount()
-  const { chains } = useConfig()
-  const { switchChain } = useSwitchChain()
+  const { address, isConnected, chain } = useAccount();
+  const { chains } = useConfig();
+  const { switchChain } = useSwitchChain();
   const appKit = useAppKit();
-  const { data: balanceData } = useBalance({ address })
-  const { disconnect } = useDisconnect()
-  const { walletButtonStyles, dropdownMenuContent, dropdownMenuItem } = useThemeStyles();
-  
+  const { data: balanceData } = useBalance({ address });
+  const { disconnect } = useDisconnect();
+  const { walletButtonStyles, dropdownMenuContent, dropdownMenuItem } =
+    useThemeStyles();
+
   // Access chainImages from the global window object where AppKit stores it
   const chainImages = (window as any).__APPKIT__?.chainImages || {};
-  
+
   if (!isConnected || !address) {
     return (
-      <Button 
-        variant="outline" 
-        size="sm" 
+      <Button
+        variant="outline"
+        size="sm"
         className={walletButtonStyles}
         onClick={() => appKit.open()}
       >
         <Lock className="mr-2 h-4 w-4" />
         Connect Wallet
       </Button>
-    )
+    );
   }
-  
+
   // Format address for display
-  const displayAddress = address 
+  const displayAddress = address
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : ''
-  
+    : "";
+
   // Format balance for display
-  const formattedBalance = balanceData ? 
-    parseFloat(formatEther(balanceData.value)).toFixed(2) : 
-    '0.00'
-  
+  const formattedBalance = balanceData
+    ? parseFloat(formatEther(balanceData.value)).toFixed(2)
+    : "0.00";
+
   // Get native token symbol
-  const tokenSymbol = balanceData?.symbol || 'ETH'
-  
+  const tokenSymbol = balanceData?.symbol || "ETH";
+
   // Get chain image URL
   const getChainImage = (chainId?: number) => {
     if (!chainId) return null;
     return chainImages[chainId] || null;
-  }
-  
+  };
+
   // Fallback to symbol if image not available
   const getChainLogo = (chainId?: number) => {
     if (!chainId) return null;
-    
+
     // Display chain symbol based on chainId
-    if (chainId === 1) return 'Ξ';
-    if (chainId === 137) return 'M';
-    if (chainId === 42161) return 'A';
-    if (chainId === 10) return 'O';
-    if (chainId === 8453) return 'B';
-    
+    if (chainId === 1) return "Ξ";
+    if (chainId === 137) return "M";
+    if (chainId === 42161) return "A";
+    if (chainId === 10) return "O";
+    if (chainId === 8453) return "B";
+
     return null;
-  }
-  
+  };
+
   return (
     <div className="flex items-center space-x-2">
       {/* Native Token Balance */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className={cn(walletButtonStyles, "flex items-center")}
           >
             <div className="w-5 h-5 rounded-full mr-2 flex justify-center items-center overflow-hidden">
               {getChainImage(chain?.id) ? (
-                <img 
-                  src={getChainImage(chain?.id)} 
-                  alt={chain?.name || 'Chain'} 
+                <img
+                  src={getChainImage(chain?.id)}
+                  alt={chain?.name || "Chain"}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -103,10 +110,12 @@ export function WalletButton() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className={dropdownMenuContent}>
-          <div className="px-2 py-1.5 text-sm font-semibold">Switch Network</div>
+          <div className="px-2 py-1.5 text-sm font-semibold">
+            Switch Network
+          </div>
           <DropdownMenuSeparator className="bg-cryptic-accent/20" />
           {chains.map((availableChain) => (
-            <DropdownMenuItem 
+            <DropdownMenuItem
               key={availableChain.id}
               className={cn(
                 dropdownMenuItem,
@@ -116,9 +125,9 @@ export function WalletButton() {
             >
               <div className="w-5 h-5 rounded-full overflow-hidden mr-2 flex justify-center items-center">
                 {getChainImage(availableChain.id) ? (
-                  <img 
-                    src={getChainImage(availableChain.id)} 
-                    alt={availableChain.name || 'Chain'} 
+                  <img
+                    src={getChainImage(availableChain.id)}
+                    alt={availableChain.name || "Chain"}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -128,7 +137,9 @@ export function WalletButton() {
                 )}
               </div>
               {availableChain.name}
-              {chain?.id === availableChain.id && <span className="ml-auto">✓</span>}
+              {chain?.id === availableChain.id && (
+                <span className="ml-auto">✓</span>
+              )}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -137,25 +148,21 @@ export function WalletButton() {
       {/* Wallet Address Menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className={walletButtonStyles}
-          >
+          <Button variant="outline" size="sm" className={walletButtonStyles}>
             {displayAddress}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className={dropdownMenuContent}>
-          <DropdownMenuItem 
+          <DropdownMenuItem
             className={dropdownMenuItem}
             onClick={() => {
-              window.open(`https://etherscan.io/address/${address}`, '_blank')
+              window.open(`https://etherscan.io/address/${address}`, "_blank");
             }}
           >
             <ExternalLink className="mr-2 h-4 w-4" />
             View on Explorer
           </DropdownMenuItem>
-          <DropdownMenuItem 
+          <DropdownMenuItem
             className="cursor-pointer flex items-center text-destructive hover:bg-destructive/10"
             onClick={() => disconnect()}
           >
@@ -164,6 +171,8 @@ export function WalletButton() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <CofhejsPortal />
     </div>
-  )
+  );
 }

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,10 +15,12 @@ import { AppKitProvider } from "./providers/AppKitProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import { AdminAuthProvider } from "./providers/AdminAuthProvider";
 import { Navbar } from "./components/Navbar";
+import { useInitialize } from "./hooks/useInitialize";
+import { CofhejsPermitModal } from "./components/cofhe/CofhejsPermitModal";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const Provider = () => (
   <ThemeProvider>
     <AppKitProvider>
       <QueryClientProvider client={queryClient}>
@@ -28,17 +29,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Navbar />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/lending" element={<Lending />} />
-                <Route path="/borrow" element={<Borrow />} />
-                <Route path="/market/:id" element={<MarketDetail />} />
-                <Route path="/vault/:id" element={<VaultDetail />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/ui-library" element={<UILibrary />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <App />
             </BrowserRouter>
           </TooltipProvider>
         </AdminAuthProvider>
@@ -47,4 +38,24 @@ const App = () => (
   </ThemeProvider>
 );
 
-export default App;
+const App = () => {
+  useInitialize();
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/lending" element={<Lending />} />
+        <Route path="/borrow" element={<Borrow />} />
+        <Route path="/market/:id" element={<MarketDetail />} />
+        <Route path="/vault/:id" element={<VaultDetail />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/ui-library" element={<UILibrary />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <CofhejsPermitModal />
+    </>
+  );
+};
+
+export default Provider;

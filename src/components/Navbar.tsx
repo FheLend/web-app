@@ -1,16 +1,16 @@
-
-import { useState } from 'react';
-import { Menu, Settings, LayoutGrid } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Link, useLocation } from 'react-router-dom';
-import { WalletButton } from '@/components/WalletButton';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { useThemeStyles } from '@/lib/themeUtils';
-import { useAdminAuthContext } from '@/providers/AdminAuthProvider';
-import { useAccount } from 'wagmi';
+import { useState } from "react";
+import { Menu, Settings, LayoutGrid } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Link, useLocation } from "react-router-dom";
+import { WalletButton } from "@/components/WalletButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useThemeStyles } from "@/lib/themeUtils";
+import { useAdminAuthContext } from "@/providers/AdminAuthProvider";
+import { useAccount } from "wagmi";
 import Logo from "@/assets/logo.svg";
 import LogoWhite from "@/assets/logo-white.svg";
+import { CofhejsPortal } from "./cofhe/CofhejsPortal";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,20 +18,23 @@ export function Navbar() {
   const location = useLocation();
   const { potentialAdmin } = useAdminAuthContext();
   const { address } = useAccount();
-  
-  const isLendingActive = location.pathname === '/' || location.pathname === '/lending' || location.pathname.startsWith('/vault');
-  const isBorrowActive = location.pathname === '/borrow' || location.pathname.startsWith('/market');
-  const isSettingsActive = location.pathname === '/settings';
-  const isUiLibraryActive = location.pathname === '/ui-library';
-  
+
+  const isLendingActive =
+    location.pathname === "/" ||
+    location.pathname === "/lending" ||
+    location.pathname.startsWith("/vault");
+  const isBorrowActive =
+    location.pathname === "/borrow" || location.pathname.startsWith("/market");
+  const isSettingsActive = location.pathname === "/settings";
+
   return (
     <nav className={navbarStyles}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center text-white">
-            <img 
-              src={isDark ? LogoWhite : Logo} 
-              alt="Felend Logo" 
+            <img
+              src={isDark ? LogoWhite : Logo}
+              alt="Felend Logo"
               className="h-8 mr-2"
             />
           </Link>
@@ -58,9 +61,9 @@ export function Navbar() {
         {/* Mobile menu button */}
         <div className="md:hidden flex items-center gap-2">
           <ThemeToggle />
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="text-foreground hover:bg-cryptic-accent/20"
           >
