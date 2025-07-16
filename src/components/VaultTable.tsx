@@ -243,6 +243,7 @@ export function VaultTable() {
           "symbol",
           "decimals",
           "encTotalDeposits",
+          "deposi",
         ].map((key) => ({
           address: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
           abi: VaultAbi.abi,
@@ -255,32 +256,30 @@ export function VaultTable() {
 
         console.log("Vaults fetched:", encTotalDeposits);
 
-        // initialize your web3 provider
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = (await provider.getSigner()) as ethers.JsonRpcSigner;
+        // const provider = new ethers.BrowserProvider(window.ethereum);
+        // const signer = (await provider.getSigner()) as ethers.JsonRpcSigner;
 
-        // initialize cofhejs Client with ethers (it also supports viem)
-        const result = await cofhejs.initializeWithEthers({
-          ethersProvider: provider,
-          ethersSigner: signer,
-          environment: "TESTNET",
-        });
-        console.log("Cofhejs initialized:", provider, signer, result);
-
-        // const permit = await cofhejs.createPermit({
-        //   type: "self",
-        //   issuer: "0x9E97A40996c749C8C86F16b4F412dD96467da69C",
-        // });
-        // console.log(permit);
+        // const contract = new ethers.Contract(
+        //   "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
+        //   VaultAbi.abi,
+        //   signer
+        // );
 
         // // When creating a permit cofhejs will use it automatically, but you can pass it manually as well
-        // const unsealed = await cofhejs.unseal(
-        //   encTotalDeposits.result as bigint,
-        //   FheTypes.Uint64,
-        //   permit.data.issuer,
-        //   permit.data.getHash()
-        // );
-        // console.log(unsealed);
+        const permit = await cofhejs.getPermit();
+        // const permission = permit.data.getPermission();
+        // console.log("Permission:", permission);
+
+        // const sealedResults = await contract.encTotalDeposits([permission]);
+        // console.log("Sealed results:", sealedResults);
+
+        // const results = await cofhejs.unseal(sealedResults, FheTypes.Uint32);
+
+        const unsealResult = await cofhejs.unseal(
+          encTotalDeposits.result as bigint,
+          FheTypes.Uint32,
+        );
+        console.log(permit, unsealResult);
 
         setVaults([
           {
