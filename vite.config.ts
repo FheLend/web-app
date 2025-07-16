@@ -14,14 +14,14 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     wasm(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: "node_modules/.pnpm/tfhe@*/node_modules/tfhe/tfhe_bg.wasm",
-          dest: "",
-        },
-      ],
-    }),
+    // viteStaticCopy({
+    //   targets: [
+    //     {
+    //       src: "node_modules/.pnpm/tfhe@*/node_modules/tfhe/tfhe_bg.wasm",
+    //       dest: "",
+    //     },
+    //   ],
+    // }),
     mode === "development" && componentTagger(),
   ].filter(Boolean),
   optimizeDeps: {
