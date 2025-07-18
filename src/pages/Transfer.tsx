@@ -67,9 +67,9 @@ export default function Transfer() {
                 Send tokens to any address on the network
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-8">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
                     control={form.control}
                     name="tokenAddress"
