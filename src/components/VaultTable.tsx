@@ -18,6 +18,7 @@ import { useThemeStyles } from "@/lib/themeUtils";
 import { readContract, readContracts } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
+import type { Abi } from "viem";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import { Image } from "./ui/image";
 import { cofhejs, FheTypes } from "cofhejs/web";
@@ -140,15 +141,16 @@ export function VaultTable() {
       try {
         const vaultInfo = ["asset", "name", "symbol", "decimals"].map(
           (key) => ({
-            address: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
-            abi: VaultAbi.abi,
+            address: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E" as `0x${string}`,
+            abi: VaultAbi.abi as any,
             functionName: key,
           })
         );
-        const [asset, vaultName, vaultSymbol, vaultDecimals] =
-          await readContracts(config, {
-            contracts: vaultInfo,
-          });
+        // @ts-expect-error - Type instantiation too deep for wagmi ABI types
+        const results = await readContracts(config, {
+          contracts: vaultInfo,
+        });
+        const [asset, vaultName, vaultSymbol, vaultDecimals] = results;
 
         console.log(
           "Vaults fetched:",

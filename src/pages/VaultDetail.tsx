@@ -181,14 +181,15 @@ export default function VaultDetail() {
 
   const vaultInfoKey = useMemo(() => {
     return ["name", "symbol", "decimals"].map((key) => ({
-      address: id,
-      abi: VaultAbi.abi,
+      address: id as `0x${string}`,
+      abi: VaultAbi.abi as any,
       functionName: key,
     }));
   }, [id]);
 
+  // @ts-ignore
   const { data, isLoading } = useReadContracts({
-    contracts: vaultInfoKey,
+    contracts: vaultInfoKey as any,
   });
 
   const vaultName = data?.[0]?.result as string;
