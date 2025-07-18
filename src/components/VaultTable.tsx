@@ -39,7 +39,6 @@ interface Vault {
   curatorIcon: string;
   collateral: string[];
   apy: number;
-  apyTrend: "up" | "down" | "stable";
   depositsValue: number;
   valueInUsd: number;
 }
@@ -136,17 +135,76 @@ export function VaultTable() {
     );
   };
 
+  useEffect(() => {
+    async function fetchVaults() {
+      try {
+        const vaultInfo = ["asset", "name", "symbol", "decimals"].map(
+          (key) => ({
+            address: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
+            abi: VaultAbi.abi,
+            functionName: key,
+          })
+        );
+        const [asset, vaultName, vaultSymbol, vaultDecimals] =
+          await readContracts(config, {
+            contracts: vaultInfo,
+          });
+
+        console.log(
+          "Vaults fetched:",
+          asset,
+          vaultName,
+          vaultSymbol,
+          vaultDecimals
+        );
+
+        // const provider = new ethers.BrowserProvider(window.ethereum);
+        // const signer = (await provider.getSigner()) as ethers.JsonRpcSigner;
+
+        // const contract = new ethers.Contract(
+        //   "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
+        //   VaultAbi.abi,
+        //   signer
+        // );
+
+        // // When creating a permit cofhejs will use it automatically, but you can pass it manually as well
+        // const permit = await cofhejs.getPermit();
+
+        setVaults([
+          {
+            asset: asset.result,
+            name: vaultName.result,
+            symbol: vaultSymbol.result,
+            decimals: vaultDecimals.result,
+            logo: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
+            deposits: "350.06",
+            value: "349.87",
+            curator: "FeLend",
+            curatorIcon: "🛡️",
+            collateral: ["ETH"],
+            apy: 7.41,
+            depositsValue: 350.06,
+            valueInUsd: 349.87,
+          } as Vault,
+        ]);
+      } catch (error) {
+        console.error("Error fetching vaults:", error);
+      }
+    }
+    fetchVaults();
+  }, []);
+
   const renderMobileVaults = () => {
     return sortedVaults.map((vault) => (
       <div
-        key={vault.id}
+        key={vault.asset}
         className={cn(
           "mb-4 p-4 rounded-lg border hover:bg-cryptic-purple/10 transition duration-150 cursor-pointer",
           theme === "dark"
             ? "bg-cryptic-dark/50 border-cryptic-muted/20"
             : "bg-white border-slate-200 hover:bg-slate-50"
         )}
-        onClick={() => handleRowClick(vault.id)}
+        onClick={() => handleRowClick(vault.asset)}
       >
         <div className="flex items-center mb-3">
           <div
@@ -155,7 +213,7 @@ export function VaultTable() {
               theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
             )}
           >
-            <span className="text-xl">{vault.icon}</span>
+            <span className="text-xl">{vault.logo}</span>
           </div>
           <div className="ml-4">
             <div className="font-medium text-foreground text-lg">
@@ -233,78 +291,6 @@ export function VaultTable() {
       </div>
     ));
   };
-
-  useEffect(() => {
-    async function fetchVaults() {
-      try {
-        const vaultInfo = [
-          "asset",
-          "name",
-          "symbol",
-          "decimals",
-          "encTotalDeposits",
-          "deposi",
-        ].map((key) => ({
-          address: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
-          abi: VaultAbi.abi,
-          functionName: key,
-        }));
-        const [asset, vaultName, vaultSymbol, vaultDecimals, encTotalDeposits] =
-          await readContracts(config, {
-            contracts: vaultInfo,
-          });
-
-        console.log("Vaults fetched:", encTotalDeposits);
-
-        // const provider = new ethers.BrowserProvider(window.ethereum);
-        // const signer = (await provider.getSigner()) as ethers.JsonRpcSigner;
-
-        // const contract = new ethers.Contract(
-        //   "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
-        //   VaultAbi.abi,
-        //   signer
-        // );
-
-        // // When creating a permit cofhejs will use it automatically, but you can pass it manually as well
-        const permit = await cofhejs.getPermit();
-        // const permission = permit.data.getPermission();
-        // console.log("Permission:", permission);
-
-        // const sealedResults = await contract.encTotalDeposits([permission]);
-        // console.log("Sealed results:", sealedResults);
-
-        // const results = await cofhejs.unseal(sealedResults, FheTypes.Uint32);
-
-        const unsealResult = await cofhejs.unseal(
-          encTotalDeposits.result as bigint,
-          FheTypes.Uint32,
-        );
-        console.log(permit, unsealResult);
-
-        setVaults([
-          {
-            asset: asset.result,
-            name: vaultName.result,
-            symbol: vaultSymbol.result,
-            decimals: vaultDecimals.result,
-            logo: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
-            deposits: "350.06",
-            value: "349.87",
-            curator: "FeLend",
-            curatorIcon: "🛡️",
-            collateral: ["ETH", "BTC", "LINK", "AAVE"],
-            apy: 7.41,
-            apyTrend: "up",
-            depositsValue: 350.06,
-            valueInUsd: 349.87,
-          } as Vault,
-        ]);
-      } catch (error) {
-        console.error("Error fetching vaults:", error);
-      }
-    }
-    fetchVaults();
-  }, []);
 
   return (
     <div className="py-8 sm:py-16 px-4 sm:px-6">
@@ -422,7 +408,7 @@ export function VaultTable() {
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-foreground">
-                      {vault.deposits} {vault.symbol}
+                      {">"} {vault.deposits} {vault.symbol}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">
@@ -459,34 +445,7 @@ export function VaultTable() {
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
-                      <div className="flex items-center">
-                        <span
-                          className={cn(
-                            "font-medium text-lg",
-                            vault.apyTrend === "up"
-                              ? "text-emerald-400"
-                              : vault.apyTrend === "down"
-                              ? "text-rose-400"
-                              : "text-amber-400"
-                          )}
-                        >
-                          {vault.apy}
-                        </span>
-                        <div
-                          className={cn(
-                            "ml-2 text-xl",
-                            vault.apyTrend === "up"
-                              ? "text-emerald-400"
-                              : vault.apyTrend === "down"
-                              ? "text-rose-400"
-                              : "text-amber-400"
-                          )}
-                        >
-                          {vault.apyTrend === "up" && "↑"}
-                          {vault.apyTrend === "down" && "↓"}
-                          {vault.apyTrend === "stable" && "→"}
-                        </div>
-                      </div>
+                      <span className="font-medium text-lg">--</span>
                     </TableCell>
                   </TableRow>
                 ))}
