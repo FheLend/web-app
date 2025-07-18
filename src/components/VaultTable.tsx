@@ -213,7 +213,11 @@ export function VaultTable() {
               theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
             )}
           >
-            <span className="text-xl">{vault.logo}</span>
+            <Image
+              src={vault.logo}
+              alt={vault.symbol}
+              className="rounded-full h-8 w-8"
+            />
           </div>
           <div className="ml-4">
             <div className="font-medium text-foreground text-lg">
@@ -231,23 +235,8 @@ export function VaultTable() {
 
           <div>
             <div className="text-muted-foreground">APY</div>
-            <div
-              className={cn(
-                "font-medium",
-                vault.apyTrend === "up"
-                  ? "text-emerald-400"
-                  : vault.apyTrend === "down"
-                  ? "text-rose-400"
-                  : "text-amber-400"
-              )}
-            >
-              {vault.apy}
-              <span className="ml-1">
-                {vault.apyTrend === "up" && "↑"}
-                {vault.apyTrend === "down" && "↓"}
-                {vault.apyTrend === "stable" && "→"}
-              </span>
-            </div>
+            {/* {vault.apy} */}
+            --
           </div>
 
           <div>
