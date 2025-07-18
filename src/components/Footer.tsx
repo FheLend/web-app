@@ -51,6 +51,14 @@ export function Footer() {
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Twitter</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Forum</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-cryptic-accent">Governance</a></li>
+              <li>
+                <Link 
+                  to="/transfer" 
+                  className="text-muted-foreground hover:text-cryptic-accent inline-flex items-center"
+                >
+                  Transfer Tokens
+                </Link>
+              </li>
               {potentialAdmin && (
                 <li>
                   <Link 

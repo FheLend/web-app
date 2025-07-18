@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import VaultDetail from "./pages/VaultDetail";
 import Settings from "./pages/Settings";
 import UILibrary from "./pages/UILibrary";
+import Transfer from "./pages/Transfer";
 import { AppKitProvider } from "./providers/AppKitProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import { AdminAuthProvider } from "./providers/AdminAuthProvider";
@@ -51,6 +52,7 @@ const App = () => {
         <Route path="/vault/:id" element={<VaultDetail />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/ui-library" element={<UILibrary />} />
+        <Route path="/transfer" element={<Transfer />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <CofhejsPermitModal />
