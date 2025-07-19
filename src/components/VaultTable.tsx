@@ -29,6 +29,7 @@ type SortField = "deposits" | "value" | "apy" | null;
 type SortDirection = "asc" | "desc";
 
 interface Vault {
+  id: string; // Vault address
   asset: `0x${string}`;
   name: string;
   logo: string;
@@ -138,10 +139,11 @@ export function VaultTable() {
 
   useEffect(() => {
     async function fetchVaults() {
+      const vaultAddress = "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E";
       try {
         const vaultInfo = ["asset", "name", "symbol", "decimals"].map(
           (key) => ({
-            address: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E" as `0x${string}`,
+            address: vaultAddress as `0x${string}`,
             abi: VaultAbi.abi as any,
             functionName: key,
           })
@@ -174,6 +176,7 @@ export function VaultTable() {
 
         setVaults([
           {
+            id: vaultAddress,
             asset: asset.result,
             name: vaultName.result,
             symbol: vaultSymbol.result,
@@ -375,9 +378,9 @@ export function VaultTable() {
               <TableBody className={tableBody}>
                 {sortedVaults.map((vault) => (
                   <TableRow
-                    key={vault.asset}
+                    key={vault.id}
                     className={tableRow}
-                    onClick={() => handleRowClick(vault.asset)}
+                    onClick={() => handleRowClick(vault.id)}
                   >
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">

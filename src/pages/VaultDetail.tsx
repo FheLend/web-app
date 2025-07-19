@@ -34,13 +34,17 @@ import { useMemo, useState } from "react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { useThemeStyles } from "@/lib/themeUtils";
-import { useAccount, useReadContracts } from "wagmi";
+import { useAccount, useReadContracts, useWriteContract } from "wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
 import { useAppKit } from "@reown/appkit/react";
+import { Encryptable, cofhejs } from "cofhejs/web";
+import { toast } from "@/hooks/use-toast";
+import { useCofhejsActivePermit } from "@/hooks/useCofhejs";
+import { getAddress } from "viem";
 
 const vaultDetails = {
-  "0xA6b6B9c491D501db655191A19Dee1384bc6d8C56": {
-    id: "0xA6b6B9c491D501db655191A19Dee1384bc6d8C56",
+  "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E": {
+    id: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
     name: "Felend FHE MUSDC Vault",
     icon: "🔒",
     description:
@@ -178,6 +182,8 @@ export default function VaultDetail() {
     useThemeStyles();
   const { address, isConnected, chain } = useAccount();
   const { open } = useAppKit();
+  const { writeContractAsync, isPending: isDepositPending } =
+    useWriteContract();
 
   const vaultInfoKey = useMemo(() => {
     return ["name", "symbol", "decimals"].map((key) => ({
@@ -196,7 +202,57 @@ export default function VaultDetail() {
   const vaultSymbol = data?.[1]?.result as string;
   const vaultDecimals = data?.[2]?.result as number;
 
-  console.log("Vault Data:", data, "Loading:", isLoading);
+  const activePermitHash = useCofhejsActivePermit();
+  const [isEncrypting, setIsEncrypting] = useState(false);
+
+  const handleDeposit = async () => {
+    if (!depositAmount || !id || !activePermitHash) return;
+
+    try {
+      // Convert the amount to BigInt with proper decimals
+      const amountBigInt = BigInt(
+        Math.floor(parseFloat(depositAmount) * 10 ** (vaultDecimals || 18))
+      );
+      // Encrypt the amount using cofhejs
+      setIsEncrypting(true);
+      const encryptedAmount = await cofhejs.encrypt([
+        Encryptable.uint128(amountBigInt),
+      ]);
+      setIsEncrypting(false);
+
+      if (!encryptedAmount.success) {
+        throw new Error(`Failed to encrypt data: ${encryptedAmount.error}`);
+      }
+
+      const txResult = await writeContractAsync({
+        address: id as `0x${string}`,
+        abi: VaultAbi.abi as any,
+        functionName: "encDeposit",
+        args: [encryptedAmount.data[0], address, activePermitHash],
+      });
+
+      toast({
+        title: "Deposit Initiated",
+        description: `Transaction submitted for ${depositAmount} ${vaultSymbol}`,
+      });
+
+      console.log("Deposit transaction hash:", txResult);
+
+      // Reset the deposit amount
+      setDepositAmount("");
+    } catch (error) {
+      console.error("Deposit error:", error);
+      setIsEncrypting(false);
+      toast({
+        title: "Deposit Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred while processing the deposit.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -642,7 +698,7 @@ export default function VaultDetail() {
                             </span>
                           </div>
 
-                          <div className="space-y-2">
+                          {/* <div className="space-y-2">
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">
                                 Expected APY
@@ -657,11 +713,33 @@ export default function VaultDetail() {
                               </span>
                               <span className="text-foreground">$3.24</span>
                             </div>
-                          </div>
+                          </div> */}
 
                           {isConnected ? (
-                            <Button className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90">
-                              Deposit {depositAmount} {vaultSymbol}
+                            <Button
+                              className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90"
+                              onClick={handleDeposit}
+                              disabled={
+                                isDepositPending ||
+                                !depositAmount ||
+                                isEncrypting
+                              }
+                            >
+                              {isEncrypting ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Encrypting...
+                                </>
+                              ) : isDepositPending ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  Deposit {depositAmount} {vaultSymbol}
+                                </>
+                              )}
                             </Button>
                           ) : (
                             <Button
