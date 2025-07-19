@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -20,11 +20,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Footer } from "@/components/Footer";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { Encryptable, cofhejs } from "cofhejs/web";
-import { useWriteContract } from "wagmi";
+import { Encryptable, cofhejs, FheTypes } from "cofhejs/web";
+import { useAccount, useWriteContract } from "wagmi";
+import { readContract } from "@wagmi/core";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
+import { config } from "@/configs/wagmi";
 
 const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 
@@ -53,6 +55,9 @@ type TransferForm = z.infer<typeof transferSchema>;
 
 export default function Transfer() {
   const [isLoading, setIsLoading] = useState(false);
+  const [balance, setBalance] = useState<string | null>(null);
+  const [isFetchingBalance, setIsFetchingBalance] = useState(false);
+  const { address } = useAccount();
 
   // Use wagmi's useWriteContract hook to interact with the contract
   const { writeContractAsync, isPending } = useWriteContract();
@@ -65,6 +70,65 @@ export default function Transfer() {
       recipientAddress: "",
     },
   });
+
+  // Watch for changes to tokenAddress to fetch balance
+  const tokenAddress = useWatch({
+    control: form.control,
+    name: "tokenAddress",
+  });
+
+  // Fetch balance when token address changes and is valid
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (
+        !tokenAddress ||
+        !address ||
+        !ethereumAddressRegex.test(tokenAddress)
+      ) {
+        setBalance(null);
+        return;
+      }
+
+      setIsFetchingBalance(true);
+      try {
+        // Call encBalanceOf to get encrypted balance
+        const encryptedBalance = await readContract(config, {
+          address: tokenAddress as `0x${string}`,
+          abi: FHERC20Abi.abi,
+          functionName: "encBalanceOf",
+          args: [address],
+        });
+
+        if (encryptedBalance) {
+          // Decrypt the balance
+          const decryptedResult = await cofhejs.decrypt(
+            encryptedBalance as any,
+            FheTypes.Uint128
+          );
+          console.log("Decrypted balance:", encryptedBalance);
+
+          if (decryptedResult.success) {
+            // Format the balance (convert from wei to token units)
+            const balanceInWei = decryptedResult.data;
+            const formattedBalance = (Number(balanceInWei) / 10 ** 18).toFixed(
+              4
+            );
+            setBalance(formattedBalance);
+          } else {
+            console.error("Failed to decrypt balance:", decryptedResult.error);
+            setBalance(null);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching balance:", error);
+        setBalance(null);
+      } finally {
+        setIsFetchingBalance(false);
+      }
+    };
+
+    fetchBalance();
+  }, [tokenAddress, address]);
 
   const onSubmit = async (data: TransferForm) => {
     setIsLoading(true);
@@ -154,7 +218,19 @@ export default function Transfer() {
                     name="amount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount</FormLabel>
+                        <div className="flex justify-between items-center">
+                          <FormLabel>Amount</FormLabel>
+                          {isFetchingBalance ? (
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              Loading...
+                            </div>
+                          ) : balance ? (
+                            <div className="text-sm text-muted-foreground">
+                              Balance: {balance}
+                            </div>
+                          ) : null}
+                        </div>
                         <FormControl>
                           <Input
                             type="number"

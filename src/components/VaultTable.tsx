@@ -148,7 +148,7 @@ export function VaultTable() {
             functionName: key,
           })
         );
-        // @ts-expect-error - Type instantiation too deep for wagmi ABI types
+        // @ts-expect-error
         const results = await readContracts(config, {
           contracts: vaultInfo,
         });

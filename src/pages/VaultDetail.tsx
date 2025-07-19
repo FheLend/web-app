@@ -20,7 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -30,17 +29,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { useThemeStyles } from "@/lib/themeUtils";
-import { useAccount, useReadContracts, useWriteContract } from "wagmi";
+import { useAccount, useReadContracts } from "wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
 import { useAppKit } from "@reown/appkit/react";
-import { Encryptable, cofhejs } from "cofhejs/web";
-import { toast } from "@/hooks/use-toast";
-import { useCofhejsActivePermit } from "@/hooks/useCofhejs";
 import { getAddress } from "viem";
+import { DepositForm, WithdrawForm } from "@/components/vault";
 
 const vaultDetails = {
   "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E": {
@@ -175,15 +172,11 @@ const vaultDetails = {
 export default function VaultDetail() {
   const { id } = useParams();
   const vault = vaultDetails[id as keyof typeof vaultDetails];
-  const [depositAmount, setDepositAmount] = useState("");
-  const [withdrawAmount, setWithdrawAmount] = useState("");
   const { theme } = useTheme();
   const { cardStyles, tableRow, iconBadge, tableHeader, boxInfo } =
     useThemeStyles();
-  const { address, isConnected, chain } = useAccount();
+  const { address, isConnected } = useAccount();
   const { open } = useAppKit();
-  const { writeContractAsync, isPending: isDepositPending } =
-    useWriteContract();
 
   const vaultInfoKey = useMemo(() => {
     return ["name", "symbol", "decimals"].map((key) => ({
@@ -201,58 +194,6 @@ export default function VaultDetail() {
   const vaultName = data?.[0]?.result as string;
   const vaultSymbol = data?.[1]?.result as string;
   const vaultDecimals = data?.[2]?.result as number;
-
-  const activePermitHash = useCofhejsActivePermit();
-  const [isEncrypting, setIsEncrypting] = useState(false);
-
-  const handleDeposit = async () => {
-    if (!depositAmount || !id || !activePermitHash) return;
-
-    try {
-      // Convert the amount to BigInt with proper decimals
-      const amountBigInt = BigInt(
-        Math.floor(parseFloat(depositAmount) * 10 ** (vaultDecimals || 18))
-      );
-      // Encrypt the amount using cofhejs
-      setIsEncrypting(true);
-      const encryptedAmount = await cofhejs.encrypt([
-        Encryptable.uint128(amountBigInt),
-      ]);
-      setIsEncrypting(false);
-
-      if (!encryptedAmount.success) {
-        throw new Error(`Failed to encrypt data: ${encryptedAmount.error}`);
-      }
-
-      const txResult = await writeContractAsync({
-        address: id as `0x${string}`,
-        abi: VaultAbi.abi as any,
-        functionName: "encDeposit",
-        args: [encryptedAmount.data[0], address, activePermitHash],
-      });
-
-      toast({
-        title: "Deposit Initiated",
-        description: `Transaction submitted for ${depositAmount} ${vaultSymbol}`,
-      });
-
-      console.log("Deposit transaction hash:", txResult);
-
-      // Reset the deposit amount
-      setDepositAmount("");
-    } catch (error) {
-      console.error("Deposit error:", error);
-      setIsEncrypting(false);
-      toast({
-        title: "Deposit Failed",
-        description:
-          error instanceof Error
-            ? error.message
-            : "An error occurred while processing the deposit.",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -655,174 +596,24 @@ export default function VaultDetail() {
                       </TabsList>
 
                       <TabsContent value="deposit">
-                        <div className="space-y-4">
-                          <div>
-                            <div className="flex justify-between mb-2">
-                              <label className="text-sm text-muted-foreground">
-                                Amount to Deposit
-                              </label>
-                              <span className="text-sm text-muted-foreground">
-                                Balance: 0.00
-                              </span>
-                            </div>
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                placeholder="0.00"
-                                value={depositAmount}
-                                onChange={(e) =>
-                                  setDepositAmount(e.target.value)
-                                }
-                                className="pr-16"
-                              />
-                              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <span className="text-sm font-medium text-muted-foreground">
-                                  {vaultSymbol}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div
-                            className={cn(
-                              "p-3 rounded-lg flex items-center",
-                              theme === "dark"
-                                ? "bg-cryptic-purple/10"
-                                : "bg-blue-50"
-                            )}
-                          >
-                            <Info className="h-4 w-4 text-cryptic-accent mr-2" />
-                            <span className="text-xs text-muted-foreground">
-                              Deposits are encrypted using FHE technology for
-                              maximum privacy
-                            </span>
-                          </div>
-
-                          {/* <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">
-                                Expected APY
-                              </span>
-                              <span className="text-emerald-400 font-medium">
-                                {vault.apy}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">
-                                Gas Fee (est.)
-                              </span>
-                              <span className="text-foreground">$3.24</span>
-                            </div>
-                          </div> */}
-
-                          {isConnected ? (
-                            <Button
-                              className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90"
-                              onClick={handleDeposit}
-                              disabled={
-                                isDepositPending ||
-                                !depositAmount ||
-                                isEncrypting
-                              }
-                            >
-                              {isEncrypting ? (
-                                <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  Encrypting...
-                                </>
-                              ) : isDepositPending ? (
-                                <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  Processing...
-                                </>
-                              ) : (
-                                <>
-                                  Deposit {depositAmount} {vaultSymbol}
-                                </>
-                              )}
-                            </Button>
-                          ) : (
-                            <Button
-                              className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90"
-                              onClick={() => open()}
-                            >
-                              Connect Wallet to Deposit
-                            </Button>
-                          )}
-                        </div>
+                        <DepositForm 
+                          vaultId={id as string}
+                          vaultSymbol={vaultSymbol}
+                          vaultDecimals={vaultDecimals}
+                          theme={theme}
+                          isConnected={isConnected}
+                          address={address}
+                          openWalletModal={open}
+                        />
                       </TabsContent>
 
                       <TabsContent value="withdraw">
-                        <div className="space-y-4">
-                          <div>
-                            <div className="flex justify-between mb-2">
-                              <label className="text-sm text-muted-foreground">
-                                Amount to Withdraw
-                              </label>
-                              <span className="text-sm text-muted-foreground">
-                                Balance: 0.00
-                              </span>
-                            </div>
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                placeholder="0.00"
-                                value={withdrawAmount}
-                                onChange={(e) =>
-                                  setWithdrawAmount(e.target.value)
-                                }
-                                className="pr-16"
-                              />
-                              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <span className="text-sm font-medium text-muted-foreground">
-                                  {vaultSymbol}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div
-                            className={cn(
-                              "p-3 rounded-lg flex items-center",
-                              theme === "dark"
-                                ? "bg-cryptic-purple/10"
-                                : "bg-blue-50"
-                            )}
-                          >
-                            <Clock className="h-4 w-4 text-yellow-400 mr-2" />
-                            <span className="text-xs text-muted-foreground">
-                              Withdrawals may take up to 24 hours to process
-                            </span>
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">
-                                Withdrawal Fee
-                              </span>
-                              <span className="text-foreground">0.1%</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">
-                                Gas Fee (est.)
-                              </span>
-                              <span className="text-foreground">$5.67</span>
-                            </div>
-                          </div>
-
-                          {isConnected ? (
-                            <Button className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90">
-                              Withdraw {withdrawAmount} {vaultSymbol}
-                            </Button>
-                          ) : (
-                            <Button
-                              className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90"
-                              onClick={() => open()}
-                            >
-                              Connect Wallet to Withdraw
-                            </Button>
-                          )}
-                        </div>
+                        <WithdrawForm 
+                          vaultSymbol={vaultSymbol}
+                          theme={theme}
+                          isConnected={isConnected}
+                          openWalletModal={open}
+                        />
                       </TabsContent>
                     </Tabs>
                   </CardContent>
