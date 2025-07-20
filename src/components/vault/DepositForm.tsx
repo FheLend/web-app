@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { Encryptable, cofhejs } from "cofhejs/web";
 import { Button } from "@/components/ui/button";
@@ -103,9 +104,25 @@ export function DepositForm({
         args: [encryptedAmount.data[0], address, permit],
       });
 
+      const txUrl = `https://sepolia.arbiscan.io/tx/${txResult}`;
+      
       toast({
         title: "Deposit Initiated",
-        description: `Transaction submitted for ${depositAmount} ${vaultSymbol}`,
+        description: (
+          <div>
+            Transaction submitted for {depositAmount} {vaultSymbol}
+            <br />
+            <a 
+              href={txUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="underline text-blue-500 hover:text-blue-700"
+            >
+              View on Arbiscan
+            </a>
+          </div>
+        ),
+        duration: 10000, // 10 seconds
       });
 
       console.log("Deposit transaction hash:", txResult);
@@ -122,6 +139,7 @@ export function DepositForm({
             ? error.message
             : "An error occurred while processing the deposit.",
         variant: "destructive",
+        duration: 10000, // 10 seconds
       });
     }
   };
