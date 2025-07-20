@@ -105,7 +105,6 @@ export default function Transfer() {
             encryptedBalance as any,
             FheTypes.Uint128
           );
-          console.log("Decrypted balance:", encryptedBalance);
 
           if (decryptedResult.success) {
             // Format the balance (convert from wei to token units)
@@ -263,6 +262,7 @@ export default function Transfer() {
                     type="submit"
                     className="w-full"
                     disabled={isLoading || isPending}
+                    needFHE
                   >
                     {isLoading || isPending ? "Sending..." : "Send Tokens"}
                   </Button>

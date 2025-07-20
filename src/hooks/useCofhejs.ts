@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { PermitOptions, cofhejs, permitStore } from "cofhejs/web";
 import { PublicClient, WalletClient, createWalletClient, http } from "viem";
 import { PrivateKeyAccount, privateKeyToAccount } from "viem/accounts";
@@ -54,12 +54,27 @@ export function useInitializeCofhejs() {
   const { data: walletClient } = useWalletClient();
   const isChainSupported = useIsConnectedChainSupported();
   const { toast } = useToast();
+  const { setStatus } = useCofhejsStatusStore();
+
+  // Set the initial status
+  useEffect(() => {
+    // If any dependency is missing, set idle state
+    if (!publicClient || !walletClient || !isChainSupported) {
+      setStatus('idle');
+      return;
+    }
+    
+    // Otherwise, set pending status (will be updated after initialization)
+    setStatus('pending');
+  }, [publicClient, walletClient, isChainSupported]);
 
   const handleError = (error: string) => {
     console.error("cofhejs initialization error:", error);
+    setStatus('error');
     toast({
       title: "Error",
       description: `cofhejs initialization error: ${error}`,
+      variant: "destructive",
     });
   };
 
@@ -68,6 +83,8 @@ export function useInitializeCofhejs() {
       // Early exit if any of the required dependencies are missing
       if (!publicClient || !walletClient || !isChainSupported) return;
 
+      // Status is already set to pending in the effect above
+      
       const chainId = publicClient?.chain.id;
       const environment =
         ChainEnvironments[chainId as keyof typeof ChainEnvironments] ??
@@ -77,6 +94,14 @@ export function useInitializeCofhejs() {
         publicClient,
         zkvSignerPrivateKey
       );
+
+      // Show pending toast when initialization starts
+      const pendingToast = toast({
+        title: "Initializing",
+        description: "Cofhejs is initializing...",
+        variant: "info",
+        duration: 100000, // Long duration as we'll dismiss it manually
+      });
 
       try {
         console.log({
@@ -113,12 +138,16 @@ export function useInitializeCofhejs() {
           },
         });
 
+        // Dismiss the pending toast
+        pendingToast.dismiss();
+
         if (initializationResult.success) {
           console.log("Cofhejs initialized successfully");
-          // notification.success("Cofhejs initialized successfully");
+          setStatus('success');
           toast({
             title: "Success",
             description: "Cofhejs initialized successfully",
+            variant: "success",
           });
         } else {
           handleError(
@@ -127,6 +156,9 @@ export function useInitializeCofhejs() {
           );
         }
       } catch (err) {
+        // Dismiss the pending toast
+        pendingToast.dismiss();
+        
         console.error("Failed to initialize cofhejs:", err);
         handleError(
           err instanceof Error
@@ -189,6 +221,29 @@ export const useCofhejsModalStore = create<CofhejsPermitModalStore>((set) => ({
       generatePermitModalCallback: callback,
     }),
 }));
+
+// Initialization Status Store
+interface CofhejsInitStatusStore {
+  status: 'idle' | 'pending' | 'success' | 'error';
+  setStatus: (status: 'idle' | 'pending' | 'success' | 'error') => void;
+}
+
+export const useCofhejsStatusStore = create<CofhejsInitStatusStore>((set) => ({
+  status: 'idle',
+  setStatus: (status) => set({ status }),
+}));
+
+// Export a simpler hook for components
+export const useCofhejsInitStatus = () => {
+  const { status } = useCofhejsStatusStore();
+  return {
+    status,
+    isPending: status === 'pending',
+    isSuccess: status === 'success',
+    isError: status === 'error',
+    isIdle: status === 'idle',
+  };
+};
 
 // Permits
 
@@ -263,11 +318,13 @@ export const useCofhejsCreatePermit = () => {
         toast({
           title: "Success",
           description: "Permit created successfully",
+          variant: "success",
         });
       } else {
         toast({
           title: "Error",
           description: permitResult.error.message ?? String(permitResult.error),
+          variant: "destructive",
         });
       }
       return permitResult;
@@ -287,6 +344,7 @@ export const useCofhejsRemovePermit = () => {
       toast({
         title: "Success",
         description: "Permit removed successfully",
+        variant: "success",
       });
     },
     [chainId, account, initialized]
@@ -304,6 +362,7 @@ export const useCofhejsSetActivePermit = () => {
       toast({
         title: "Success",
         description: "Active permit updated successfully",
+        variant: "success",
       });
     },
     [chainId, account, initialized]
