@@ -20,13 +20,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Footer } from "@/components/Footer";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Encryptable, cofhejs, FheTypes } from "cofhejs/web";
 import { useAccount, useWriteContract } from "wagmi";
 import { readContract } from "@wagmi/core";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import { config } from "@/configs/wagmi";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  useCofhejsIsActivePermitValid,
+  useCofhejsModalStore,
+} from "@/hooks/useCofhejs";
+import { CofhejsPermitModal } from "@/components/cofhe/CofhejsPermitModal";
 
 const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 
@@ -57,7 +63,10 @@ export default function Transfer() {
   const [isLoading, setIsLoading] = useState(false);
   const [balance, setBalance] = useState<string | null>(null);
   const [isFetchingBalance, setIsFetchingBalance] = useState(false);
+  const [encryptedBalance, setEncryptedBalance] = useState<any>(null);
   const { address } = useAccount();
+  const isPermitValid = useCofhejsIsActivePermitValid();
+  const { setGeneratePermitModalOpen } = useCofhejsModalStore();
 
   // Use wagmi's useWriteContract hook to interact with the contract
   const { writeContractAsync, isPending } = useWriteContract();
@@ -86,37 +95,29 @@ export default function Transfer() {
         !ethereumAddressRegex.test(tokenAddress)
       ) {
         setBalance(null);
+        setEncryptedBalance(null);
         return;
       }
 
       setIsFetchingBalance(true);
       try {
         // Call encBalanceOf to get encrypted balance
-        const encryptedBalance = await readContract(config, {
+        const encBalance = await readContract(config, {
           address: tokenAddress as `0x${string}`,
           abi: FHERC20Abi.abi,
           functionName: "encBalanceOf",
           args: [address],
         });
 
-        if (encryptedBalance) {
-          // Decrypt the balance
-          const decryptedResult = await cofhejs.decrypt(
-            encryptedBalance as any,
-            FheTypes.Uint128
-          );
+        // Store the encrypted balance for later decryption
+        setEncryptedBalance(encBalance);
 
-          if (decryptedResult.success) {
-            // Format the balance (convert from wei to token units)
-            const balanceInWei = decryptedResult.data;
-            const formattedBalance = (Number(balanceInWei) / 10 ** 18).toFixed(
-              4
-            );
-            setBalance(formattedBalance);
-          } else {
-            console.error("Failed to decrypt balance:", decryptedResult.error);
-            setBalance(null);
-          }
+        // If we have a valid permit, try to decrypt
+        if (isPermitValid && encBalance) {
+          await decryptBalance(encBalance);
+        } else {
+          // We have the encrypted balance but no valid permit
+          setBalance(null);
         }
       } catch (error) {
         console.error("Error fetching balance:", error);
@@ -127,7 +128,47 @@ export default function Transfer() {
     };
 
     fetchBalance();
-  }, [tokenAddress, address]);
+  }, [tokenAddress, address, isPermitValid]);
+
+  // Function to decrypt the balance (can be called after permit generation)
+  const decryptBalance = async (encryptedBalanceData: any) => {
+    if (!encryptedBalanceData) return;
+
+    try {
+      setIsFetchingBalance(true);
+
+      // Decrypt the balance
+      const decryptedResult = await cofhejs.decrypt(
+        encryptedBalanceData,
+        FheTypes.Uint128
+      );
+
+      if (decryptedResult.success) {
+        // Format the balance (convert from wei to token units)
+        const balanceInWei = decryptedResult.data;
+        const formattedBalance = (Number(balanceInWei) / 10 ** 18).toFixed(4);
+        setBalance(formattedBalance);
+      } else {
+        console.error("Failed to decrypt balance:", decryptedResult.error);
+        setBalance(null);
+      }
+    } catch (error) {
+      console.error("Error decrypting balance:", error);
+      setBalance(null);
+    } finally {
+      setIsFetchingBalance(false);
+    }
+  };
+
+  // Handler for permit generation
+  const handleGeneratePermit = () => {
+    setGeneratePermitModalOpen(true, () => {
+      // This callback will run after a permit is successfully generated
+      if (encryptedBalance) {
+        decryptBalance(encryptedBalance);
+      }
+    });
+  };
 
   const onSubmit = async (data: TransferForm) => {
     setIsLoading(true);
@@ -224,11 +265,14 @@ export default function Transfer() {
                               <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                               Loading...
                             </div>
-                          ) : balance ? (
-                            <div className="text-sm text-muted-foreground">
-                              Balance: {balance}
-                            </div>
-                          ) : null}
+                          ) : (
+                            tokenAddress &&
+                            ethereumAddressRegex.test(tokenAddress) && (
+                              <div className="text-sm text-muted-foreground">
+                                {balance !== null ? `Balance: ${balance}` : ""}
+                              </div>
+                            )
+                          )}
                         </div>
                         <FormControl>
                           <Input
@@ -239,6 +283,29 @@ export default function Transfer() {
                             {...field}
                           />
                         </FormControl>
+                        {tokenAddress &&
+                          ethereumAddressRegex.test(tokenAddress) &&
+                          !isPermitValid &&
+                          !isFetchingBalance && (
+                            <div className="mt-2">
+                              <Alert variant="warning" className="py-2">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle className="text-xs font-medium">
+                                  Permit Required
+                                </AlertTitle>
+                                <AlertDescription className="text-xs">
+                                  You need to generate a permit to view your
+                                  balance.{" "}
+                                  <span
+                                    className="underline cursor-pointer text-blue-500"
+                                    onClick={handleGeneratePermit}
+                                  >
+                                    Click here to generate
+                                  </span>
+                                </AlertDescription>
+                              </Alert>
+                            </div>
+                          )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -273,6 +340,8 @@ export default function Transfer() {
         </div>
       </div>
       <Footer />
+      {/* Include the permit modal component */}
+      <CofhejsPermitModal />
     </div>
   );
 }
