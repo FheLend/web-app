@@ -148,31 +148,11 @@ export function VaultTable() {
             functionName: key,
           })
         );
-        // @ts-expect-error
+        // @ts-expect-error - Type instantiation too deep for wagmi ABI types
         const results = await readContracts(config, {
           contracts: vaultInfo,
         });
         const [asset, vaultName, vaultSymbol, vaultDecimals] = results;
-
-        console.log(
-          "Vaults fetched:",
-          asset,
-          vaultName,
-          vaultSymbol,
-          vaultDecimals
-        );
-
-        // const provider = new ethers.BrowserProvider(window.ethereum);
-        // const signer = (await provider.getSigner()) as ethers.JsonRpcSigner;
-
-        // const contract = new ethers.Contract(
-        //   "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
-        //   VaultAbi.abi,
-        //   signer
-        // );
-
-        // // When creating a permit cofhejs will use it automatically, but you can pass it manually as well
-        // const permit = await cofhejs.getPermit();
 
         setVaults([
           {
@@ -182,7 +162,7 @@ export function VaultTable() {
             symbol: vaultSymbol.result,
             decimals: vaultDecimals.result,
             logo: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
-            deposits: "350.06",
+            deposits: "******",
             value: "349.87",
             curator: "FeLend",
             curatorIcon: "🛡️",
@@ -395,14 +375,14 @@ export function VaultTable() {
                           <div className="font-medium text-foreground text-lg">
                             {vault.name}
                           </div>
-                          <div className="text-muted-foreground">
-                            {vault.value}
-                          </div>
+                          {/* <div className="text-muted-foreground">
+                            ~${vault.value}
+                          </div> */}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-foreground">
-                      {">"} {vault.deposits} {vault.symbol}
+                      {vault.deposits} {vault.symbol}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">

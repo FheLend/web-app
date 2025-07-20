@@ -36,7 +36,6 @@ import { useThemeStyles } from "@/lib/themeUtils";
 import { useAccount, useReadContracts } from "wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
 import { useAppKit } from "@reown/appkit/react";
-import { getAddress } from "viem";
 import { DepositForm, WithdrawForm } from "@/components/vault";
 
 const vaultDetails = {
@@ -175,11 +174,11 @@ export default function VaultDetail() {
   const { theme } = useTheme();
   const { cardStyles, tableRow, iconBadge, tableHeader, boxInfo } =
     useThemeStyles();
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const { open } = useAppKit();
 
   const vaultInfoKey = useMemo(() => {
-    return ["name", "symbol", "decimals"].map((key) => ({
+    return ["asset", "name", "symbol", "decimals"].map((key) => ({
       address: id as `0x${string}`,
       abi: VaultAbi.abi as any,
       functionName: key,
@@ -191,9 +190,10 @@ export default function VaultDetail() {
     contracts: vaultInfoKey as any,
   });
 
-  const vaultName = data?.[0]?.result as string;
-  const vaultSymbol = data?.[1]?.result as string;
-  const vaultDecimals = data?.[2]?.result as number;
+  const vaultAsset = data?.[0]?.result as string;
+  const vaultName = data?.[1]?.result as string;
+  const vaultSymbol = data?.[2]?.result as string;
+  const vaultDecimals = data?.[3]?.result as number;
 
   if (isLoading) {
     return (
@@ -596,19 +596,19 @@ export default function VaultDetail() {
                       </TabsList>
 
                       <TabsContent value="deposit">
-                        <DepositForm 
+                        <DepositForm
                           vaultId={id as string}
                           vaultSymbol={vaultSymbol}
                           vaultDecimals={vaultDecimals}
+                          vaultAsset={vaultAsset}
                           theme={theme}
                           isConnected={isConnected}
-                          address={address}
                           openWalletModal={open}
                         />
                       </TabsContent>
 
                       <TabsContent value="withdraw">
-                        <WithdrawForm 
+                        <WithdrawForm
                           vaultSymbol={vaultSymbol}
                           theme={theme}
                           isConnected={isConnected}
