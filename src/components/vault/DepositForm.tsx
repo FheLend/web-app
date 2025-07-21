@@ -61,19 +61,24 @@ export function DepositForm({
       const { domain } = await publicClient.getEip712Domain({
         address: vaultAsset as `0x${string}`,
       });
+      const txCount = await publicClient.getTransactionCount({
+        address: address as `0x${string}`,
+      });
 
       const types = {
         Permit: [
           { name: "owner", type: "address" },
           { name: "spender", type: "address" },
           { name: "value_hash", type: "uint256" },
+          { name: "nonce", type: "uint256" },
           { name: "deadline", type: "uint256" },
         ],
       };
       const message = {
         owner: address,
-        spender: "0x74dDd26014d1f3783f109Ca67888c0FdFE4Ea425", // Felend FHE WETH/USDC Market
+        spender: vaultId,
         value_hash: encryptedAmount.data[0].ctHash,
+        nonce: txCount,
         deadline: activePermitHash.expiration,
       };
 
@@ -88,7 +93,7 @@ export function DepositForm({
 
       const permit = {
         owner: address,
-        spender: "0x74dDd26014d1f3783f109Ca67888c0FdFE4Ea425", // Felend FHE WETH/USDC Market
+        spender: vaultId,
         value_hash: encryptedAmount.data[0].ctHash,
         deadline: activePermitHash.expiration,
         v,
@@ -105,16 +110,16 @@ export function DepositForm({
       });
 
       const txUrl = `https://sepolia.arbiscan.io/tx/${txResult}`;
-      
+
       toast({
         title: "Deposit Initiated",
         description: (
           <div>
             Transaction submitted for {depositAmount} {vaultSymbol}
             <br />
-            <a 
-              href={txUrl} 
-              target="_blank" 
+            <a
+              href={txUrl}
+              target="_blank"
               rel="noopener noreferrer"
               className="underline text-blue-500 hover:text-blue-700"
             >
