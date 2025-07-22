@@ -1,5 +1,4 @@
 import { useState } from "react";
-import React from "react";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { Encryptable, cofhejs } from "cofhejs/web";
 import { Button } from "@/components/ui/button";
@@ -10,9 +9,11 @@ import { cn } from "@/lib/utils";
 import { BalanceInput } from "@/components/ui/BalanceInput";
 import { CofhejsPermitModal } from "@/components/cofhe/CofhejsPermitModal";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
-import { signTypedData } from "@wagmi/core";
+import { readContract, signTypedData, verifyTypedData } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import { parseSignature } from "viem";
+import FHERC20Abi from "@/constant/abi/FHERC20.json";
+
 interface DepositFormProps {
   vaultId: string;
   vaultAsset: string;
@@ -37,7 +38,7 @@ export function DepositForm({
   const { writeContractAsync, isPending: isDepositPending } =
     useWriteContract();
   const activePermitHash = useCofhejsActivePermit();
-  const { address } = useAccount();
+  const { address, chain } = useAccount();
   const publicClient = usePublicClient();
 
   const handleDeposit = async () => {
@@ -61,8 +62,12 @@ export function DepositForm({
       const { domain } = await publicClient.getEip712Domain({
         address: vaultAsset as `0x${string}`,
       });
-      const txCount = await publicClient.getTransactionCount({
-        address: address as `0x${string}`,
+
+      const nonce = await readContract(config, {
+        address: vaultAsset as `0x${string}`,
+        abi: FHERC20Abi.abi as any,
+        functionName: "nonces",
+        args: [address],
       });
 
       const types = {
@@ -78,13 +83,34 @@ export function DepositForm({
         owner: address,
         spender: vaultId,
         value_hash: encryptedAmount.data[0].ctHash,
-        nonce: txCount,
+        nonce,
         deadline: activePermitHash.expiration,
       };
 
+      // @ts-ignore
+      // const provider = new ethers.BrowserProvider(window.ethereum);
+      // const signer = (await provider.getSigner()) as ethers.JsonRpcSigner;
+
+      // const signature = await signer.signTypedData(
+      //   {
+      //     name: domain.name,
+      //     version: domain.version,
+      //     chainId: domain.chainId,
+      //     verifyingContract: domain.verifyingContract,
+      //   },
+      //   types,
+      //   message
+      // );
+      // const { v, r, s } = ethers.Signature.from(signature);
+
       const signature = await signTypedData(config, {
         account: address,
-        domain,
+        domain: {
+          name: domain.name,
+          version: domain.version,
+          chainId: domain.chainId,
+          verifyingContract: domain.verifyingContract,
+        },
         types,
         primaryType: "Permit",
         message,
@@ -101,12 +127,13 @@ export function DepositForm({
         s,
       };
 
-      // @ts-ignore
       const txResult = await writeContractAsync({
         address: vaultId as `0x${string}`,
         abi: VaultAbi.abi,
         functionName: "encDeposit",
         args: [encryptedAmount.data[0], address, permit],
+        account: address,
+        chain,
       });
 
       const txUrl = `https://sepolia.arbiscan.io/tx/${txResult}`;

@@ -3,14 +3,16 @@ import { useEffect, useState, useRef } from "react";
 import { PermitOptions, cofhejs, permitStore } from "cofhejs/web";
 import { PublicClient, WalletClient, createWalletClient, http } from "viem";
 import { PrivateKeyAccount, privateKeyToAccount } from "viem/accounts";
-import * as chains from "viem/chains";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { create, useStore } from "zustand";
 import { useShallow } from "zustand/react/shallow";
-import { arbitrumSepolia } from "wagmi/chains";
+import * as chains from "wagmi/chains";
 import { useToast } from "./use-toast";
+import { hardhatHaLink } from "@/configs/wagmi";
 
-const targetNetworks: [typeof arbitrumSepolia] = [chains.arbitrumSepolia];
+const targetNetworks = import.meta.env.DEV
+  ? [chains.arbitrumSepolia, hardhatHaLink]
+  : [chains.arbitrumSepolia];
 
 const ChainEnvironments = {
   // Ethereum
@@ -59,18 +61,19 @@ export function useInitializeCofhejs() {
   // Set the initial status
   useEffect(() => {
     // If any dependency is missing, set idle state
+    console.log(publicClient, walletClient, isChainSupported);
     if (!publicClient || !walletClient || !isChainSupported) {
-      setStatus('idle');
+      setStatus("idle");
       return;
     }
-    
+
     // Otherwise, set pending status (will be updated after initialization)
-    setStatus('pending');
+    setStatus("pending");
   }, [publicClient, walletClient, isChainSupported]);
 
   const handleError = (error: string) => {
     console.error("cofhejs initialization error:", error);
-    setStatus('error');
+    setStatus("error");
     toast({
       title: "Error",
       description: `cofhejs initialization error: ${error}`,
@@ -84,7 +87,7 @@ export function useInitializeCofhejs() {
       if (!publicClient || !walletClient || !isChainSupported) return;
 
       // Status is already set to pending in the effect above
-      
+
       const chainId = publicClient?.chain.id;
       const environment =
         ChainEnvironments[chainId as keyof typeof ChainEnvironments] ??
@@ -143,7 +146,7 @@ export function useInitializeCofhejs() {
 
         if (initializationResult.success) {
           console.log("Cofhejs initialized successfully");
-          setStatus('success');
+          setStatus("success");
           toast({
             title: "Success",
             description: "Cofhejs initialized successfully",
@@ -158,7 +161,7 @@ export function useInitializeCofhejs() {
       } catch (err) {
         // Dismiss the pending toast
         pendingToast.dismiss();
-        
+
         console.error("Failed to initialize cofhejs:", err);
         handleError(
           err instanceof Error
@@ -224,12 +227,12 @@ export const useCofhejsModalStore = create<CofhejsPermitModalStore>((set) => ({
 
 // Initialization Status Store
 interface CofhejsInitStatusStore {
-  status: 'idle' | 'pending' | 'success' | 'error';
-  setStatus: (status: 'idle' | 'pending' | 'success' | 'error') => void;
+  status: "idle" | "pending" | "success" | "error";
+  setStatus: (status: "idle" | "pending" | "success" | "error") => void;
 }
 
 export const useCofhejsStatusStore = create<CofhejsInitStatusStore>((set) => ({
-  status: 'idle',
+  status: "idle",
   setStatus: (status) => set({ status }),
 }));
 
@@ -238,10 +241,10 @@ export const useCofhejsInitStatus = () => {
   const { status } = useCofhejsStatusStore();
   return {
     status,
-    isPending: status === 'pending',
-    isSuccess: status === 'success',
-    isError: status === 'error',
-    isIdle: status === 'idle',
+    isPending: status === "pending",
+    isSuccess: status === "success",
+    isError: status === "error",
+    isIdle: status === "idle",
   };
 };
 
