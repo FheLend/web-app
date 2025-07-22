@@ -9,10 +9,11 @@ import { useShallow } from "zustand/react/shallow";
 import * as chains from "wagmi/chains";
 import { useToast } from "./use-toast";
 import { hardhatHaLink } from "@/configs/wagmi";
+import { isProd } from "@/constant";
 
-const targetNetworks = import.meta.env.DEV
-  ? [chains.arbitrumSepolia, hardhatHaLink]
-  : [chains.arbitrumSepolia];
+const targetNetworks = isProd
+  ? [chains.arbitrumSepolia]
+  : [chains.arbitrumSepolia, hardhatHaLink];
 
 const ChainEnvironments = {
   // Ethereum

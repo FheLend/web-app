@@ -10,6 +10,7 @@ import { AdminVerification } from "@/components/AdminVerification";
 import NotFound from "./NotFound";
 import { ContractConfigForm } from "@/components/settings/ContractConfigForm";
 import { ContractConfigTable } from "@/components/settings/ContractConfigTable";
+import { useContractConfig } from "@/hooks/useContractConfig";
 import {
   ContractConfig,
   ContractFormData,
@@ -21,8 +22,7 @@ export default function Settings() {
     useAdminAuthContext();
   const { isConnected } = useAccount();
   const [verifyingAdmin, setVerifyingAdmin] = useState(false);
-  const [configs, setConfigs] = useState<ContractConfig[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { configs, loading: configsLoading, refetch } = useContractConfig();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<ContractFormData>(initialFormData);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export default function Settings() {
         title: "Verification Successful",
         description: "You have been verified as an admin.",
       });
-      fetchConfigs();
+      refetch();
     } else {
       toast({
         title: "Verification Failed",
@@ -51,31 +51,12 @@ export default function Settings() {
   };
 
   const fetchConfigs = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("contract_configs")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setConfigs(data || []);
-    } catch (err) {
-      console.error("Error fetching configs:", err);
-      toast({
-        title: "Error",
-        description: "Failed to load contract configurations.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    // We now use the refetch function from our hook
+    refetch();
   };
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchConfigs();
-    }
+    // No need to fetch explicitly as our hook takes care of initialization
   }, [isAdmin]);
 
   const handleEdit = (config: ContractConfig) => {
@@ -132,7 +113,7 @@ export default function Settings() {
         </Button>
       </div>
 
-      {loading ? (
+      {configsLoading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-cryptic-accent" />
         </div>
@@ -149,7 +130,7 @@ export default function Settings() {
         <ContractConfigTable
           configs={configs}
           onEdit={handleEdit}
-          onDelete={fetchConfigs}
+          onDelete={refetch}
         />
       )}
 
@@ -159,7 +140,7 @@ export default function Settings() {
         editingId={editingId}
         formData={formData}
         setFormData={setFormData}
-        onSuccess={fetchConfigs}
+        onSuccess={refetch}
       />
     </div>
   );

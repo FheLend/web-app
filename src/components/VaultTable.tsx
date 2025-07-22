@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Vault, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,9 @@ import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import { Image } from "./ui/image";
 import { cofhejs, FheTypes } from "cofhejs/web";
 import { ethers } from "ethers";
+import { get } from "lodash";
+import { useContractConfig } from "@/hooks/useContractConfig";
+import { useAccount } from "wagmi";
 
 type Filter = "All" | "ETH" | "BTC" | "USDC" | "DAI";
 type SortField = "deposits" | "value" | "apy" | null;
@@ -60,7 +63,7 @@ interface Vault {
 //     apyValue: 7.41,
 //   },
 
-export function VaultTable() {
+function VaultTable() {
   const [activeFilter, setActiveFilter] = useState<Filter>("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState<SortField>(null);
@@ -69,7 +72,16 @@ export function VaultTable() {
   const isMobile = useIsMobile();
   const { theme } = useTheme();
   const { tableRow, tableHeader, tableBody } = useThemeStyles();
+  const { configs } = useContractConfig();
+  const { chainId } = useAccount();
   const [vaults, setVaults] = useState<Vault[]>([]);
+
+  const vaultAddress = useMemo(() => {
+    const config = configs.find((c) => +c.network === chainId);
+    return config ? config.contract_address : null;
+  }, [chainId]);
+  console.log("Vault Address:", configs, chainId, vaultAddress);
+  console.log("env:", import.meta.env);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -139,7 +151,6 @@ export function VaultTable() {
 
   useEffect(() => {
     async function fetchVaults() {
-      const vaultAddress = "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E";
       try {
         const vaultInfo = ["asset", "name", "symbol", "decimals"].map(
           (key) => ({
@@ -176,8 +187,10 @@ export function VaultTable() {
         console.error("Error fetching vaults:", error);
       }
     }
-    fetchVaults();
-  }, []);
+    if (vaultAddress) {
+      fetchVaults();
+    }
+  }, [vaultAddress]);
 
   const renderMobileVaults = () => {
     return sortedVaults.map((vault) => (
@@ -449,4 +462,18 @@ export function VaultTable() {
       </div>
     </div>
   );
+}
+
+export default function VaultTableWrapper() {
+  const { loading: configsLoading } = useContractConfig();
+
+  if (configsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cryptic-accent" />
+      </div>
+    );
+  }
+
+  return <VaultTable />;
 }

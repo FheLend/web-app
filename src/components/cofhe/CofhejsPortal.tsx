@@ -20,10 +20,11 @@ import { Button } from "@/components/ui/button";
 import { useThemeStyles } from "@/lib/themeUtils";
 import { cn } from "@/lib/utils";
 import { hardhatHaLink } from "@/configs/wagmi";
+import { isProd } from "@/constant";
 
-const targetNetworks = import.meta.env.DEV
-  ? [arbitrumSepolia, hardhatHaLink]
-  : [arbitrumSepolia];
+const targetNetworks = isProd
+  ? [arbitrumSepolia]
+  : [arbitrumSepolia, hardhatHaLink];
 
 export const CofhejsPortal = () => {
   const { chainId, account, initialized } = useCofhejsStatus();

@@ -87,22 +87,6 @@ export function DepositForm({
         deadline: activePermitHash.expiration,
       };
 
-      // @ts-ignore
-      // const provider = new ethers.BrowserProvider(window.ethereum);
-      // const signer = (await provider.getSigner()) as ethers.JsonRpcSigner;
-
-      // const signature = await signer.signTypedData(
-      //   {
-      //     name: domain.name,
-      //     version: domain.version,
-      //     chainId: domain.chainId,
-      //     verifyingContract: domain.verifyingContract,
-      //   },
-      //   types,
-      //   message
-      // );
-      // const { v, r, s } = ethers.Signature.from(signature);
-
       const signature = await signTypedData(config, {
         account: address,
         domain: {
@@ -126,6 +110,9 @@ export function DepositForm({
         r,
         s,
       };
+
+      console.log("signature:", signature);
+      console.log("permit:", permit);
 
       const txResult = await writeContractAsync({
         address: vaultId as `0x${string}`,

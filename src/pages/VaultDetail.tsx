@@ -37,145 +37,148 @@ import { useAccount, useReadContracts } from "wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
 import { useAppKit } from "@reown/appkit/react";
 import { DepositForm, WithdrawForm } from "@/components/vault";
+import { useContractConfig } from "@/hooks/useContractConfig";
 
-const vaultDetails = {
-  "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E": {
-    id: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
-    name: "Felend FHE MUSDC Vault",
-    icon: "🔒",
-    description:
-      "This FHE MUSDC Vault uses Fully Homomorphic Encryption to secure your deposits for privacy. Your balance is known only to you.",
-    tvl: "> 350.06M MUSDC",
-    tvlValue: "$349.87M",
-    apy: "7.41%",
-    curator: "FeLend DAO",
-    curatorIcon: "🛡️",
-    collateral: ["ETH"],
-    totalUsers: "8,294",
-    performance: {
-      day: "0.021%",
-      week: "0.14%",
-      month: "0.62%",
-      ytd: "6.3%",
-      allTime: "11.4%",
-    },
-    risk: {
-      score: "3/10",
-      collateralization: "150%",
-      liquidationThreshold: "125%",
-      reserveFactor: "10%",
-    },
-    assets: [
-      {
-        symbol: "ETH",
-        name: "Ethereum",
-        icon: "⬨",
-        allocation: "48.3%",
-        value: "$164.82M",
-        status: "collateral",
-        apy: "4.7%",
-      },
-      {
-        symbol: "BTC",
-        name: "Bitcoin",
-        icon: "₿",
-        allocation: "34.5%",
-        value: "$103.98M",
-        status: "collateral",
-        apy: "3.8%",
-      },
-      {
-        symbol: "LINK",
-        name: "Chainlink",
-        icon: "🔗",
-        allocation: "12.6%",
-        value: "$32.46M",
-        status: "collateral",
-        apy: "7.2%",
-      },
-      {
-        symbol: "AAVE",
-        name: "Aave",
-        icon: "◎",
-        allocation: "4.6%",
-        value: "$12.65M",
-        status: "collateral",
-        apy: "5.9%",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx1",
-        type: "deposit",
-        user: "0x89a...4f21",
-        amount: "25,000 DAI",
-        value: "$24,982",
-        timestamp: "2 days ago",
-      },
-      {
-        id: "tx2",
-        type: "withdraw",
-        user: "0x3b7...8e2a",
-        amount: "12,500 DAI",
-        value: "$12,475",
-        timestamp: "3 days ago",
-      },
-      {
-        id: "tx3",
-        type: "deposit",
-        user: "0xc52...2e94",
-        amount: "50,000 DAI",
-        value: "$49,950",
-        timestamp: "4 days ago",
-      },
-      {
-        id: "tx4",
-        type: "withdraw",
-        user: "0x67f...1a3d",
-        amount: "8,000 DAI",
-        value: "$7,984",
-        timestamp: "5 days ago",
-      },
-      {
-        id: "tx5",
-        type: "deposit",
-        user: "0xf41...7b26",
-        amount: "100,000 DAI",
-        value: "$99,870",
-        timestamp: "5 days ago",
-      },
-    ],
-    depositors: [
-      {
-        id: "user1",
-        address: "0x89a...4f21",
-        amount: "150,000 DAI",
-        percentage: "1.2%",
-      },
-      {
-        id: "user2",
-        address: "0xc52...2e94",
-        amount: "275,000 DAI",
-        percentage: "2.1%",
-      },
-      {
-        id: "user3",
-        address: "0xf41...7b26",
-        amount: "520,000 DAI",
-        percentage: "4.0%",
-      },
-    ],
+const vaultDetailsMock = {
+  id: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
+  name: "Felend FHE MUSDC Vault",
+  icon: "🔒",
+  description:
+    "This FHE MUSDC Vault uses Fully Homomorphic Encryption to secure your deposits for privacy. Your balance is known only to you.",
+  tvl: "> 350.06M MUSDC",
+  tvlValue: "$349.87M",
+  apy: "7.41%",
+  curator: "FeLend DAO",
+  curatorIcon: "🛡️",
+  collateral: ["ETH"],
+  totalUsers: "8,294",
+  performance: {
+    day: "0.021%",
+    week: "0.14%",
+    month: "0.62%",
+    ytd: "6.3%",
+    allTime: "11.4%",
   },
+  risk: {
+    score: "3/10",
+    collateralization: "150%",
+    liquidationThreshold: "125%",
+    reserveFactor: "10%",
+  },
+  assets: [
+    {
+      symbol: "ETH",
+      name: "Ethereum",
+      icon: "⬨",
+      allocation: "48.3%",
+      value: "$164.82M",
+      status: "collateral",
+      apy: "4.7%",
+    },
+    {
+      symbol: "BTC",
+      name: "Bitcoin",
+      icon: "₿",
+      allocation: "34.5%",
+      value: "$103.98M",
+      status: "collateral",
+      apy: "3.8%",
+    },
+    {
+      symbol: "LINK",
+      name: "Chainlink",
+      icon: "🔗",
+      allocation: "12.6%",
+      value: "$32.46M",
+      status: "collateral",
+      apy: "7.2%",
+    },
+    {
+      symbol: "AAVE",
+      name: "Aave",
+      icon: "◎",
+      allocation: "4.6%",
+      value: "$12.65M",
+      status: "collateral",
+      apy: "5.9%",
+    },
+  ],
+  transactions: [
+    {
+      id: "tx1",
+      type: "deposit",
+      user: "0x89a...4f21",
+      amount: "25,000 DAI",
+      value: "$24,982",
+      timestamp: "2 days ago",
+    },
+    {
+      id: "tx2",
+      type: "withdraw",
+      user: "0x3b7...8e2a",
+      amount: "12,500 DAI",
+      value: "$12,475",
+      timestamp: "3 days ago",
+    },
+    {
+      id: "tx3",
+      type: "deposit",
+      user: "0xc52...2e94",
+      amount: "50,000 DAI",
+      value: "$49,950",
+      timestamp: "4 days ago",
+    },
+    {
+      id: "tx4",
+      type: "withdraw",
+      user: "0x67f...1a3d",
+      amount: "8,000 DAI",
+      value: "$7,984",
+      timestamp: "5 days ago",
+    },
+    {
+      id: "tx5",
+      type: "deposit",
+      user: "0xf41...7b26",
+      amount: "100,000 DAI",
+      value: "$99,870",
+      timestamp: "5 days ago",
+    },
+  ],
+  depositors: [
+    {
+      id: "user1",
+      address: "0x89a...4f21",
+      amount: "150,000 DAI",
+      percentage: "1.2%",
+    },
+    {
+      id: "user2",
+      address: "0xc52...2e94",
+      amount: "275,000 DAI",
+      percentage: "2.1%",
+    },
+    {
+      id: "user3",
+      address: "0xf41...7b26",
+      amount: "520,000 DAI",
+      percentage: "4.0%",
+    },
+  ],
 };
 
 export default function VaultDetail() {
   const { id } = useParams();
-  const vault = vaultDetails[id as keyof typeof vaultDetails];
   const { theme } = useTheme();
   const { cardStyles, tableRow, iconBadge, tableHeader, boxInfo } =
     useThemeStyles();
   const { isConnected } = useAccount();
   const { open } = useAppKit();
+  const vault = useMemo(() => {
+    const vaultDetails = { ...vaultDetailsMock };
+    vaultDetails.id === id;
+    return vaultDetails;
+  }, [id]);
 
   const vaultInfoKey = useMemo(() => {
     return ["asset", "name", "symbol", "decimals"].map((key) => ({
