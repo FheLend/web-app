@@ -1,7 +1,7 @@
 import { isProd } from "@/constant";
 import { defineChain } from "viem";
 import { http, createConfig } from "wagmi";
-import { arbitrumSepolia } from "wagmi/chains";
+import { arbitrumSepolia, sepolia } from "wagmi/chains";
 
 export const hardhatHaLink = defineChain({
   id: 31_337,
@@ -13,9 +13,12 @@ export const hardhatHaLink = defineChain({
 });
 
 export const config = createConfig({
-  chains: isProd ? [arbitrumSepolia] : [arbitrumSepolia, hardhatHaLink],
+  chains: isProd
+    ? [arbitrumSepolia, sepolia]
+    : [arbitrumSepolia, sepolia, hardhatHaLink],
   transports: {
     [arbitrumSepolia.id]: http(),
     [hardhatHaLink.id]: http(),
+    [sepolia.id]: http(),
   },
 });

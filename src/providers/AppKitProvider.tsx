@@ -1,6 +1,6 @@
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiProvider } from "wagmi";
-import { arbitrum, arbitrumSepolia, hardhat } from "@reown/appkit/networks";
+import { arbitrum, arbitrumSepolia, sepolia } from "@reown/appkit/networks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import React from "react";
@@ -23,8 +23,8 @@ const metadata = {
 
 // Set networks - using proper typing for AppKitNetwork
 const networks = isProd
-  ? [arbitrum, arbitrumSepolia]
-  : [arbitrum, arbitrumSepolia, hardhatHaLink];
+  ? [arbitrum, arbitrumSepolia, sepolia]
+  : [arbitrum, arbitrumSepolia, sepolia, hardhatHaLink];
 
 // Chain images configuration
 const chainImages = {

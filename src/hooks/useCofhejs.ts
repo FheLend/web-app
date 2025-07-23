@@ -12,8 +12,8 @@ import { hardhatHaLink } from "@/configs/wagmi";
 import { isProd } from "@/constant";
 
 const targetNetworks = isProd
-  ? [chains.arbitrumSepolia]
-  : [chains.arbitrumSepolia, hardhatHaLink];
+  ? [chains.arbitrumSepolia, chains.sepolia]
+  : [chains.arbitrumSepolia, chains.sepolia, hardhatHaLink];
 
 const ChainEnvironments = {
   // Ethereum

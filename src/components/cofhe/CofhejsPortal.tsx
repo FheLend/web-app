@@ -9,7 +9,7 @@ import {
   useCofhejsSetActivePermit,
   useCofhejsStatus,
 } from "@/hooks/useCofhejs";
-import { arbitrumSepolia, hardhat } from "wagmi/chains";
+import { arbitrumSepolia, sepolia } from "wagmi/chains";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +23,8 @@ import { hardhatHaLink } from "@/configs/wagmi";
 import { isProd } from "@/constant";
 
 const targetNetworks = isProd
-  ? [arbitrumSepolia]
-  : [arbitrumSepolia, hardhatHaLink];
+  ? [arbitrumSepolia, sepolia]
+  : [arbitrumSepolia, sepolia, hardhatHaLink];
 
 export const CofhejsPortal = () => {
   const { chainId, account, initialized } = useCofhejsStatus();
