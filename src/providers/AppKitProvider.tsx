@@ -31,6 +31,7 @@ const chainImages = {
   // 1: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
   42161: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg",
   421614: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg",
+  111155111: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png", // Arbitrum Sepolia
   31337: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png", // Hardhat network
 };
 
