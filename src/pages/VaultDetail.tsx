@@ -3,10 +3,7 @@ import { Footer } from "@/components/Footer";
 import {
   Shield,
   Star,
-  Vault,
   ExternalLink,
-  Info,
-  Clock,
   ArrowUpRight,
   ArrowDownRight,
   Loader2,
@@ -37,10 +34,9 @@ import { useAccount, useReadContracts } from "wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
 import { useAppKit } from "@reown/appkit/react";
 import { DepositForm, WithdrawForm } from "@/components/vault";
-import { useContractConfig } from "@/hooks/useContractConfig";
 
 const vaultDetailsMock = {
-  id: "0x367D3BBd8D78202452eB7Ca3930Cf17740C2dC5E",
+  id: "0x16BC76613aC12540Cc87377bff3ebAD37B2aD9CF",
   name: "Felend FHE MUSDC Vault",
   icon: "🔒",
   description:
@@ -170,15 +166,12 @@ const vaultDetailsMock = {
 export default function VaultDetail() {
   const { id } = useParams();
   const { theme } = useTheme();
-  const { cardStyles, tableRow, iconBadge, tableHeader, boxInfo } =
-    useThemeStyles();
+  const { cardStyles, iconBadge, boxInfo } = useThemeStyles();
   const { isConnected } = useAccount();
   const { open } = useAppKit();
   const vault = useMemo(() => {
-    const vaultDetails = { ...vaultDetailsMock };
-    vaultDetails.id === id;
-    return vaultDetails;
-  }, [id]);
+    return vaultDetailsMock;
+  }, []);
 
   const vaultInfoKey = useMemo(() => {
     return ["asset", "name", "symbol", "decimals"].map((key) => ({
@@ -197,6 +190,7 @@ export default function VaultDetail() {
   const vaultName = data?.[1]?.result as string;
   const vaultSymbol = data?.[2]?.result as string;
   const vaultDecimals = data?.[3]?.result as number;
+  console.log(vaultName, vaultAsset, vaultSymbol);
 
   if (isLoading) {
     return (
@@ -269,10 +263,10 @@ export default function VaultDetail() {
                       Total Value Locked
                     </div>
                     <div className="mt-1 text-2xl font-bold text-foreground">
-                      {vault.tvl}
+                      ********
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {vault.tvlValue}
+                      ~ {vault.tvlValue}
                     </div>
                   </CardContent>
                 </Card>
@@ -407,180 +401,56 @@ export default function VaultDetail() {
                 </CardContent>
               </Card>
 
-              {/* Collateral Assets */}
+              {/* Recent Transactions */}
               <Card className={cardStyles}>
                 <CardHeader>
-                  <CardTitle>Collateral Assets</CardTitle>
+                  <CardTitle>Recent Activity</CardTitle>
                   <CardDescription>
-                    Assets used to secure this vault
+                    Latest transactions in this vault
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader className={tableHeader}>
-                        <TableRow className="hover:bg-transparent">
-                          <TableHead>Asset</TableHead>
-                          <TableHead>Allocation</TableHead>
-                          <TableHead>Value</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>APY</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {vault.assets.map((asset, index) => (
-                          <TableRow key={index} className={tableRow}>
-                            <TableCell>
-                              <div className="flex items-center">
-                                <div
-                                  className={cn(
-                                    "h-8 w-8 flex items-center justify-center rounded-full mr-2",
-                                    theme === "dark"
-                                      ? "bg-cryptic-purple/10"
-                                      : "bg-blue-50"
-                                  )}
-                                >
-                                  <span className="text-lg">{asset.icon}</span>
-                                </div>
-                                <div>
-                                  <div className="font-medium">
-                                    {asset.name}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {asset.symbol}
-                                  </div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>{asset.allocation}</TableCell>
-                            <TableCell>{asset.value}</TableCell>
-                            <TableCell>
-                              <span
-                                className={cn(
-                                  "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                                  theme === "dark"
-                                    ? "bg-cryptic-purple/10 text-cryptic-highlight"
-                                    : "bg-blue-50 text-cryptic-accent"
-                                )}
-                              >
-                                {asset.status}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-emerald-400">
-                              {asset.apy}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                  <div className="space-y-4">
+                    {vault.transactions.map((tx) => (
+                      <div
+                        key={tx.id}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg hover:bg-cryptic-purple/10 transition-colors",
+                          theme === "dark"
+                            ? "bg-cryptic-purple/5"
+                            : "bg-slate-50"
+                        )}
+                      >
+                        <div className="flex items-center">
+                          <div
+                            className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                              tx.type === "deposit"
+                                ? "bg-emerald-500/20 text-emerald-400"
+                                : "bg-rose-500/20 text-rose-400"
+                            }`}
+                          >
+                            {tx.type === "deposit" ? (
+                              <ArrowDownRight size={16} />
+                            ) : (
+                              <ArrowUpRight size={16} />
+                            )}
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium">
+                              {tx.type === "deposit" ? "Deposit" : "Withdrawal"}{" "}
+                              - {tx.amount}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {tx.user} • {tx.timestamp}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-sm font-medium">{tx.value}</div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Recent Activity & Depositors */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Transactions */}
-                <Card className={cardStyles}>
-                  <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                    <CardDescription>
-                      Latest transactions in this vault
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {vault.transactions.map((tx) => (
-                        <div
-                          key={tx.id}
-                          className={cn(
-                            "flex items-center justify-between p-3 rounded-lg hover:bg-cryptic-purple/10 transition-colors",
-                            theme === "dark"
-                              ? "bg-cryptic-purple/5"
-                              : "bg-slate-50"
-                          )}
-                        >
-                          <div className="flex items-center">
-                            <div
-                              className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                                tx.type === "deposit"
-                                  ? "bg-emerald-500/20 text-emerald-400"
-                                  : "bg-rose-500/20 text-rose-400"
-                              }`}
-                            >
-                              {tx.type === "deposit" ? (
-                                <ArrowDownRight size={16} />
-                              ) : (
-                                <ArrowUpRight size={16} />
-                              )}
-                            </div>
-                            <div className="ml-3">
-                              <div className="text-sm font-medium">
-                                {tx.type === "deposit"
-                                  ? "Deposit"
-                                  : "Withdrawal"}{" "}
-                                - {tx.amount}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {tx.user} • {tx.timestamp}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-sm font-medium">{tx.value}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Top Depositors */}
-                <Card className={cardStyles}>
-                  <CardHeader>
-                    <CardTitle>Top Depositors</CardTitle>
-                    <CardDescription>
-                      Largest depositors in this vault
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {vault.depositors.map((depositor) => (
-                        <div
-                          key={depositor.id}
-                          className={cn(
-                            "flex items-center justify-between p-3 rounded-lg hover:bg-cryptic-purple/10 transition-colors",
-                            theme === "dark"
-                              ? "bg-cryptic-purple/5"
-                              : "bg-slate-50"
-                          )}
-                        >
-                          <div className="flex items-center">
-                            <div
-                              className={cn(
-                                "h-8 w-8 rounded-full flex items-center justify-center text-cryptic-accent",
-                                theme === "dark"
-                                  ? "bg-cryptic-purple/10"
-                                  : "bg-blue-50"
-                              )}
-                            >
-                              <Shield size={16} />
-                            </div>
-                            <div className="ml-3">
-                              <div className="text-sm font-medium">
-                                {depositor.address}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {depositor.amount}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-sm font-medium">
-                            {depositor.percentage}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
             </div>
 
             {/* Right Column - Deposit/Withdraw Form */}
@@ -612,7 +482,10 @@ export default function VaultDetail() {
 
                       <TabsContent value="withdraw">
                         <WithdrawForm
+                          vaultId={id as string}
                           vaultSymbol={vaultSymbol}
+                          vaultDecimals={vaultDecimals}
+                          vaultAsset={vaultAsset}
                           theme={theme}
                           isConnected={isConnected}
                           openWalletModal={open}

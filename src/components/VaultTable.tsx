@@ -79,9 +79,7 @@ function VaultTable() {
   const vaultAddress = useMemo(() => {
     const config = configs.find((c) => +c.network === chainId);
     return config ? config.contract_address : null;
-  }, [chainId]);
-  console.log("Vault Address:", configs, chainId, vaultAddress);
-  console.log("env:", import.meta.env);
+  }, [chainId, configs]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {

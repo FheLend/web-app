@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Footer } from "@/components/Footer";
-import { Send, Loader2 } from "lucide-react";
+import { Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Encryptable, cofhejs } from "cofhejs/web";
 import { useAccount, useWriteContract } from "wagmi";
@@ -53,12 +53,126 @@ const transferSchema = z.object({
 
 type TransferForm = z.infer<typeof transferSchema>;
 
-export default function Transfer() {
+function SendTokenBtn({
+  tokenAddress,
+  amount,
+  recipientAddress,
+}: TransferForm) {
   const [isLoading, setIsLoading] = useState(false);
-  const { address } = useAccount();
-
-  // Use wagmi's useWriteContract hook to interact with the contract
   const { writeContractAsync, isPending } = useWriteContract();
+  const { address, chain } = useAccount();
+
+  const onSubmit = async () => {
+    setIsLoading(true);
+    try {
+      const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 10 ** 18));
+      console.log("Parsed amount as BigInt:", amountBigInt);
+
+      const encryptedResult = await cofhejs.encrypt([
+        Encryptable.uint128(amountBigInt),
+      ]);
+
+      console.log("Encrypted amount:", encryptedResult);
+      if (!encryptedResult.success) {
+        throw new Error(`Failed to encrypt data: ${encryptedResult.error}`);
+      }
+
+      const txResult = await writeContractAsync({
+        address: tokenAddress as `0x${string}`,
+        abi: FHERC20Abi.abi,
+        functionName: "encTransfer",
+        args: [
+          recipientAddress, // recipient address
+          encryptedResult.data[0], // encrypted amount (euint128)
+        ],
+        account: address,
+        chain,
+      });
+
+      toast({
+        title: "Transfer Initiated",
+        description: `Transaction submitted: ${txResult.substring(0, 10)}...`,
+      });
+    } catch (error) {
+      toast({
+        title: "Transfer Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : `An error occurred while processing the transfer.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  return (
+    <Button
+      onClick={onSubmit}
+      className="w-full"
+      disabled={isLoading || isPending}
+    >
+      {isLoading || isPending ? "Sending..." : "Send Tokens"}
+    </Button>
+  );
+}
+
+function MintTokenBtn({
+  tokenAddress,
+  amount,
+  recipientAddress,
+}: TransferForm) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { writeContractAsync, isPending } = useWriteContract();
+  const { address, chain } = useAccount();
+
+  const onSubmit = async () => {
+    setIsLoading(true);
+    try {
+      const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 10 ** 18));
+
+      const txResult = await writeContractAsync({
+        address: tokenAddress as `0x${string}`,
+        abi: FHERC20Abi.abi,
+        functionName: "mint", // Use mint function name
+        args: [
+          recipientAddress, // minting to self
+          amountBigInt, // encrypted amount (euint128)
+        ],
+        account: address,
+        chain,
+      });
+
+      toast({
+        title: "Minting Initiated",
+        description: `Transaction submitted: ${txResult.substring(0, 10)}...`,
+      });
+    } catch (error) {
+      toast({
+        title: "Mint Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : `An error occurred while processing the mint.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  return (
+    <Button
+      onClick={onSubmit}
+      className="w-full"
+      disabled={isLoading || isPending}
+    >
+      {isLoading || isPending ? "Minting..." : "Mint Tokens"}
+    </Button>
+  );
+}
+
+export default function Transfer() {
+  const { address } = useAccount();
 
   const form = useForm<TransferForm>({
     resolver: zodResolver(transferSchema),
@@ -74,55 +188,6 @@ export default function Transfer() {
     control: form.control,
     name: "tokenAddress",
   });
-
-  const onSubmit = async (data: TransferForm) => {
-    setIsLoading(true);
-    try {
-      const amountBigInt = BigInt(
-        Math.floor(parseFloat(data.amount) * 10 ** 18)
-      );
-      console.log("Parsed amount as BigInt:", amountBigInt);
-
-      const encryptedResult = await cofhejs.encrypt([
-        Encryptable.uint128(amountBigInt),
-      ]);
-
-      console.log("Encrypted amount:", encryptedResult);
-      if (!encryptedResult.success) {
-        throw new Error(`Failed to encrypt data: ${encryptedResult.error}`);
-      }
-
-      // @ts-expect-error
-      const txResult = await writeContractAsync({
-        address: data.tokenAddress as `0x${string}`,
-        abi: FHERC20Abi.abi,
-        functionName: "encTransfer",
-        args: [
-          data.recipientAddress, // recipient address
-          encryptedResult.data[0], // encrypted amount (euint128)
-        ],
-      });
-
-      toast({
-        title: "Transfer Initiated",
-        description: `Transaction submitted: ${txResult.substring(0, 10)}...`,
-      });
-
-      console.log("Transaction hash:", txResult);
-    } catch (error) {
-      console.error("Transfer error:", error);
-      toast({
-        title: "Transfer Failed",
-        description:
-          error instanceof Error
-            ? error.message
-            : "An error occurred while processing the transfer.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -140,10 +205,7 @@ export default function Transfer() {
             </CardHeader>
             <CardContent className="p-8">
               <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-6"
-                >
+                <form className="space-y-6">
                   <FormField
                     control={form.control}
                     name="tokenAddress"
@@ -189,14 +251,21 @@ export default function Transfer() {
                     )}
                   />
 
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading || isPending}
-                    needFHE
-                  >
-                    {isLoading || isPending ? "Sending..." : "Send Tokens"}
-                  </Button>
+                  <div className="grid grid-cols-5 gap-4">
+                    <div className="col-span-2">
+                      <SendTokenBtn
+                        {...(form.control._formValues as TransferForm)}
+                      />
+                    </div>
+                    <div className="col-span-1 flex items-center justify-center">
+                      Or
+                    </div>
+                    <div className="col-span-2">
+                      <MintTokenBtn
+                        {...(form.control._formValues as TransferForm)}
+                      />
+                    </div>
+                  </div>
                 </form>
               </Form>
             </CardContent>

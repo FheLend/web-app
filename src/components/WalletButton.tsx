@@ -17,10 +17,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppKit } from "@reown/appkit/react";
 import { formatEther } from "viem";
-import { Image } from "@/components/ui/image";
 import { cn } from "@/lib/utils";
 import { useThemeStyles } from "@/lib/themeUtils";
 import { CofhejsPortal } from "./cofhe/CofhejsPortal";
+import { chainImages } from "@/providers/AppKitProvider";
 
 export function WalletButton() {
   const { address, isConnected, chain } = useAccount();
@@ -31,9 +31,6 @@ export function WalletButton() {
   const { disconnect } = useDisconnect();
   const { walletButtonStyles, dropdownMenuContent, dropdownMenuItem } =
     useThemeStyles();
-
-  // Access chainImages from the global window object where AppKit stores it
-  const chainImages = (window as any).__APPKIT__?.chainImages || {};
 
   if (!isConnected || !address) {
     return (

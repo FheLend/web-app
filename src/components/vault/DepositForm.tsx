@@ -42,6 +42,8 @@ export function DepositForm({
   const publicClient = usePublicClient();
 
   const handleDeposit = async () => {
+    const txCount = await publicClient.getTransactionCount({ address });
+    console.log("Transaction count:", txCount);
     if (!depositAmount || !vaultId || !activePermitHash) return;
     try {
       // Convert the amount to BigInt with proper decimals
@@ -123,7 +125,7 @@ export function DepositForm({
         chain,
       });
 
-      const txUrl = `https://sepolia.arbiscan.io/tx/${txResult}`;
+      const txUrl = `${chain.blockExplorers.default.url}/tx/${txResult}`;
 
       toast({
         title: "Deposit Initiated",
@@ -137,7 +139,7 @@ export function DepositForm({
               rel="noopener noreferrer"
               className="underline text-blue-500 hover:text-blue-700"
             >
-              View on Arbiscan
+              View on {chain.name}
             </a>
           </div>
         ),
@@ -162,6 +164,7 @@ export function DepositForm({
       });
     }
   };
+  console.log(chain);
 
   return (
     <div className="space-y-4">

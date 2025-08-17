@@ -77,7 +77,7 @@ export function BalanceInput({
           await decryptBalance(encBalance);
         } else {
           // We have the encrypted balance but no valid permit
-          setBalance(null);
+          setBalance("0");
         }
       } catch (error) {
         console.error("Error fetching balance:", error);

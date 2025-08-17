@@ -23,15 +23,16 @@ const metadata = {
 
 // Set networks - using proper typing for AppKitNetwork
 const networks = isProd
-  ? [arbitrum, arbitrumSepolia, sepolia]
-  : [arbitrum, arbitrumSepolia, sepolia, hardhatHaLink];
+  ? [arbitrumSepolia, sepolia]
+  : [arbitrumSepolia, sepolia, hardhatHaLink];
 
 // Chain images configuration
-const chainImages = {
-  // 1: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
+export const chainImages = {
+  1: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
   42161: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg",
   421614: "https://assets.coingecko.com/coins/images/16547/standard/arb.jpg",
-  111155111: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png", // Arbitrum Sepolia
+  11155111:
+    "https://assets.coingecko.com/coins/images/279/standard/ethereum.png", // Arbitrum Sepolia
   31337: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png", // Hardhat network
 };
 
@@ -56,12 +57,6 @@ createAppKit({
     analytics: true,
   },
 });
-
-// Make chainImages available globally for components to access
-if (typeof window !== "undefined") {
-  (window as any).__APPKIT__ = (window as any).__APPKIT__ || {};
-  (window as any).__APPKIT__.chainImages = chainImages;
-}
 
 export function AppKitProvider({ children }: { children: React.ReactNode }) {
   return (
