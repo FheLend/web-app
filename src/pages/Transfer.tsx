@@ -205,7 +205,10 @@ export default function Transfer() {
             </CardHeader>
             <CardContent className="p-8">
               <Form {...form}>
-                <form className="space-y-6">
+                <form
+                  className="space-y-6"
+                  onSubmit={form.handleSubmit(() => {})}
+                >
                   <FormField
                     control={form.control}
                     name="tokenAddress"
