@@ -122,9 +122,10 @@ function VaultTable() {
       searchTerm === "" ||
       vault.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vault.curator.toLowerCase().includes(searchTerm.toLowerCase());
-
     const matchesFilter =
-      activeFilter === "All" || vault.deposits.includes(activeFilter);
+      activeFilter === "All" ||
+      vault.symbol.includes(activeFilter) ||
+      vault.name.includes(activeFilter);
 
     return matchesSearch && matchesFilter;
   });
@@ -242,7 +243,7 @@ function VaultTable() {
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <div className="text-muted-foreground">Collateral</div>
             <div className="flex flex-wrap gap-1 mt-1">
               {vault.collateral.slice(0, 2).map((token, idx) => (
@@ -271,7 +272,7 @@ function VaultTable() {
                 </span>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     ));
@@ -354,9 +355,9 @@ function VaultTable() {
                   <TableHead className="text-left font-medium text-muted-foreground">
                     Curator
                   </TableHead>
-                  <TableHead className="text-left font-medium text-muted-foreground">
+                  {/* <TableHead className="text-left font-medium text-muted-foreground">
                     Collateral
-                  </TableHead>
+                  </TableHead> */}
                   <TableHead
                     className="text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground flex items-center"
                     onClick={() => handleSort("apy")}
@@ -412,7 +413,7 @@ function VaultTable() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap">
+                    {/* <TableCell className="whitespace-nowrap">
                       <div className="flex flex-wrap gap-1">
                         {vault.collateral.map((token, idx) => (
                           <span
@@ -428,7 +429,7 @@ function VaultTable() {
                           </span>
                         ))}
                       </div>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="whitespace-nowrap">
                       <span className="font-medium text-lg">--</span>
                     </TableCell>
@@ -439,6 +440,7 @@ function VaultTable() {
           </div>
         )}
 
+        {/* Pagination controls can be added here if needed */}
         {/* <div className="mt-6 flex justify-center">
           <div className="inline-flex rounded-md">
             <Button
