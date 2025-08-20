@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -34,6 +34,14 @@ import { cn } from "@/lib/utils";
 import { useAccount } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import { useThemeStyles } from "@/lib/themeUtils";
+import { useTheme } from "@/providers/ThemeProvider";
+import { useContractConfig } from "@/hooks/useContractConfig";
+import FHERC20Abi from "@/constant/abi/FHERC20.json";
+import MarketFHEAbi from "@/constant/abi/MarketFHE.json";
+import { readContracts } from "@wagmi/core";
+import { config } from "@/configs/wagmi";
+import { getTokenLogo } from "@/utils/token";
+import { SupplyCollateral } from "@/components/SupplyCollateral";
 
 interface MarketDetailProps {
   marketId: string;
@@ -41,6 +49,7 @@ interface MarketDetailProps {
 
 interface Market {
   id: string;
+  name: string;
   collateralToken: {
     symbol: string;
     logo: string;
@@ -58,7 +67,6 @@ interface Market {
   rateValue: number;
   rateChange: "up" | "down" | "stable";
   vaultRating: number;
-  totalLoans: string;
 }
 
 const markets: Market[] = [
@@ -168,16 +176,95 @@ const markets: Market[] = [
 
 export function MarketDetailView({ marketId }: MarketDetailProps) {
   const navigate = useNavigate();
+  const themeContext = useTheme();
+  const theme = themeContext?.theme;
   const { cardStyles, marketBadge } = useThemeStyles();
   const { isConnected } = useAccount();
   const { open } = useAppKit();
 
   const [collateralAmount, setCollateralAmount] = useState("");
   const [borrowAmount, setBorrowAmount] = useState("");
+  const [repayAmount, setRepayAmount] = useState("");
   const [timeframe, setTimeframe] = useState("3 months");
   const [activeTab, setActiveTab] = useState("overview");
 
-  const market = markets.find((m) => m.id === marketId);
+  const { configs } = useContractConfig();
+  const { chainId } = useAccount();
+  const [market, setMarket] = useState<Market | null>(null);
+
+  const marketAddress = useMemo(() => {
+    const matchingConfig = configs.find(
+      (c) => +c.network === chainId && c.contract_address === marketId
+    );
+    return matchingConfig ? matchingConfig.contract_address : null;
+  }, [chainId, configs, marketId]);
+
+  useEffect(() => {
+    async function fetchMarket() {
+      try {
+        const vaultInfo = [
+          "asset",
+          "name",
+          "borrowToken",
+          "collateralToken",
+        ].map((key) => ({
+          address: marketAddress as `0x${string}`,
+          abi: MarketFHEAbi.abi as any,
+          functionName: key,
+        }));
+
+        // @ts-expect-error - Type instantiation too deep for wagmi ABI types
+        const results = await readContracts(config, {
+          contracts: vaultInfo,
+        });
+        const [asset, marketName, borrowToken, collateralToken] = results;
+
+        const tokens = [borrowToken, collateralToken].map((token) => ({
+          address: token.result as `0x${string}`,
+          abi: FHERC20Abi.abi as any,
+          functionName: "symbol",
+        }));
+
+        const tokensResults = await readContracts(config, {
+          contracts: tokens,
+        });
+
+        console.log({
+          address: marketAddress,
+          asset: asset.result,
+          name: marketName.result,
+          borrowToken: borrowToken.result,
+          collateralToken: collateralToken.result,
+        });
+        console.log("Tokens:", tokens, tokensResults);
+
+        setMarket({
+          id: marketAddress,
+          name: marketName.result,
+          collateralToken: {
+            symbol: tokensResults[1].result as string,
+            logo: getTokenLogo(tokensResults[1].result as string),
+          },
+          loanToken: {
+            symbol: tokensResults[0].result as string,
+            logo: getTokenLogo(tokensResults[0].result as string),
+          },
+          ltv: "*******",
+          ltvValue: 86.0,
+          liquidity: "********",
+          liquidityValue: 24.48,
+          rate: "*******",
+          rateValue: 5.04,
+          rateChange: "up",
+          vaultRating: 10,
+        } as Market);
+      } catch (error) {
+        console.error("Error fetching markets:", error);
+      }
+    }
+
+    fetchMarket();
+  }, [marketAddress]);
 
   if (!market) {
     return (
@@ -216,6 +303,11 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
     } else {
       setCollateralAmount("");
     }
+  };
+
+  const handleRepayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setRepayAmount(value);
   };
 
   return (
@@ -261,14 +353,10 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
               <Card className={cardStyles}>
                 <CardContent className="pt-6">
                   <div className="text-muted-foreground text-sm mb-1">
-                    Total Supply ({market.loanToken.symbol})
+                    Total Supply ({market.collateralToken.symbol})
                   </div>
-                  <div className="text-4xl font-bold">
-                    {parseFloat(market.liquidity).toFixed(2)}M
-                  </div>
-                  <div className="text-muted-foreground text-sm">
-                    ${parseFloat(market.liquidity).toFixed(2)}M
-                  </div>
+                  <div className="text-4xl font-bold">********</div>
+                  <div className="text-muted-foreground text-sm">********</div>
                 </CardContent>
               </Card>
               <Card className={cardStyles}>
@@ -276,12 +364,8 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                   <div className="text-muted-foreground text-sm mb-1">
                     Liquidity ({market.loanToken.symbol})
                   </div>
-                  <div className="text-4xl font-bold">
-                    {parseFloat(market.liquidity).toFixed(2)}M
-                  </div>
-                  <div className="text-muted-foreground text-sm">
-                    ${parseFloat(market.liquidity).toFixed(2)}M
-                  </div>
+                  <div className="text-4xl font-bold">********</div>
+                  <div className="text-muted-foreground text-sm">********</div>
                 </CardContent>
               </Card>
               <Card className={cardStyles}>
@@ -1069,117 +1153,19 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
 
           <div className="md:col-span-1 relative">
             <div className="lg:sticky lg:top-24 space-y-6">
-              <Card className={cardStyles}>
-                <CardHeader>
-                  <CardTitle className="text-xl">
-                    Supply Collateral {market.collateralToken.symbol}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {!isConnected ? (
-                    <div className="text-center py-6">
-                      <div className="h-10 w-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-4">
-                        <span className="text-lg font-bold">X</span>
-                      </div>
-                      <p className="text-lg mb-2">0.00</p>
-                      <p className="text-muted-foreground text-sm mb-6">$0</p>
-                      <Button
-                        className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90"
-                        onClick={() => open()}
-                      >
-                        Connect Wallet
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div>
-                        <div className="relative">
-                          <Input
-                            type="number"
-                            placeholder="0.00"
-                            className="pl-4 pr-24 py-6 text-lg"
-                            value={collateralAmount}
-                            onChange={handleCollateralChange}
-                          />
-                          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
-                            <Image
-                              src={market.collateralToken.logo}
-                              alt={market.collateralToken.symbol}
-                              className="h-5 w-5 mr-1 rounded-full"
-                            />
-                            <span className="text-muted-foreground">
-                              {market.collateralToken.symbol}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex justify-end mt-1 text-xs text-muted-foreground">
-                          <span>$0</span>
-                        </div>
-                      </div>
-
-                      <Button className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90">
-                        Supply
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className={cardStyles}>
-                <CardHeader>
-                  <CardTitle className="text-xl">
-                    Borrow {market.loanToken.symbol}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {!isConnected ? (
-                    <div className="text-center py-6">
-                      <div className="h-10 w-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mx-auto mb-4">
-                        <span className="text-lg font-bold">B</span>
-                      </div>
-                      <p className="text-lg mb-2">0.00</p>
-                      <p className="text-muted-foreground text-sm mb-6">$0</p>
-                      <Button
-                        className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90"
-                        onClick={() => open()}
-                      >
-                        Connect Wallet
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div>
-                        <div className="relative">
-                          <Input
-                            type="number"
-                            placeholder="0.00"
-                            className="pl-4 pr-24 py-6 text-lg"
-                            value={borrowAmount}
-                            onChange={handleBorrowChange}
-                          />
-                          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
-                            <Image
-                              src={market.loanToken.logo}
-                              alt={market.loanToken.symbol}
-                              className="h-5 w-5 mr-1 rounded-full"
-                            />
-                            <span className="text-muted-foreground">
-                              {market.loanToken.symbol}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex justify-end mt-1 text-xs text-muted-foreground">
-                          <span>$0</span>
-                        </div>
-                      </div>
-
-                      <Button className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90">
-                        Borrow
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <SupplyCollateral
+                isConnected={isConnected}
+                collateralAmount={collateralAmount}
+                borrowAmount={borrowAmount}
+                repayAmount={repayAmount}
+                handleCollateralChange={handleCollateralChange}
+                handleBorrowChange={handleBorrowChange}
+                handleRepayChange={handleRepayChange}
+                market={market}
+                cardStyles={cardStyles}
+                open={open}
+                theme={theme || "light"}
+              />
 
               <Card className={cardStyles}>
                 <CardHeader className="pb-2">

@@ -15,15 +15,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useThemeStyles } from "@/lib/themeUtils";
-import { readContract, readContracts } from "@wagmi/core";
+import { readContracts } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
-import type { Abi } from "viem";
-import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import { Image } from "./ui/image";
-import { cofhejs, FheTypes } from "cofhejs/web";
-import { ethers } from "ethers";
-import { get } from "lodash";
 import { useContractConfig } from "@/hooks/useContractConfig";
 import { useAccount } from "wagmi";
 
@@ -77,7 +72,9 @@ function VaultTable() {
   const [vaults, setVaults] = useState<Vault[]>([]);
 
   const vaultAddress = useMemo(() => {
-    const config = configs.find((c) => +c.network === chainId);
+    const config = configs.find(
+      (c) => +c.network === chainId && c.description === "vault"
+    );
     return config ? config.contract_address : null;
   }, [chainId, configs]);
 

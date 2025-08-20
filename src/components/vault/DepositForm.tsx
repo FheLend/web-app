@@ -35,6 +35,7 @@ export function DepositForm({
 }: DepositFormProps) {
   const [depositAmount, setDepositAmount] = useState("");
   const [isEncrypting, setIsEncrypting] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const { writeContractAsync, isPending: isDepositPending } =
     useWriteContract();
   const activePermitHash = useCofhejsActivePermit();
@@ -42,16 +43,14 @@ export function DepositForm({
   const publicClient = usePublicClient();
 
   const handleDeposit = async () => {
-    const txCount = await publicClient.getTransactionCount({ address });
-    console.log("Transaction count:", txCount);
     if (!depositAmount || !vaultId || !activePermitHash) return;
     try {
+      setIsEncrypting(true);
       // Convert the amount to BigInt with proper decimals
       const amountBigInt = BigInt(
         Math.floor(parseFloat(depositAmount) * 10 ** (vaultDecimals || 18))
       );
       // Encrypt the amount using cofhejs
-      setIsEncrypting(true);
       const encryptedAmount = await cofhejs.encrypt([
         Encryptable.uint128(amountBigInt),
       ]);
@@ -60,7 +59,7 @@ export function DepositForm({
       if (!encryptedAmount.success) {
         throw new Error(`Failed to encrypt data: ${encryptedAmount.error}`);
       }
-
+      setIsConfirming(true);
       const { domain } = await publicClient.getEip712Domain({
         address: vaultAsset as `0x${string}`,
       });
@@ -124,6 +123,7 @@ export function DepositForm({
         account: address,
         chain,
       });
+      setIsConfirming(false);
 
       const txUrl = `${chain.blockExplorers.default.url}/tx/${txResult}`;
 
@@ -145,14 +145,10 @@ export function DepositForm({
         ),
         duration: 10000, // 10 seconds
       });
-
-      console.log("Deposit transaction hash:", txResult);
-
-      // Reset the deposit amount
       setDepositAmount("");
     } catch (error) {
-      console.error("Deposit error:", error);
       setIsEncrypting(false);
+      setIsConfirming(false);
       toast({
         title: "Deposit Failed",
         description:
@@ -164,7 +160,6 @@ export function DepositForm({
       });
     }
   };
-  console.log(chain);
 
   return (
     <div className="space-y-4">
@@ -194,13 +189,20 @@ export function DepositForm({
         <Button
           className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90"
           onClick={handleDeposit}
-          disabled={isDepositPending || !depositAmount || isEncrypting}
+          disabled={
+            isDepositPending || !depositAmount || isEncrypting || isConfirming
+          }
           needFHE
         >
           {isEncrypting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Encrypting...
+            </>
+          ) : isConfirming ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Confirming...
             </>
           ) : isDepositPending ? (
             <>

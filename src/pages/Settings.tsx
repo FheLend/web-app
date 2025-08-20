@@ -138,6 +138,7 @@ export default function Settings() {
         showForm={showForm}
         setShowForm={setShowForm}
         editingId={editingId}
+        setEditingId={setEditingId}
         formData={formData}
         setFormData={setFormData}
         onSuccess={refetch}
