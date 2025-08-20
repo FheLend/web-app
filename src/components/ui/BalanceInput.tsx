@@ -109,7 +109,7 @@ export function BalanceInput({
         const formattedBalance = (
           Number(balanceInWei) /
           10 ** decimals
-        ).toFixed(4);
+        ).toLocaleString();
         setBalance(formattedBalance);
       } else {
         console.error("Failed to decrypt balance:", decryptedResult.error);

@@ -41,7 +41,7 @@ import MarketFHEAbi from "@/constant/abi/MarketFHE.json";
 import { readContracts } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import { getTokenLogo } from "@/utils/token";
-import { SupplyCollateral } from "@/components/SupplyCollateral";
+import { MarketInteractionCard } from "@/components/market";
 
 interface MarketDetailProps {
   marketId: string;
@@ -54,10 +54,14 @@ interface Market {
     symbol: string;
     logo: string;
     apy?: string;
+    address: string;
+    decimals?: number;
   };
   loanToken: {
     symbol: string;
     logo: string;
+    address: string;
+    decimals?: number;
   };
   ltv: string;
   ltvValue: number;
@@ -69,111 +73,6 @@ interface Market {
   vaultRating: number;
 }
 
-const markets: Market[] = [
-  {
-    id: "1",
-    collateralToken: {
-      symbol: "USDT",
-      logo: "https://assets.coingecko.com/coins/images/325/standard/Tether.png?1696501661",
-    },
-    loanToken: {
-      symbol: "USDC",
-      logo: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694",
-    },
-    ltv: "96.50%",
-    ltvValue: 96.5,
-    liquidity: "66.24M USDC",
-    liquidityValue: 66.24,
-    rate: "5.33%",
-    rateValue: 5.33,
-    rateChange: "up",
-    vaultRating: 1,
-    totalLoans: "$1,704,909,971",
-  },
-  {
-    id: "2",
-    collateralToken: {
-      symbol: "WBTC",
-      logo: "https://assets.coingecko.com/coins/images/7598/standard/wrapped_bitcoin_wbtc.png?1696507857",
-    },
-    loanToken: {
-      symbol: "USDC",
-      logo: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694",
-    },
-    ltv: "86.00%",
-    ltvValue: 86.0,
-    liquidity: "29.8M USDC",
-    liquidityValue: 29.8,
-    rate: "4.90%",
-    rateValue: 4.9,
-    rateChange: "up",
-    vaultRating: 15,
-    totalLoans: "$1,253,490,256",
-  },
-  {
-    id: "3",
-    collateralToken: {
-      symbol: "wstETH",
-      logo: "https://assets.coingecko.com/coins/images/13442/standard/steth_logo.png?1696513206",
-      apy: "3.53%",
-    },
-    loanToken: {
-      symbol: "USDC",
-      logo: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694",
-    },
-    ltv: "88.00%",
-    ltvValue: 88.0,
-    liquidity: "26.81M USDC",
-    liquidityValue: 26.81,
-    rate: "5.24%",
-    rateValue: 5.24,
-    rateChange: "up",
-    vaultRating: 16,
-    totalLoans: "$984,671,345",
-  },
-  {
-    id: "4",
-    collateralToken: {
-      symbol: "ETH",
-      logo: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png?1696501628",
-    },
-    loanToken: {
-      symbol: "USDC",
-      logo: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694",
-    },
-    ltv: "86.00%",
-    ltvValue: 86.0,
-    liquidity: "24.48M USDC",
-    liquidityValue: 24.48,
-    rate: "5.04%",
-    rateValue: 5.04,
-    rateChange: "up",
-    vaultRating: 10,
-    totalLoans: "$873,562,190",
-  },
-  {
-    id: "5",
-    collateralToken: {
-      symbol: "wstETH",
-      logo: "https://assets.coingecko.com/coins/images/13442/standard/steth_logo.png?1696513206",
-      apy: "3.53%",
-    },
-    loanToken: {
-      symbol: "USDT",
-      logo: "https://assets.coingecko.com/coins/images/325/standard/Tether.png?1696501661",
-    },
-    ltv: "88.00%",
-    ltvValue: 88.0,
-    liquidity: "17.58M USDT",
-    liquidityValue: 17.58,
-    rate: "3.07%",
-    rateValue: 3.07,
-    rateChange: "up",
-    vaultRating: 7,
-    totalLoans: "$642,897,345",
-  },
-];
-
 export function MarketDetailView({ marketId }: MarketDetailProps) {
   const navigate = useNavigate();
   const themeContext = useTheme();
@@ -182,11 +81,9 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
   const { isConnected } = useAccount();
   const { open } = useAppKit();
 
-  const [collateralAmount, setCollateralAmount] = useState("");
-  const [borrowAmount, setBorrowAmount] = useState("");
-  const [repayAmount, setRepayAmount] = useState("");
   const [timeframe, setTimeframe] = useState("3 months");
   const [activeTab, setActiveTab] = useState("overview");
+  const [loading, setLoading] = useState(true);
 
   const { configs } = useContractConfig();
   const { chainId } = useAccount();
@@ -202,6 +99,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
   useEffect(() => {
     async function fetchMarket() {
       try {
+        setLoading(true);
         const vaultInfo = [
           "asset",
           "name",
@@ -244,10 +142,14 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
           collateralToken: {
             symbol: tokensResults[1].result as string,
             logo: getTokenLogo(tokensResults[1].result as string),
+            address: collateralToken.result as string,
+            decimals: 18, // Default to 18 decimals for ERC20 tokens
           },
           loanToken: {
             symbol: tokensResults[0].result as string,
             logo: getTokenLogo(tokensResults[0].result as string),
+            address: borrowToken.result as string,
+            decimals: 18, // Default to 18 decimals for ERC20 tokens
           },
           ltv: "*******",
           ltvValue: 86.0,
@@ -258,13 +160,23 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
           rateChange: "up",
           vaultRating: 10,
         } as Market);
+        setLoading(false);
       } catch (error) {
+        setLoading(false);
         console.error("Error fetching markets:", error);
       }
     }
 
     fetchMarket();
   }, [marketAddress]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cryptic-accent" />
+      </div>
+    );
+  }
 
   if (!market) {
     return (
@@ -276,39 +188,6 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
       </div>
     );
   }
-
-  const handleCollateralChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCollateralAmount(value);
-
-    // Calculate borrow amount based on LTV
-    if (value) {
-      const collateral = parseFloat(value);
-      const ltv = market.ltvValue / 100;
-      setBorrowAmount((collateral * ltv).toFixed(2));
-    } else {
-      setBorrowAmount("");
-    }
-  };
-
-  const handleBorrowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setBorrowAmount(value);
-
-    // Calculate required collateral based on LTV
-    if (value) {
-      const borrow = parseFloat(value);
-      const ltv = market.ltvValue / 100;
-      setCollateralAmount((borrow / ltv).toFixed(2));
-    } else {
-      setCollateralAmount("");
-    }
-  };
-
-  const handleRepayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setRepayAmount(value);
-  };
 
   return (
     <div className="py-8 px-4 sm:px-6">
@@ -1153,14 +1032,8 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
 
           <div className="md:col-span-1 relative">
             <div className="lg:sticky lg:top-24 space-y-6">
-              <SupplyCollateral
+              <MarketInteractionCard
                 isConnected={isConnected}
-                collateralAmount={collateralAmount}
-                borrowAmount={borrowAmount}
-                repayAmount={repayAmount}
-                handleCollateralChange={handleCollateralChange}
-                handleBorrowChange={handleBorrowChange}
-                handleRepayChange={handleRepayChange}
                 market={market}
                 cardStyles={cardStyles}
                 open={open}

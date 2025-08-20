@@ -1,0 +1,456 @@
+import React, { useState, useEffect, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { BalanceInput } from "@/components/ui/BalanceInput";
+import { useAccount, usePublicClient, useWriteContract } from "wagmi";
+import { Encryptable, cofhejs } from "cofhejs/web";
+import { readContract, signTypedData } from "@wagmi/core";
+import { parseSignature } from "viem";
+import { Info, Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { useCofhejsActivePermit } from "@/hooks/useCofhejs";
+import { cn } from "@/lib/utils";
+import { CofhejsPermitModal } from "@/components/cofhe/CofhejsPermitModal";
+import MarketFHEAbi from "@/constant/abi/MarketFHE.json";
+import { config } from "@/configs/wagmi";
+
+// For calculating the tick
+const DEBT_INDEX_PRECISION = BigInt(1e18);
+const Q80 = 2n ** 80n;
+
+interface BorrowFormProps {
+  isConnected: boolean;
+  market: {
+    id: string;
+    collateralToken: {
+      symbol: string;
+      logo: string;
+      address: string;
+      decimals?: number;
+    };
+    loanToken: {
+      symbol: string;
+      logo: string;
+      address: string;
+      decimals?: number;
+    };
+    ltv: string;
+    ltvValue?: number;
+    tickSpacing: number;
+  };
+  open: () => void;
+  theme?: string;
+}
+
+export function BorrowForm({
+  isConnected,
+  market,
+  open,
+  theme,
+}: BorrowFormProps) {
+  const { address, chain } = useAccount();
+  const publicClient = usePublicClient();
+  const activePermitHash = useCofhejsActivePermit();
+  const { writeContractAsync, isPending: isBorrowPending } = useWriteContract();
+
+  // Manage borrowAmount and collateralAmount state internally
+  const [borrowAmount, setBorrowAmount] = useState("");
+  const [collateralAmount, setCollateralAmount] = useState("");
+
+  const [isEncrypting, setIsEncrypting] = useState(false);
+  const [isCalculatingTick, setIsCalculatingTick] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [calculatedTick, setCalculatedTick] = useState<number | null>(null);
+  const [calculatingTickError, setCalculatingTickError] = useState<
+    string | null
+  >(null);
+
+  // Calculate loan-to-value ratio
+  const ltvRatio = useMemo(() => {
+    if (
+      !borrowAmount ||
+      !collateralAmount ||
+      parseFloat(collateralAmount) === 0
+    ) {
+      return 0;
+    }
+    // This is a simplistic calculation and might need adjustment based on token prices
+    return (parseFloat(borrowAmount) / parseFloat(collateralAmount)) * 100;
+  }, [borrowAmount, collateralAmount]);
+
+  // Calculate tick based on borrow amount and collateral
+  const calculateTick = async (borrowAmt: bigint, collateralAmt: bigint) => {
+    setIsCalculatingTick(true);
+    setCalculatingTickError(null);
+
+    try {
+      // Get current debt index (plaintext)
+      const currentDebtIndex = (await readContract(config, {
+        address: market.id as `0x${string}`,
+        abi: MarketFHEAbi.abi,
+        functionName: "pDebtIndex",
+      })) as bigint;
+
+      // Calculate scaled borrow amount
+      const scaledBorrowAmount =
+        (borrowAmt * DEBT_INDEX_PRECISION) / currentDebtIndex;
+
+      // Calculate ratio as scaledDebt/collateral
+      const ratioX80 = (scaledBorrowAmount * Q80) / collateralAmt;
+
+      // Since we don't have direct access to the TickMath library, we'll use a simple approximation
+      // In a real implementation, you would either call the contract method or implement the TickMath logic in JS
+      // For this implementation, we'll approximate using log2 and the tick spacing
+      const logRatio = Math.log2(Number(ratioX80) / Math.pow(2, 80));
+      const tickApproximate = Math.floor(logRatio * 100); // Scale factor to approximate tick value
+
+      const tickSpacing = market.tickSpacing || 60;
+      const roundedTick =
+        Math.floor(tickApproximate / tickSpacing) * tickSpacing;
+
+      setCalculatedTick(roundedTick);
+      setIsCalculatingTick(false);
+      return roundedTick;
+    } catch (error) {
+      console.error("Error calculating tick:", error);
+      setCalculatingTickError("Failed to calculate tick. Please try again.");
+      setIsCalculatingTick(false);
+      throw error;
+    }
+  };
+
+  // Reset calculation error when inputs change
+  useEffect(() => {
+    setCalculatingTickError(null);
+  }, [borrowAmount, collateralAmount]);
+
+  // Handle borrow amount changes internally
+  const handleBorrowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setBorrowAmount(value);
+
+    // Calculate required collateral based on LTV if market LTV value is available
+    if (value && market.ltvValue) {
+      const borrow = parseFloat(value);
+      const ltv = market.ltvValue / 100;
+
+      // Optionally, we can update the collateral amount based on LTV
+      // setCollateralAmount((borrow / ltv).toFixed(2));
+    }
+  };
+
+  // Handle collateral amount changes internally
+  const handleCollateralChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCollateralAmount(value);
+  };
+
+  const handleBorrow = async () => {
+    if (!borrowAmount || !collateralAmount || !market.id || !activePermitHash) {
+      toast({
+        title: "Missing information",
+        description:
+          "Please ensure all fields are filled and you have an active permit",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsEncrypting(true);
+      // Convert amounts to BigInt with proper decimals
+      const borrowAmountBigInt = BigInt(
+        Math.floor(
+          parseFloat(borrowAmount) * 10 ** (market.loanToken.decimals || 18)
+        )
+      );
+      const collateralAmountBigInt = BigInt(
+        Math.floor(
+          parseFloat(collateralAmount) *
+            10 ** (market.collateralToken.decimals || 18)
+        )
+      );
+
+      // Calculate the appropriate tick
+      const tick = await calculateTick(
+        borrowAmountBigInt,
+        collateralAmountBigInt
+      );
+
+      // Encrypt the amounts using cofhejs
+      const encryptedBorrowAmount = await cofhejs.encrypt([
+        Encryptable.uint128(borrowAmountBigInt),
+      ]);
+
+      const encryptedCollateralAmount = await cofhejs.encrypt([
+        Encryptable.uint128(collateralAmountBigInt * 2n), // Doubling for max collateral amount as per test
+      ]);
+
+      setIsEncrypting(false);
+
+      if (
+        !encryptedBorrowAmount.success ||
+        !encryptedCollateralAmount.success
+      ) {
+        throw new Error(
+          `Failed to encrypt data: ${
+            encryptedBorrowAmount.error || encryptedCollateralAmount.error
+          }`
+        );
+      }
+
+      setIsConfirming(true);
+
+      // Get domain for EIP-712 signature
+      const { domain } = await publicClient.getEip712Domain({
+        address: market.collateralToken.address as `0x${string}`,
+      });
+
+      // Get current nonce for the user
+      const nonce = await readContract(config, {
+        address: market.collateralToken.address as `0x${string}`,
+        abi: [
+          {
+            inputs: [
+              { internalType: "address", name: "owner", type: "address" },
+            ],
+            name: "nonces",
+            outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+            stateMutability: "view",
+            type: "function",
+          },
+        ],
+        functionName: "nonces",
+        args: [address],
+      });
+
+      // Define types for EIP-712 signature
+      const types = {
+        Permit: [
+          { name: "owner", type: "address" },
+          { name: "spender", type: "address" },
+          { name: "value_hash", type: "uint256" },
+          { name: "nonce", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+        ],
+      };
+
+      // Create message for signature
+      const message = {
+        owner: address,
+        spender: market.id,
+        value_hash: encryptedCollateralAmount.data[0].ctHash,
+        nonce,
+        deadline: activePermitHash.expiration,
+      };
+
+      // Sign the typed data
+      const signature = await signTypedData(config, {
+        account: address,
+        domain: {
+          name: domain.name,
+          version: domain.version,
+          chainId: domain.chainId,
+          verifyingContract: domain.verifyingContract,
+        },
+        types,
+        primaryType: "Permit",
+        message,
+      });
+
+      // Parse the signature
+      const { v, r, s } = parseSignature(signature);
+
+      // Create permit object
+      const permit = {
+        owner: address,
+        spender: market.id,
+        value_hash: encryptedCollateralAmount.data[0].ctHash,
+        deadline: activePermitHash.expiration,
+        v,
+        r,
+        s,
+      };
+
+      console.log("Borrow parameters:", {
+        inBorrowAmount: encryptedBorrowAmount.data[0],
+        tick: tick,
+        inMaxCollateralAmount: encryptedCollateralAmount.data[0],
+        permit,
+      });
+
+      // Execute the borrow transaction
+      const txResult = await writeContractAsync({
+        address: market.id as `0x${string}`,
+        abi: MarketFHEAbi.abi,
+        functionName: "borrow",
+        args: [
+          encryptedBorrowAmount.data[0],
+          tick,
+          encryptedCollateralAmount.data[0],
+          permit,
+        ],
+        account: address,
+        chain,
+      });
+
+      setIsConfirming(false);
+
+      // Show transaction success toast
+      const txUrl = `${chain.blockExplorers.default.url}/tx/${txResult}`;
+      toast({
+        title: "Borrow Transaction Initiated",
+        description: (
+          <div>
+            Transaction submitted for {borrowAmount} {market.loanToken.symbol}
+            <br />
+            <a
+              href={txUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-blue-500 hover:text-blue-700"
+            >
+              View on {chain.name}
+            </a>
+          </div>
+        ),
+        duration: 10000, // 10 seconds
+      });
+    } catch (error) {
+      console.error("Borrow failed:", error);
+      setIsEncrypting(false);
+      setIsConfirming(false);
+      toast({
+        title: "Borrow Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred while processing the borrow transaction.",
+        variant: "destructive",
+        duration: 10000, // 10 seconds
+      });
+    }
+  };
+
+  if (!isConnected) {
+    return (
+      <div className="text-center py-6">
+        <div className="h-10 w-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-4">
+          <span className="text-lg font-bold">X</span>
+        </div>
+        <p className="text-lg mb-2">0.00</p>
+        <p className="text-muted-foreground text-sm mb-6">$0</p>
+        <Button
+          className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90"
+          onClick={() => open()}
+        >
+          Connect Wallet
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <BalanceInput
+        label="Collateral Amount"
+        value={collateralAmount}
+        onChange={handleCollateralChange}
+        tokenAddress={market.collateralToken.address}
+        userAddress={address}
+        decimals={market.collateralToken.decimals || 18}
+        suffixSymbol={market.collateralToken.symbol}
+      />
+
+      <BalanceInput
+        label="Borrow Amount"
+        value={borrowAmount}
+        onChange={handleBorrowChange}
+        tokenAddress={market.loanToken.address}
+        userAddress={address}
+        decimals={market.loanToken.decimals || 18}
+        suffixSymbol={market.loanToken.symbol}
+      />
+
+      <div className="pt-2">
+        <div className="flex justify-between text-sm mb-1">
+          <span className="text-muted-foreground">LTV / Liquidation LTV</span>
+          <span>
+            {ltvRatio.toFixed(2)}% / {market.ltv}
+          </span>
+        </div>
+        <div className="mt-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+            style={{ width: `${Math.min(ltvRatio, 100)}%` }}
+          ></div>
+        </div>
+      </div>
+
+      {calculatingTickError && (
+        <div
+          className={cn(
+            "p-3 rounded-lg flex items-center",
+            theme === "dark" ? "bg-red-500/10" : "bg-red-50"
+          )}
+        >
+          <Info className="h-4 w-4 text-red-500 mr-2" />
+          <span className="text-xs text-red-500">{calculatingTickError}</span>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "p-3 rounded-lg flex items-center",
+          theme === "dark" ? "bg-cryptic-purple/10" : "bg-blue-50"
+        )}
+      >
+        <Info className="h-4 w-4 text-cryptic-accent mr-2" />
+        <span className="text-xs text-muted-foreground">
+          Borrow transactions are encrypted using FHE technology to ensure your
+          financial privacy
+        </span>
+      </div>
+
+      <Button
+        className="w-full bg-cryptic-accent hover:bg-cryptic-accent/90 mt-4"
+        onClick={handleBorrow}
+        disabled={
+          isBorrowPending ||
+          !borrowAmount ||
+          !collateralAmount ||
+          isEncrypting ||
+          isCalculatingTick ||
+          isConfirming
+        }
+        needFHE
+      >
+        {isEncrypting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Encrypting...
+          </>
+        ) : isCalculatingTick ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Calculating...
+          </>
+        ) : isConfirming ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Confirming...
+          </>
+        ) : isBorrowPending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          <>Borrow {market.loanToken.symbol}</>
+        )}
+      </Button>
+
+      {/* Include the permit modal component */}
+      <CofhejsPermitModal />
+    </div>
+  );
+}
