@@ -25,6 +25,7 @@ export function Navbar() {
     location.pathname.startsWith("/vault");
   const isBorrowActive =
     location.pathname === "/borrow" || location.pathname.startsWith("/market");
+  const isFaucetActive = location.pathname === "/transfer";
   const isSettingsActive = location.pathname === "/settings";
 
   return (
@@ -47,6 +48,9 @@ export function Navbar() {
           </NavLink>
           <NavLink href="/borrow" active={isBorrowActive}>
             Borrow
+          </NavLink>
+          <NavLink href="/transfer" active={isFaucetActive}>
+            Faucet
           </NavLink>
           {potentialAdmin && (
             <NavLink href="/settings" active={isSettingsActive}>

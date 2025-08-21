@@ -188,7 +188,6 @@ export function BorrowMarketsList() {
             borrowToken: borrowToken.result,
             collateralToken: collateralToken.result,
           });
-          console.log("Tokens:", tokens, tokensResults);
 
           allMarkets.push({
             id: marketAddress,

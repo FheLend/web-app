@@ -1,0 +1,67 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "MockOracle",
+  "sourceName": "contracts/mocks/MockOracle.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "getTokenPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "setTokenPrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "tokenPrices",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60808060405234601557610119908161001a8239f35b5f80fdfe608060409080825260043610156013575f80fd5b5f3560e01c908163204120bc14609f57508063431f63c91460705763d02641a014603b575f80fd5b34606c576020366003190112606c576020906001600160a01b03605b60ce565b165f525f8252805f20549051908152f35b5f80fd5b5034606c5780600319360112606c576001600160a01b03608d60ce565b165f525f602052602435905f20555f80f35b905034606c576020366003190112606c576020916001600160a01b0360c160ce565b165f525f83525f20548152f35b600435906001600160a01b0382168203606c5756fea2646970667358221220fc81c1d0f69155acaf230b554363f3d371a7fcd1dd2a41318cda7afdcc94819c64736f6c63430008190033",
+  "deployedBytecode": "0x608060409080825260043610156013575f80fd5b5f3560e01c908163204120bc14609f57508063431f63c91460705763d02641a014603b575f80fd5b34606c576020366003190112606c576020906001600160a01b03605b60ce565b165f525f8252805f20549051908152f35b5f80fd5b5034606c5780600319360112606c576001600160a01b03608d60ce565b165f525f602052602435905f20555f80f35b905034606c576020366003190112606c576020916001600160a01b0360c160ce565b165f525f83525f20548152f35b600435906001600160a01b0382168203606c5756fea2646970667358221220fc81c1d0f69155acaf230b554363f3d371a7fcd1dd2a41318cda7afdcc94819c64736f6c63430008190033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

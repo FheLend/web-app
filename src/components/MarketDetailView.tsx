@@ -42,35 +42,10 @@ import { readContracts } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import { getTokenLogo } from "@/utils/token";
 import { MarketInteractionCard } from "@/components/market";
+import { Market } from "@/types/market";
 
 interface MarketDetailProps {
   marketId: string;
-}
-
-interface Market {
-  id: string;
-  name: string;
-  collateralToken: {
-    symbol: string;
-    logo: string;
-    apy?: string;
-    address: string;
-    decimals?: number;
-  };
-  loanToken: {
-    symbol: string;
-    logo: string;
-    address: string;
-    decimals?: number;
-  };
-  ltv: string;
-  ltvValue: number;
-  liquidity: string;
-  liquidityValue: number;
-  rate: string;
-  rateValue: number;
-  rateChange: "up" | "down" | "stable";
-  vaultRating: number;
 }
 
 export function MarketDetailView({ marketId }: MarketDetailProps) {
@@ -105,6 +80,10 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
           "name",
           "borrowToken",
           "collateralToken",
+          "oracle",
+          "maxLtvBasisPoint",
+          "liquidationThresholdBasisPoint",
+          "tickSpacing",
         ].map((key) => ({
           address: marketAddress as `0x${string}`,
           abi: MarketFHEAbi.abi as any,
@@ -115,7 +94,16 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
         const results = await readContracts(config, {
           contracts: vaultInfo,
         });
-        const [asset, marketName, borrowToken, collateralToken] = results;
+        const [
+          asset,
+          marketName,
+          borrowToken,
+          collateralToken,
+          oracle,
+          maxLtvBasisPoint,
+          liquidationThresholdBasisPoint,
+          tickSpacing,
+        ] = results;
 
         const tokens = [borrowToken, collateralToken].map((token) => ({
           address: token.result as `0x${string}`,
@@ -134,11 +122,10 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
           borrowToken: borrowToken.result,
           collateralToken: collateralToken.result,
         });
-        console.log("Tokens:", tokens, tokensResults);
 
         setMarket({
           id: marketAddress,
-          name: marketName.result,
+          name: marketName.result as string,
           collateralToken: {
             symbol: tokensResults[1].result as string,
             logo: getTokenLogo(tokensResults[1].result as string),
@@ -159,7 +146,11 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
           rateValue: 5.04,
           rateChange: "up",
           vaultRating: 10,
-        } as Market);
+          maxLtvBasisPoint: maxLtvBasisPoint.result as number,
+          liquidationThresholdBasisPoint:
+            liquidationThresholdBasisPoint.result as number,
+          tickSpacing: tickSpacing.result as number,
+        });
         setLoading(false);
       } catch (error) {
         setLoading(false);

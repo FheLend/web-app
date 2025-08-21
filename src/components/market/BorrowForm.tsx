@@ -12,6 +12,10 @@ import { cn } from "@/lib/utils";
 import { CofhejsPermitModal } from "@/components/cofhe/CofhejsPermitModal";
 import MarketFHEAbi from "@/constant/abi/MarketFHE.json";
 import { config } from "@/configs/wagmi";
+import FHERC20Abi from "@/constant/abi/FHERC20.json";
+import MockOracleAbi from "@/constant/abi/MockOracle.json";
+import { Market } from "@/types/market";
+import { Input } from "../ui/input";
 
 // For calculating the tick
 const DEBT_INDEX_PRECISION = BigInt(1e18);
@@ -19,24 +23,7 @@ const Q80 = 2n ** 80n;
 
 interface BorrowFormProps {
   isConnected: boolean;
-  market: {
-    id: string;
-    collateralToken: {
-      symbol: string;
-      logo: string;
-      address: string;
-      decimals?: number;
-    };
-    loanToken: {
-      symbol: string;
-      logo: string;
-      address: string;
-      decimals?: number;
-    };
-    ltv: string;
-    ltvValue?: number;
-    tickSpacing: number;
-  };
+  market: Market;
   open: () => void;
   theme?: string;
 }
@@ -205,24 +192,12 @@ export function BorrowForm({
         address: market.collateralToken.address as `0x${string}`,
       });
 
-      // Get current nonce for the user
       const nonce = await readContract(config, {
         address: market.collateralToken.address as `0x${string}`,
-        abi: [
-          {
-            inputs: [
-              { internalType: "address", name: "owner", type: "address" },
-            ],
-            name: "nonces",
-            outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-            stateMutability: "view",
-            type: "function",
-          },
-        ],
+        abi: FHERC20Abi.abi,
         functionName: "nonces",
         args: [address],
       });
-
       // Define types for EIP-712 signature
       const types = {
         Permit: [
@@ -361,27 +336,41 @@ export function BorrowForm({
         suffixSymbol={market.collateralToken.symbol}
       />
 
-      <BalanceInput
-        label="Borrow Amount"
-        value={borrowAmount}
-        onChange={handleBorrowChange}
-        tokenAddress={market.loanToken.address}
-        userAddress={address}
-        decimals={market.loanToken.decimals || 18}
-        suffixSymbol={market.loanToken.symbol}
-      />
-
+      <div>
+        <div className="flex justify-between mb-2">
+          <label className="text-sm text-muted-foreground">Borrow Amount</label>
+        </div>
+        <div className="relative">
+          <Input
+            type="number"
+            value={borrowAmount}
+            onChange={handleBorrowChange}
+            placeholder="0.00"
+            className="pr-16"
+          />
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            <span className="text-sm font-medium text-muted-foreground">
+              {market.loanToken.symbol}
+            </span>
+          </div>
+        </div>
+      </div>
       <div className="pt-2">
         <div className="flex justify-between text-sm mb-1">
           <span className="text-muted-foreground">LTV / Liquidation LTV</span>
           <span>
-            {ltvRatio.toFixed(2)}% / {market.ltv}
+            {ltvRatio.toFixed(2)}% /{" "}
+            {market.liquidationThresholdBasisPoint / 100}%
           </span>
         </div>
         <div className="mt-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-            style={{ width: `${Math.min(ltvRatio, 100)}%` }}
+            style={{
+              width: `${
+                (ltvRatio * 100) / (market.liquidationThresholdBasisPoint / 100)
+              }%`,
+            }}
           ></div>
         </div>
       </div>

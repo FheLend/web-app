@@ -21,7 +21,6 @@ interface BalanceInputProps {
   tokenAddress?: string;
   userAddress?: string;
   decimals?: number;
-  balanceFunction?: string;
   suffixSymbol?: string;
   disabled?: boolean;
 }
@@ -35,25 +34,20 @@ export function BalanceInput({
   tokenAddress,
   userAddress,
   decimals = 18,
-  balanceFunction = "encBalanceOf",
   suffixSymbol,
   disabled = false,
 }: BalanceInputProps) {
   const [balance, setBalance] = useState<string | null>(null);
   const [isFetchingBalance, setIsFetchingBalance] = useState(false);
-  const [encryptedBalance, setEncryptedBalance] = useState<any>(null);
+  const [encryptedBalance, setEncryptedBalance] = useState<bigint>(null);
   const isPermitValid = useCofhejsIsActivePermitValid();
   const { setGeneratePermitModalOpen } = useCofhejsModalStore();
   const cofhejsStatus = useCofhejsInitStatus();
 
-  // Check if the token address is valid
-  const isValidTokenAddress =
-    tokenAddress && /^0x[a-fA-F0-9]{40}$/.test(tokenAddress);
-
   // Fetch balance when token address changes and is valid
   useEffect(() => {
     const fetchBalance = async () => {
-      if (!isValidTokenAddress || !userAddress) {
+      if (!userAddress) {
         setBalance(null);
         setEncryptedBalance(null);
         return;
@@ -65,16 +59,16 @@ export function BalanceInput({
         const encBalance = await readContract(config, {
           address: tokenAddress as `0x${string}`,
           abi: FHERC20Abi.abi,
-          functionName: balanceFunction,
+          functionName: "encBalanceOf",
           args: [userAddress],
         });
 
         // Store the encrypted balance for later decryption
-        setEncryptedBalance(encBalance);
+        setEncryptedBalance(encBalance as bigint);
 
         // If we have a valid permit, try to decrypt
         if (isPermitValid && encBalance) {
-          await decryptBalance(encBalance);
+          await decryptBalance(encBalance as bigint);
         } else {
           // We have the encrypted balance but no valid permit
           setBalance("0");
@@ -88,10 +82,10 @@ export function BalanceInput({
     };
 
     fetchBalance();
-  }, [tokenAddress, userAddress, isPermitValid, balanceFunction]);
+  }, [tokenAddress, userAddress, isPermitValid]);
 
   // Function to decrypt the balance (can be called after permit generation)
-  const decryptBalance = async (encryptedBalanceData: any) => {
+  const decryptBalance = async (encryptedBalanceData: bigint) => {
     if (!encryptedBalanceData) return;
 
     try {
@@ -143,11 +137,9 @@ export function BalanceInput({
             Loading...
           </div>
         ) : (
-          isValidTokenAddress && (
-            <div className="text-sm text-muted-foreground">
-              {balance !== null ? `Balance: ${balance}` : ""}
-            </div>
-          )
+          <div className="text-sm text-muted-foreground">
+            {balance !== null ? `Balance: ${balance}` : ""}
+          </div>
         )}
       </div>
       <div className="relative">
@@ -170,28 +162,25 @@ export function BalanceInput({
         )}
       </div>
 
-      {isValidTokenAddress &&
-        !isPermitValid &&
-        !isFetchingBalance &&
-        !cofhejsStatus.isPending && (
-          <div className="mt-2">
-            <Alert variant="warning" className="py-2">
-              <AlertCircleIcon className="h-4 w-4" />
-              <AlertTitle className="text-xs font-medium">
-                Permit Required
-              </AlertTitle>
-              <AlertDescription className="text-xs">
-                You need to generate a permit to view your balance.{" "}
-                <span
-                  className="underline cursor-pointer text-blue-500"
-                  onClick={handleGeneratePermit}
-                >
-                  Click here to generate
-                </span>
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
+      {!isPermitValid && !isFetchingBalance && !cofhejsStatus.isPending && (
+        <div className="mt-2">
+          <Alert variant="warning" className="py-2">
+            <AlertCircleIcon className="h-4 w-4" />
+            <AlertTitle className="text-xs font-medium">
+              Permit Required
+            </AlertTitle>
+            <AlertDescription className="text-xs">
+              You need to generate a permit to view your balance.{" "}
+              <span
+                className="underline cursor-pointer text-blue-500"
+                onClick={handleGeneratePermit}
+              >
+                Click here to generate
+              </span>
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
     </div>
   );
 }
