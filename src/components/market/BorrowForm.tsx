@@ -16,6 +16,7 @@ import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import MockOracleAbi from "@/constant/abi/MockOracle.json";
 import { Market } from "@/types/market";
 import { Input } from "../ui/input";
+import { getTickAtRatio, roundToNearestValidTick } from "@/utils/TickMath";
 
 // For calculating the tick
 const DEBT_INDEX_PRECISION = BigInt(1e18);
@@ -64,7 +65,8 @@ export function BorrowForm({
     return (parseFloat(borrowAmount) / parseFloat(collateralAmount)) * 100;
   }, [borrowAmount, collateralAmount]);
 
-  // Calculate tick based on borrow amount and collateral
+  // Calculate tick based on borrow amount and collateral using TickMath
+  // This exactly matches the calculateTickFHE function in the test
   const calculateTick = async (borrowAmt: bigint, collateralAmt: bigint) => {
     setIsCalculatingTick(true);
     setCalculatingTickError(null);
@@ -84,15 +86,29 @@ export function BorrowForm({
       // Calculate ratio as scaledDebt/collateral
       const ratioX80 = (scaledBorrowAmount * Q80) / collateralAmt;
 
-      // Since we don't have direct access to the TickMath library, we'll use a simple approximation
-      // In a real implementation, you would either call the contract method or implement the TickMath logic in JS
-      // For this implementation, we'll approximate using log2 and the tick spacing
-      const logRatio = Math.log2(Number(ratioX80) / Math.pow(2, 80));
-      const tickApproximate = Math.floor(logRatio * 100); // Scale factor to approximate tick value
+      // Get the tick using the TickMath library directly with ratioX80
+      // The library expects a Q128 ratio but our ratio is already in Q80 format
+      // so we need to scale it up by 2^48
+      const ratioX128 = ratioX80 * 2n ** 48n;
+      const rawTick = getTickAtRatio(ratioX128);
 
+      // Round to nearest valid tick according to tick spacing
+      // This matches exactly what the test does
       const tickSpacing = market.tickSpacing || 60;
-      const roundedTick =
-        Math.floor(tickApproximate / tickSpacing) * tickSpacing;
+      const roundedTick = Math.floor(rawTick / tickSpacing) * tickSpacing;
+
+      console.log(market);
+      console.log({
+        currentDebtIndex: currentDebtIndex.toString(),
+        borrowAmt: borrowAmt.toString(),
+        scaledBorrowAmount: scaledBorrowAmount.toString(),
+        collateralAmt: collateralAmt.toString(),
+        ratioX80: ratioX80.toString(),
+        ratioX128: ratioX128.toString(),
+        rawTick,
+        roundedTick,
+        tickSpacing,
+      });
 
       setCalculatedTick(roundedTick);
       setIsCalculatingTick(false);
@@ -164,10 +180,13 @@ export function BorrowForm({
       );
 
       // Encrypt the amounts using cofhejs
+      // Note: For borrowAmount, we encrypt the exact amount requested
       const encryptedBorrowAmount = await cofhejs.encrypt([
         Encryptable.uint128(borrowAmountBigInt),
       ]);
 
+      // For collateralAmount, we double it as the maximum amount (exactly like the test does)
+      // This gives the contract flexibility to use what it needs up to this maximum
       const encryptedCollateralAmount = await cofhejs.encrypt([
         Encryptable.uint128(collateralAmountBigInt * 2n), // Doubling for max collateral amount as per test
       ]);
@@ -247,22 +266,26 @@ export function BorrowForm({
       };
 
       console.log("Borrow parameters:", {
-        inBorrowAmount: encryptedBorrowAmount.data[0],
+        inBorrowAmount: encryptedBorrowAmount,
         tick: tick,
         inMaxCollateralAmount: encryptedCollateralAmount.data[0],
         permit,
+        borrowAmountValue: borrowAmountBigInt.toString(),
+        maxCollateralValue: (collateralAmountBigInt * 2n).toString(),
       });
 
       // Execute the borrow transaction
+      // Match exactly how the test calls the borrow function:
+      // await market.connect(user).borrow([encBorrow], [tick], [encCollateral], [permit]);
       const txResult = await writeContractAsync({
         address: market.id as `0x${string}`,
         abi: MarketFHEAbi.abi,
         functionName: "borrow",
         args: [
-          encryptedBorrowAmount.data[0],
-          tick,
-          encryptedCollateralAmount.data[0],
-          permit,
+          encryptedBorrowAmount.data[0], // Array of encrypted borrow amounts
+          tick, // Array of ticks
+          encryptedCollateralAmount.data[0], // Array of encrypted collateral amounts
+          permit, // Array of permits
         ],
         account: address,
         chain,
