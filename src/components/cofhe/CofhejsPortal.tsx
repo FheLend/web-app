@@ -21,6 +21,7 @@ import { useThemeStyles } from "@/lib/themeUtils";
 import { cn } from "@/lib/utils";
 import { hardhatHaLink } from "@/configs/wagmi";
 import { isProd } from "@/constant";
+import { InfoIcon, TriangleAlertIcon } from "lucide-react";
 
 const targetNetworks = isProd
   ? [arbitrumSepolia, sepolia]
@@ -197,6 +198,12 @@ const PermitItem = ({
         label="Expires"
         value={new Date(Number(permit.expiration) * 1000).toLocaleDateString()}
       />
+      {permit.expiration * 1000 < Date.now() && (
+        <div className="flex items-center justify-end text-xs text-destructive font-medium">
+          Expired
+          <TriangleAlertIcon size={16} className="ml-1" />
+        </div>
+      )}
       {!isActive && (
         <div className="flex justify-end gap-2 mt-2">
           <Button size="xs" onClick={() => setActivePermit(permit.getHash())}>

@@ -4,7 +4,7 @@ import { BalanceInput } from "@/components/ui/BalanceInput";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { Encryptable, cofhejs } from "cofhejs/web";
 import { readContract, signTypedData } from "@wagmi/core";
-import { parseSignature } from "viem";
+import { parseSignature, parseUnits } from "viem";
 import { Info, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useCofhejsActivePermit } from "@/hooks/useCofhejs";
@@ -13,10 +13,9 @@ import { CofhejsPermitModal } from "@/components/cofhe/CofhejsPermitModal";
 import MarketFHEAbi from "@/constant/abi/MarketFHE.json";
 import { config } from "@/configs/wagmi";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
-import MockOracleAbi from "@/constant/abi/MockOracle.json";
 import { Market } from "@/types/market";
 import { Input } from "../ui/input";
-import { getTickAtRatio, roundToNearestValidTick } from "@/utils/TickMath";
+import { getTickAtRatio } from "@/utils/TickMath";
 
 // For calculating the tick
 const DEBT_INDEX_PRECISION = BigInt(1e18);
@@ -86,26 +85,12 @@ export function BorrowForm({
       // Calculate ratio as scaledDebt/collateral
       const ratioX80 = (scaledBorrowAmount * Q80) / collateralAmt;
 
-      // Get the tick using the TickMath library directly with ratioX80
-      // The library expects a Q128 ratio but our ratio is already in Q80 format
-      // so we need to scale it up by 2^48
-      const ratioX128 = ratioX80 * 2n ** 48n;
-      const rawTick = getTickAtRatio(ratioX128);
-
-      // Round to nearest valid tick according to tick spacing
-      // This matches exactly what the test does
+      const tick = getTickAtRatio(ratioX80);
       const tickSpacing = market.tickSpacing || 60;
-      const roundedTick = Math.floor(rawTick / tickSpacing) * tickSpacing;
+      const roundedTick = Math.floor(tick / tickSpacing) * tickSpacing;
 
-      console.log(market);
       console.log({
-        currentDebtIndex: currentDebtIndex.toString(),
-        borrowAmt: borrowAmt.toString(),
-        scaledBorrowAmount: scaledBorrowAmount.toString(),
-        collateralAmt: collateralAmt.toString(),
-        ratioX80: ratioX80.toString(),
-        ratioX128: ratioX128.toString(),
-        rawTick,
+        tick,
         roundedTick,
         tickSpacing,
       });
@@ -161,16 +146,13 @@ export function BorrowForm({
     try {
       setIsEncrypting(true);
       // Convert amounts to BigInt with proper decimals
-      const borrowAmountBigInt = BigInt(
-        Math.floor(
-          parseFloat(borrowAmount) * 10 ** (market.loanToken.decimals || 18)
-        )
+      const borrowAmountBigInt = parseUnits(
+        borrowAmount,
+        market.loanToken.decimals
       );
-      const collateralAmountBigInt = BigInt(
-        Math.floor(
-          parseFloat(collateralAmount) *
-            10 ** (market.collateralToken.decimals || 18)
-        )
+      const collateralAmountBigInt = parseUnits(
+        collateralAmount,
+        market.collateralToken.decimals
       );
 
       // Calculate the appropriate tick
@@ -179,16 +161,12 @@ export function BorrowForm({
         collateralAmountBigInt
       );
 
-      // Encrypt the amounts using cofhejs
-      // Note: For borrowAmount, we encrypt the exact amount requested
       const encryptedBorrowAmount = await cofhejs.encrypt([
         Encryptable.uint128(borrowAmountBigInt),
       ]);
 
-      // For collateralAmount, we double it as the maximum amount (exactly like the test does)
-      // This gives the contract flexibility to use what it needs up to this maximum
       const encryptedCollateralAmount = await cofhejs.encrypt([
-        Encryptable.uint128(collateralAmountBigInt * 2n), // Doubling for max collateral amount as per test
+        Encryptable.uint128(collateralAmountBigInt),
       ]);
 
       setIsEncrypting(false);
@@ -266,12 +244,10 @@ export function BorrowForm({
       };
 
       console.log("Borrow parameters:", {
-        inBorrowAmount: encryptedBorrowAmount,
+        encryptedBorrowAmount: encryptedBorrowAmount,
         tick: tick,
-        inMaxCollateralAmount: encryptedCollateralAmount.data[0],
+        encryptedCollateralAmount: encryptedCollateralAmount,
         permit,
-        borrowAmountValue: borrowAmountBigInt.toString(),
-        maxCollateralValue: (collateralAmountBigInt * 2n).toString(),
       });
 
       // Execute the borrow transaction
@@ -282,10 +258,10 @@ export function BorrowForm({
         abi: MarketFHEAbi.abi,
         functionName: "borrow",
         args: [
-          encryptedBorrowAmount.data[0], // Array of encrypted borrow amounts
-          tick, // Array of ticks
-          encryptedCollateralAmount.data[0], // Array of encrypted collateral amounts
-          permit, // Array of permits
+          [encryptedBorrowAmount.data[0]],
+          [tick],
+          [encryptedCollateralAmount.data[0]],
+          [permit],
         ],
         account: address,
         chain,

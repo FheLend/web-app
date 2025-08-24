@@ -108,23 +108,6 @@ export function useInitializeCofhejs() {
       });
 
       try {
-        console.log({
-          viemClient: publicClient,
-          viemWalletClient: walletClient,
-          environment,
-          // Whether to generate a permit for the connected account during the initialization process
-          // Recommended to set to false, and then call `cofhejs.generatePermit()` when the user is ready to generate a permit
-          // !! if **true** - will generate a permit immediately on page load !!
-          generatePermit: false,
-          // Hard coded signer for submitting encrypted inputs
-          // This is only used in the mock environment to submit the mock encrypted inputs so that they can be used in FHE ops.
-          // This has no effect in the mainnet or testnet environments.
-          mockConfig: {
-            decryptDelay: 1000,
-            zkvSigner: viemZkvSigner,
-          },
-        });
-
         const initializationResult = await cofhejs.initializeWithViem({
           viemClient: publicClient,
           viemWalletClient: walletClient,
@@ -146,7 +129,6 @@ export function useInitializeCofhejs() {
         pendingToast.dismiss();
 
         if (initializationResult.success) {
-          console.log("Cofhejs initialized successfully");
           setStatus("success");
           toast({
             title: "Success",
@@ -283,7 +265,7 @@ export const useCofhejsActivePermit = () => {
 export const useCofhejsIsActivePermitValid = () => {
   const permit = useCofhejsActivePermit();
   return useMemo(() => {
-    if (!permit) return false;
+    if (!permit) return { valid: false, error: "no-permit" };
     return permit.isValid();
   }, [permit]);
 };

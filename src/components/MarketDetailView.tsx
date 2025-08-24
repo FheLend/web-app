@@ -139,7 +139,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
             decimals: 18, // Default to 18 decimals for ERC20 tokens
           },
           ltv: "*******",
-          ltvValue: 86.0,
+          ltvValue: 72,
           liquidity: "********",
           liquidityValue: 24.48,
           rate: "*******",
@@ -1043,14 +1043,13 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                         {market.collateralToken.symbol})
                       </span>
                       <div className="flex items-center">
-                        <div className="h-4 w-4 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mr-1">
-                          <span className="text-xs font-bold">X</span>
-                        </div>
                         <span>0.00</span>
+                        <img
+                          src={market.collateralToken.logo}
+                          alt={market.collateralToken.symbol}
+                          className="h-4 w-4 rounded-full ml-1"
+                        />
                       </div>
-                    </div>
-                    <div className="flex justify-end text-xs text-muted-foreground">
-                      <span>$0</span>
                     </div>
                   </div>
 
@@ -1060,14 +1059,13 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                         Your loan position ({market.loanToken.symbol})
                       </span>
                       <div className="flex items-center">
-                        <div className="h-4 w-4 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mr-1">
-                          <span className="text-xs font-bold">B</span>
-                        </div>
                         <span>0.00</span>
+                        <img
+                          src={market.loanToken.logo}
+                          alt={market.loanToken.symbol}
+                          className="h-4 w-4 rounded-full ml-1"
+                        />
                       </div>
-                    </div>
-                    <div className="flex justify-end text-xs text-muted-foreground">
-                      <span>$0</span>
                     </div>
                   </div>
 
@@ -1076,7 +1074,9 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                       <span className="text-muted-foreground">
                         LTV / Liquidation LTV
                       </span>
-                      <span>0% / {market.ltv}</span>
+                      <span>
+                        0% / {market.liquidationThresholdBasisPoint / 100}%
+                      </span>
                     </div>
                     <div className="mt-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div

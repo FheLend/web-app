@@ -40,7 +40,8 @@ export function BalanceInput({
   const [balance, setBalance] = useState<string | null>(null);
   const [isFetchingBalance, setIsFetchingBalance] = useState(false);
   const [encryptedBalance, setEncryptedBalance] = useState<bigint>(null);
-  const isPermitValid = useCofhejsIsActivePermitValid();
+  const { valid: isPermitValid, error: permitError } =
+    useCofhejsIsActivePermitValid();
   const { setGeneratePermitModalOpen } = useCofhejsModalStore();
   const cofhejsStatus = useCofhejsInitStatus();
 
@@ -170,9 +171,13 @@ export function BalanceInput({
               Permit Required
             </AlertTitle>
             <AlertDescription className="text-xs">
-              You need to generate a permit to view your balance.{" "}
+              {permitError === "no-permit"
+                ? "A permit is required to view your balance"
+                : permitError === "expired"
+                ? "Your permit has expired. Please generate a new one or use another one."
+                : "Unable to verify permit status"}
               <span
-                className="underline cursor-pointer text-blue-500"
+                className="underline cursor-pointer text-blue-500 ml-1"
                 onClick={handleGeneratePermit}
               >
                 Click here to generate
