@@ -60,9 +60,6 @@ export function getRatioAtTick(tick: number): bigint {
   return shifted + (needsRoundUp ? 1n : 0n);
 }
 
-// ------------------------------
-// getTickAtRatio hoàn thiện (bigint, không dùng float)
-// ------------------------------
 export function getTickAtRatio(ratioX80: bigint): number {
   if (ratioX80 < MIN_RATIO || ratioX80 >= MAX_RATIO) throw new Error("R");
 

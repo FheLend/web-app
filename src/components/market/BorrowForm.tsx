@@ -15,6 +15,7 @@ import { config } from "@/configs/wagmi";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import { Market } from "@/types/market";
 import { Input } from "../ui/input";
+import { Slippage } from "../common/Slippage";
 import { getTickAtRatio } from "@/utils/TickMath";
 
 // For calculating the tick
@@ -42,6 +43,7 @@ export function BorrowForm({
   // Manage borrowAmount and collateralAmount state internally
   const [borrowAmount, setBorrowAmount] = useState("");
   const [collateralAmount, setCollateralAmount] = useState("");
+  const [slippage, setSlippage] = useState(0.5);
 
   const [isEncrypting, setIsEncrypting] = useState(false);
   const [isCalculatingTick, setIsCalculatingTick] = useState(false);
@@ -154,7 +156,7 @@ export function BorrowForm({
         market.loanToken.decimals
       );
       const collateralAmountBigInt = parseUnits(
-        collateralAmount,
+        `${Number(collateralAmount) * (1 + slippage / 100)}`, // Using user-configured slippage
         market.collateralToken.decimals
       );
 
@@ -253,9 +255,6 @@ export function BorrowForm({
         permit,
       });
 
-      // Execute the borrow transaction
-      // Match exactly how the test calls the borrow function:
-      // await market.connect(user).borrow([encBorrow], [tick], [encCollateral], [permit]);
       const txResult = await writeContractAsync({
         address: market.id as `0x${string}`,
         abi: MarketFHEAbi.abi,
@@ -328,6 +327,7 @@ export function BorrowForm({
 
   return (
     <div className="space-y-4">
+      <Slippage slippage={slippage} setSlippage={setSlippage} />
       <BalanceInput
         label="Collateral Amount"
         value={collateralAmount}
