@@ -1,29 +1,29 @@
 /**
  * TypeScript port of TickMath.sol library
  * For computing sqrt prices from ticks and vice versa
- * Computes sqrt price for ticks of size 1.0001, i.e. sqrt(1.0001^tick) as fixed point Q64.96 numbers.
- * Supports prices between 2**-128 and 2**128
+ * Computes sqrt price for ticks of size 1.0001, i.e. sqrt(1.0001^tick) as fixed point Q48.80 numbers.
+ * Supports prices between 2**-48 and 2**48
  */
 
-// Constants
-const MIN_TICK = -665454;
-const MAX_TICK = -MIN_TICK;
+// Constants - directly from Solidity implementation
+const MIN_TICK = -332727; // The minimum tick that may be passed to #getRatioAtTick computed from log base 1.0001 of 2**-48
+const MAX_TICK = -MIN_TICK; // The maximum tick that may be passed to #getRatioAtTick computed from log base 1.0001 of 2**48
 
-const MIN_RATIO = 4295209461n;
-const MAX_RATIO =
-  26958426658512194831368896774901173522366197047646278696688125032958n;
+// The minimum and maximum values that can be returned from #getRatioAtTick
+const MIN_RATIO = 4295088377n; // Equivalent to getRatioAtTick(MIN_TICK)
+const MAX_RATIO = 340272774162632205326393168280372117504n; // Equivalent to getRatioAtTick(MAX_TICK)
 
 /**
- * Calculates 1.0001^tick * 2**128
+ * Calculates 1.0001^tick * 2**80
  * @param tick The input tick for the above formula
- * @returns A Fixed point Q96.128 number representing the ratio of the two assets (borrow/collateral) at the given tick
+ * @returns A Fixed point Q48.80 number representing the ratio of the two assets (borrow/collateral) at the given tick
  * @throws If |tick| > max tick
  */
 export function getRatioAtTick(tick: number): bigint {
   // Check if tick is within valid range
   const absTick = tick < 0 ? -tick : tick;
   if (absTick > MAX_TICK) {
-    throw new Error("Tick outside of valid range");
+    throw new Error("T"); // Match the Solidity error code "T" for tick out of range
   }
 
   let ratio =
@@ -71,55 +71,62 @@ export function getRatioAtTick(tick: number): bigint {
 
   if (tick > 0) {
     // For positive ticks, invert the ratio (same as dividing 2^256 by ratio)
-    ratio = (2n ** 256n - 1n) / ratio;
+    ratio = 2n ** 256n / ratio;
   }
 
-  return ratio;
+  // This divides by 1<<48 rounding up to go from a Q128.128 to a Q48.80
+  // We round up in the division so getTickAtRatio of the output price is always consistent
+  const hasRemainder = ratio % (1n << 48n) !== 0n;
+  return (ratio >> 48n) + (hasRemainder ? 1n : 0n);
 }
 
 /**
- * Calculates the tick for a given ratio
- * @param ratioX128 The input ratio as a Q128.128 fixed point number
+ * Calculates the tick for a given ratioX80
+ * @param ratioX80 The input ratio as a Q48.80 fixed point number
  * @returns The tick corresponding to the input ratio
  * @throws If ratio is outside valid range
  */
-export function getTickAtRatio(ratioX128: bigint): number {
+export function getTickAtRatio(ratioX80: bigint): number {
   // Check if ratio is within valid range
-  if (ratioX128 < MIN_RATIO || ratioX128 >= MAX_RATIO) {
-    throw new Error("Ratio outside of valid range");
+  if (ratioX80 < MIN_RATIO || ratioX80 >= MAX_RATIO) {
+    throw new Error("R"); // Match the Solidity error code "R" for ratio out of range
   }
 
   // Most significant bit search
   let msb = 0;
-  let r = ratioX128;
+
+  // Converting ratio from Q48.80 to Q128.128 by shifting left by 48 bits
+  // This aligns with the Solidity implementation that uses Q128.128 for internal calculations
+  const ratio = ratioX80 << 48n;
+  let r = ratio;
 
   if (r >= 1n << 128n) {
     msb += 128;
-    r >>= 128n;
+    r = r >> 128n;
   }
   if (r >= 1n << 64n) {
     msb += 64;
-    r >>= 64n;
+    r = r >> 64n;
   }
   if (r >= 1n << 32n) {
     msb += 32;
-    r >>= 32n;
+    r = r >> 32n;
   }
   if (r >= 1n << 16n) {
     msb += 16;
-    r >>= 16n;
+    r = r >> 16n;
   }
   if (r >= 1n << 8n) {
     msb += 8;
-    r >>= 8n;
+    r = r >> 8n;
   }
   if (r >= 1n << 4n) {
     msb += 4;
-    r >>= 4n;
+    r = r >> 4n;
   }
   if (r >= 1n << 2n) {
     msb += 2;
-    r >>= 2n;
+    r = r >> 2n;
   }
   if (r >= 1n << 1n) {
     msb += 1;
@@ -127,9 +134,9 @@ export function getTickAtRatio(ratioX128: bigint): number {
 
   // Normalize to precision 127
   if (msb >= 128) {
-    r = ratioX128 >> BigInt(msb - 127);
+    r = ratio >> BigInt(msb - 127);
   } else {
-    r = ratioX128 << BigInt(127 - msb);
+    r = ratio << BigInt(127 - msb);
   }
 
   // Calculate log_2 approximation with a 64-bit fractional part
@@ -139,82 +146,85 @@ export function getTickAtRatio(ratioX128: bigint): number {
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 63n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 62n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 61n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 60n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 59n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 58n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 57n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 56n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 55n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 54n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 53n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 52n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 51n;
-    r >>= 1n;
+    r = r >> 1n;
   }
   r = (r * r) >> 127n;
   if (r >= 1n << 128n) {
     log_2 |= 1n << 50n;
-    r >>= 1n;
+    r = r >> 1n;
   }
 
   // Convert from log base 2 to the corresponding tick value
-  const log_sqrt10001 = log_2 * 127869479499815993737216n;
+  // Using the constant from Solidity implementation for log2(1.0001)
+  // This is the value to convert from log2(x) to log1.0001(x)
+  const log_10001 = log_2 * 127869479499815993737216n;
 
+  // Constants from Solidity implementation for computing the tick
   const tickLow = Number(
-    (log_sqrt10001 - 3402992956809132418596140100660247210n) >> 128n
+    (log_10001 - 3402992956809132418596140100660247210n) >> 128n
   );
   const tickHi = Number(
-    (log_sqrt10001 + 291339464771989622907027621153398088495n) >> 128n
+    (log_10001 + 291339464771989622907027621153398088495n) >> 128n
   );
 
   // Choose the closest tick
@@ -222,7 +232,7 @@ export function getTickAtRatio(ratioX128: bigint): number {
     return tickLow;
   }
 
-  return getRatioAtTick(tickHi) <= ratioX128 ? tickHi : tickLow;
+  return getRatioAtTick(tickHi) <= ratioX80 ? tickHi : tickLow;
 }
 
 /**

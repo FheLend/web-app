@@ -90,7 +90,10 @@ export function BorrowForm({
       const roundedTick = Math.floor(tick / tickSpacing) * tickSpacing;
 
       console.log({
+        scaledBorrowAmount,
+        collateralAmt,
         tick,
+        ratioX80,
         roundedTick,
         tickSpacing,
       });

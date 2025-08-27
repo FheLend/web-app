@@ -214,9 +214,6 @@ export function WithdrawForm({
           Connect Wallet to Withdraw
         </Button>
       )}
-
-      {/* Include the permit modal component */}
-      <CofhejsPermitModal />
     </div>
   );
 }

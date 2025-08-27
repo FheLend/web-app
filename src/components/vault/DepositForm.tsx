@@ -221,9 +221,6 @@ export function DepositForm({
           Connect Wallet to Deposit
         </Button>
       )}
-
-      {/* Include the permit modal component */}
-      <CofhejsPermitModal />
     </div>
   );
 }

@@ -276,8 +276,6 @@ export default function Transfer() {
         </div>
       </div>
       <Footer />
-      {/* Include the permit modal component */}
-      <CofhejsPermitModal />
     </div>
   );
 }
