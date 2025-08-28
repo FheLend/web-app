@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BalanceInput } from "@/components/ui/BalanceInput";
+import { BalanceInput } from "@/components/common/BalanceInput";
 import {
   Card,
   CardContent,
@@ -26,7 +26,6 @@ import { toast } from "@/hooks/use-toast";
 import { Encryptable, cofhejs } from "cofhejs/web";
 import { useAccount, useWriteContract } from "wagmi";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
-import { CofhejsPermitModal } from "@/components/cofhe/CofhejsPermitModal";
 
 const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 

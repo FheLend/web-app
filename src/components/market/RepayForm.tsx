@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { BalanceInput } from "@/components/ui/BalanceInput";
+import { BalanceInput } from "@/components/common/BalanceInput";
 import { useAccount } from "wagmi";
 
 interface RepayFormProps {

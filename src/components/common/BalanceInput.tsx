@@ -11,6 +11,7 @@ import {
   useCofhejsIsActivePermitValid,
   useCofhejsModalStore,
 } from "@/hooks/useCofhejs";
+import { toast } from "../ui/use-toast";
 
 interface BalanceInputProps {
   label?: string;
@@ -75,7 +76,6 @@ export function BalanceInput({
           setBalance("0");
         }
       } catch (error) {
-        console.error("Error fetching balance:", error);
         setBalance(null);
       } finally {
         setIsFetchingBalance(false);
@@ -107,11 +107,16 @@ export function BalanceInput({
         ).toLocaleString();
         setBalance(formattedBalance);
       } else {
-        console.error("Failed to decrypt balance:", decryptedResult.error);
         setBalance(null);
+        throw new Error(decryptedResult.error.code);
       }
     } catch (error) {
-      console.error("Error decrypting balance:", error);
+      toast({
+        title: "Error decrypting balance",
+        description: error?.message || error,
+        variant: "destructive",
+      });
+      setIsFetchingBalance(false);
       setBalance(null);
     } finally {
       setIsFetchingBalance(false);

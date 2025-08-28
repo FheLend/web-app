@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { BalanceInput } from "@/components/ui/BalanceInput";
+import { BalanceInput } from "@/components/common/BalanceInput";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { Encryptable, cofhejs } from "cofhejs/web";
 import { readContract, signTypedData } from "@wagmi/core";
