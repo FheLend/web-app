@@ -17,6 +17,7 @@ interface BalanceInputProps {
   label?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   placeholder?: string;
   className?: string;
   tokenAddress?: string;
@@ -30,6 +31,7 @@ export function BalanceInput({
   label = "Amount",
   value,
   onChange,
+  onBlur,
   placeholder = "0.00",
   className,
   tokenAddress,
@@ -155,6 +157,7 @@ export function BalanceInput({
           min="0"
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           placeholder={placeholder}
           className={suffixSymbol ? "pr-16" : className}
           disabled={disabled}
