@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { BalanceInput } from "@/components/common/BalanceInput";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
@@ -15,7 +21,7 @@ import { config } from "@/configs/wagmi";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import { Market } from "@/types/market";
 import { Input } from "../ui/input";
-import { getTickAtRatio } from "@/utils/TickMath";
+import { getRatioAtTick, getTickAtRatio } from "@/utils/TickMath";
 
 // For calculating the tick
 const DEBT_INDEX_PRECISION = BigInt(1e18);
@@ -53,6 +59,15 @@ export function BorrowForm({
     string | null
   >(null);
 
+  const getCurrentDebtIndex = useCallback(async () => {
+    const currentDebtIndex = (await readContract(config, {
+      address: market.id as `0x${string}`,
+      abi: MarketFHEAbi.abi,
+      functionName: "pDebtIndex",
+    })) as bigint;
+    return currentDebtIndex;
+  }, [market.id]);
+
   // Calculate loan-to-value ratio
   const ltvRatio = useMemo(() => {
     if (
@@ -68,19 +83,15 @@ export function BorrowForm({
 
   // Calculate tick based on borrow amount and collateral using TickMath
   // This exactly matches the calculateTickFHE function in the test
-  const calculateTick = async (borrowAmt: bigint, collateralAmt: bigint) => {
+  const calculateTick = async (
+    borrowAmt: bigint,
+    collateralAmt: bigint,
+    currentDebtIndex: bigint
+  ) => {
     setIsCalculatingTick(true);
     setCalculatingTickError(null);
 
     try {
-      // Get current debt index (plaintext)
-      const currentDebtIndex = (await readContract(config, {
-        address: market.id as `0x${string}`,
-        abi: MarketFHEAbi.abi,
-        functionName: "pDebtIndex",
-      })) as bigint;
-
-      // Calculate scaled borrow amount
       const scaledBorrowAmount =
         (borrowAmt * DEBT_INDEX_PRECISION) / currentDebtIndex;
 
@@ -92,10 +103,8 @@ export function BorrowForm({
       const roundedTick = Math.floor(tick / tickSpacing) * tickSpacing;
 
       setIsCalculatingTick(false);
-      setTick(roundedTick);
       return roundedTick;
     } catch (error) {
-      console.error("Error calculating tick:", error);
       setCalculatingTickError("Failed to calculate tick. Please try again.");
       setIsCalculatingTick(false);
       throw error;
@@ -105,7 +114,8 @@ export function BorrowForm({
   // Calculate collateral amount based on borrow amount and tick
   const calculateCollateralFromTick = async (
     borrowAmt: bigint,
-    tickValue: number
+    tickValue: number,
+    currentDebtIndex: bigint
   ) => {
     if (!borrowAmt || tickValue === null) return null;
 
@@ -113,23 +123,12 @@ export function BorrowForm({
     setCalculatingTickError(null);
 
     try {
-      // Get current debt index (plaintext)
-      const currentDebtIndex = (await readContract(config, {
-        address: market.id as `0x${string}`,
-        abi: MarketFHEAbi.abi,
-        functionName: "pDebtIndex",
-      })) as bigint;
-
-      // Calculate scaled borrow amount
       const scaledBorrowAmount =
         (borrowAmt * DEBT_INDEX_PRECISION) / currentDebtIndex;
 
-      // Reverse the calculation from getTickAtRatio
-      // 1.0001^tick is the price ratio
-      const ratio = Math.pow(1.0001, tickValue);
-
-      // Convert to BigInt with proper scaling
-      const ratioX80BigInt = BigInt(Math.floor(ratio * Number(Q80)));
+      // Use the getRatioAtTick function from TickMath
+      // This returns the ratio as a bigint in the proper fixed-point format
+      const ratioX80BigInt = getRatioAtTick(tickValue);
 
       // Calculate collateral from ratio and scaled borrow
       // collateral = (scaledBorrowAmount * Q80) / ratioX80
@@ -137,7 +136,6 @@ export function BorrowForm({
 
       console.log("Calculated collateral from tick:", {
         tickValue,
-        ratio,
         ratioX80BigInt,
         scaledBorrowAmount,
         collateralAmt,
@@ -160,72 +158,93 @@ export function BorrowForm({
     setCalculatingTickError(null);
   }, [borrowAmount, collateralAmount]);
 
-  // Recalculate collateral based on borrow amount and tick
-  const recalculateCollateral = async () => {
-    if (!borrowAmount || parseFloat(borrowAmount) <= 0) return;
-    if (!collateralAmount || parseFloat(collateralAmount) <= 0) return;
+  // Clean up timeout on component unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []);
 
-    try {
-      const borrowAmtBigInt = parseUnits(
-        borrowAmount,
-        market.loanToken.decimals
-      );
+  // Reference to store the base collateral amount
+  const baseCollateralRef = useRef<string | null>(null);
 
-      // Always calculate a new tick if we have both values
-      if (collateralAmount && parseFloat(collateralAmount) > 0) {
-        const collateralAmtBigInt = parseUnits(
-          collateralAmount,
+  // Recalculate collateral based on borrow amount with debouncing
+  const recalculateCollateral = async (borrowAmt, collateralAmt) => {
+    // Clear any existing timeout to implement debouncing
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    // Set a new timeout that will execute after 500ms of inactivity
+    timeoutId = setTimeout(async () => {
+      if (!borrowAmt || parseFloat(borrowAmt) <= 0) return;
+      if (!collateralAmt || parseFloat(collateralAmt) <= 0) return;
+      try {
+        const borrowAmtBigInt = parseUnits(
+          borrowAmt,
+          market.loanToken.decimals
+        );
+
+        const currentDebtIndex = await getCurrentDebtIndex();
+
+        // If we don't have a base collateral amount or the user manually changed it, use current value
+        if (!baseCollateralRef.current || collateralAmt !== collateralAmount) {
+          baseCollateralRef.current = collateralAmt;
+        }
+
+        // Always use the base collateral for calculations
+        const baseCollateralAmtBigInt = parseUnits(
+          baseCollateralRef.current,
           market.collateralToken.decimals
         );
-        const tick = await calculateTick(borrowAmtBigInt, collateralAmtBigInt);
 
-        console.log(
-          "Setting new collateral amount:",
-          tick,
+        // Calculate tick based on borrow amount and base collateral
+        const calculatedTick = await calculateTick(
           borrowAmtBigInt,
-          collateralAmtBigInt
+          baseCollateralAmtBigInt,
+          currentDebtIndex
         );
-        const newCollateralAmt = await calculateCollateralFromTick(
+        setTick(calculatedTick);
+
+        // Calculate required collateral based on the calculated tick
+        const requiredCollateralAmt = await calculateCollateralFromTick(
           borrowAmtBigInt,
-          tick
+          calculatedTick,
+          currentDebtIndex
         );
 
-        if (newCollateralAmt) {
+        if (requiredCollateralAmt) {
           // Convert back from bigint to decimal string with proper precision
           const formatted = formatUnits(
-            newCollateralAmt,
+            requiredCollateralAmt,
             market.collateralToken.decimals
           );
           setCollateralAmount(formatted);
         }
+      } catch (error) {
+        console.error("Error recalculating values:", error);
       }
-    } catch (error) {
-      console.error("Error recalculating values:", error);
-    }
+    }, 500); // 500ms debounce delay
   };
 
   // Handle borrow amount changes internally
   const handleBorrowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setBorrowAmount(value);
-    console.log(timeoutId);
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      recalculateCollateral();
-      timeoutId = undefined;
-    }, 300);
+    recalculateCollateral(value, collateralAmount);
   };
 
   // Handle collateral amount changes internally
   const handleCollateralChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCollateralAmount(value);
-    console.log(timeoutId);
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      recalculateCollateral();
-      timeoutId = undefined;
-    }, 300);
+    // When user manually changes collateral, update the base reference
+    if (parseFloat(value) > 0) {
+      baseCollateralRef.current = value;
+    }
+    recalculateCollateral(borrowAmount, value);
   };
 
   const handleBorrow = async () => {
@@ -250,15 +269,6 @@ export function BorrowForm({
         collateralAmount,
         market.collateralToken.decimals
       );
-
-      // Use the stored tick or calculate if needed
-      let calculatedTick = tick;
-      if (calculatedTick === null) {
-        calculatedTick = await calculateTick(
-          borrowAmountBigInt,
-          collateralAmountBigInt
-        );
-      }
 
       const encryptedBorrowAmount = await cofhejs.encrypt([
         Encryptable.uint128(borrowAmountBigInt),
@@ -355,7 +365,7 @@ export function BorrowForm({
         functionName: "borrow",
         args: [
           [encryptedBorrowAmount.data[0]],
-          [calculatedTick],
+          [tick],
           [encryptedCollateralAmount.data[0]],
           [permit],
         ],
