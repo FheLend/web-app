@@ -453,7 +453,7 @@ export function UserPositionCard({
                                   </>
                                 )}
                               </Button>
-                              <Button className="h-7 text-xs ml-2">
+                              <Button className="h-7 text-xs ml-3">
                                 Repay
                               </Button>
                             </div>
