@@ -10,6 +10,7 @@ import {
   Users,
   Activity,
   Database,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +42,7 @@ import MarketFHEAbi from "@/constant/abi/MarketFHE.json";
 import { readContracts } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import { getTokenLogo } from "@/utils/token";
-import { MarketInteractionCard } from "@/components/market";
+import { MarketInteractionCard, UserPositionCard } from "@/components/market";
 import { Market } from "@/types/market";
 
 interface MarketDetailProps {
@@ -304,6 +305,16 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 >
                   <Database className="mr-2 h-4 w-4" />
                   Oracles
+                </TabsTrigger>
+                <TabsTrigger
+                  value="positions"
+                  className={cn(
+                    "px-6 rounded-none data-[state=active]:shadow-none data-[state=active]:bg-transparent h-16 text-base",
+                    "border-b-2 border-transparent data-[state=active]:border-primary"
+                  )}
+                >
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Your positions
                 </TabsTrigger>
               </TabsList>
 
@@ -1018,6 +1029,10 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                   </CardContent>
                 </Card>
               </TabsContent>
+
+              <TabsContent value="positions" className="space-y-8 mt-0">
+                <UserPositionCard market={market} cardStyles={cardStyles} />
+              </TabsContent>
             </Tabs>
           </div>
 
@@ -1030,63 +1045,6 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 open={open}
                 theme={theme || "light"}
               />
-
-              <Card className={cardStyles}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Your position</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">
-                        Your collateral position (
-                        {market.collateralToken.symbol})
-                      </span>
-                      <div className="flex items-center">
-                        <span>0.00</span>
-                        <img
-                          src={market.collateralToken.logo}
-                          alt={market.collateralToken.symbol}
-                          className="h-4 w-4 rounded-full ml-1"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">
-                        Your loan position ({market.loanToken.symbol})
-                      </span>
-                      <div className="flex items-center">
-                        <span>0.00</span>
-                        <img
-                          src={market.loanToken.logo}
-                          alt={market.loanToken.symbol}
-                          className="h-4 w-4 rounded-full ml-1"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        LTV / Liquidation LTV
-                      </span>
-                      <span>
-                        0% / {market.liquidationThresholdBasisPoint / 100}%
-                      </span>
-                    </div>
-                    <div className="mt-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                        style={{ width: "0%" }}
-                      ></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
