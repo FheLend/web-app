@@ -1,4 +1,4 @@
-import { getTickAtRatio } from "./tickMath";
+import { getTickAtRatio } from "./tick";
 
 // For calculating the tick
 const DEBT_INDEX_PRECISION = BigInt(1e18);
