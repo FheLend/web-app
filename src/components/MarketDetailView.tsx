@@ -106,14 +106,19 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
           tickSpacing,
         ] = results;
 
-        const tokens = [borrowToken, collateralToken].map((token) => ({
-          address: token.result as `0x${string}`,
-          abi: FHERC20Abi.abi as any,
-          functionName: "symbol",
-        }));
+        const tokenInfoMethods = ["symbol", "decimals"];
+        const tokens = [borrowToken, collateralToken]
+          .map((token) =>
+            tokenInfoMethods.map((method) => ({
+              address: token.result as `0x${string}`,
+              abi: FHERC20Abi.abi,
+              functionName: method,
+            }))
+          )
+          .flat();
 
         const tokensResults = await readContracts(config, {
-          contracts: tokens,
+          contracts: tokens as any,
         });
 
         console.log({
@@ -127,17 +132,17 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
         setMarket({
           id: marketAddress,
           name: marketName.result as string,
-          collateralToken: {
-            symbol: tokensResults[1].result as string,
-            logo: getTokenLogo(tokensResults[1].result as string),
-            address: collateralToken.result as string,
-            decimals: 18, // Default to 18 decimals for ERC20 tokens
-          },
           loanToken: {
             symbol: tokensResults[0].result as string,
             logo: getTokenLogo(tokensResults[0].result as string),
             address: borrowToken.result as string,
-            decimals: 18, // Default to 18 decimals for ERC20 tokens
+            decimals: tokensResults[1].result as number,
+          },
+          collateralToken: {
+            symbol: tokensResults[2].result as string,
+            logo: getTokenLogo(tokensResults[2].result as string),
+            address: collateralToken.result as string,
+            decimals: tokensResults[3].result as number,
           },
           ltv: "*******",
           ltvValue: 72,

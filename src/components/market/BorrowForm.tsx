@@ -21,11 +21,7 @@ import { config } from "@/configs/wagmi";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import { Market } from "@/types/market";
 import { Input } from "../ui/input";
-import { getRatioAtTick, getTickAtRatio } from "@/utils/TickMath";
-
-// For calculating the tick
-const DEBT_INDEX_PRECISION = BigInt(1e18);
-const Q80 = 2n ** 80n;
+import { createPosition } from "@/utils/helper";
 
 interface BorrowFormProps {
   isConnected: boolean;
@@ -55,9 +51,7 @@ export function BorrowForm({
   const [isEncrypting, setIsEncrypting] = useState(false);
   const [isCalculatingTick, setIsCalculatingTick] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
-  const [calculatingTickError, setCalculatingTickError] = useState<
-    string | null
-  >(null);
+  const [error, setError] = useState<string | null>(null);
 
   const getCurrentDebtIndex = useCallback(async () => {
     const currentDebtIndex = (await readContract(config, {
@@ -81,81 +75,9 @@ export function BorrowForm({
     return (parseFloat(borrowAmount) / parseFloat(collateralAmount)) * 100;
   }, [borrowAmount, collateralAmount]);
 
-  // Calculate tick based on borrow amount and collateral using TickMath
-  // This exactly matches the calculateTickFHE function in the test
-  const calculateTick = async (
-    borrowAmt: bigint,
-    collateralAmt: bigint,
-    currentDebtIndex: bigint
-  ) => {
-    setIsCalculatingTick(true);
-    setCalculatingTickError(null);
-
-    try {
-      const scaledBorrowAmount =
-        (borrowAmt * DEBT_INDEX_PRECISION) / currentDebtIndex;
-
-      // Calculate ratio as scaledDebt/collateral
-      const ratioX80 = (scaledBorrowAmount * Q80) / collateralAmt;
-
-      const tick = getTickAtRatio(ratioX80);
-      const tickSpacing = market.tickSpacing || 60;
-      const roundedTick = Math.floor(tick / tickSpacing) * tickSpacing;
-
-      setIsCalculatingTick(false);
-      return roundedTick;
-    } catch (error) {
-      setCalculatingTickError("Failed to calculate tick. Please try again.");
-      setIsCalculatingTick(false);
-      throw error;
-    }
-  };
-
-  // Calculate collateral amount based on borrow amount and tick
-  const calculateCollateralFromTick = async (
-    borrowAmt: bigint,
-    tickValue: number,
-    currentDebtIndex: bigint
-  ) => {
-    if (!borrowAmt || tickValue === null) return null;
-
-    setIsCalculatingTick(true);
-    setCalculatingTickError(null);
-
-    try {
-      const scaledBorrowAmount =
-        (borrowAmt * DEBT_INDEX_PRECISION) / currentDebtIndex;
-
-      // Use the getRatioAtTick function from TickMath
-      // This returns the ratio as a bigint in the proper fixed-point format
-      const ratioX80BigInt = getRatioAtTick(tickValue);
-
-      // Calculate collateral from ratio and scaled borrow
-      // collateral = (scaledBorrowAmount * Q80) / ratioX80
-      const collateralAmt = (scaledBorrowAmount * Q80) / ratioX80BigInt;
-
-      console.log("Calculated collateral from tick:", {
-        tickValue,
-        ratioX80BigInt,
-        scaledBorrowAmount,
-        collateralAmt,
-      });
-
-      setIsCalculatingTick(false);
-      return collateralAmt;
-    } catch (error) {
-      console.error("Error calculating collateral from tick:", error);
-      setCalculatingTickError(
-        "Failed to calculate collateral. Please try again."
-      );
-      setIsCalculatingTick(false);
-      return null;
-    }
-  };
-
   // Reset calculation error when inputs change
   useEffect(() => {
-    setCalculatingTickError(null);
+    setError(null);
   }, [borrowAmount, collateralAmount]);
 
   // Clean up timeout on component unmount to prevent memory leaks
@@ -201,29 +123,25 @@ export function BorrowForm({
         );
 
         // Calculate tick based on borrow amount and base collateral
-        const calculatedTick = await calculateTick(
-          borrowAmtBigInt,
-          baseCollateralAmtBigInt,
-          currentDebtIndex
-        );
+        setIsCalculatingTick(true);
+        setError(null);
+        const { tick: calculatedTick, usedCollateralAmount } =
+          await createPosition(
+            borrowAmtBigInt,
+            baseCollateralAmtBigInt,
+            currentDebtIndex,
+            market.tickSpacing
+          );
+        setIsCalculatingTick(false);
         setTick(calculatedTick);
 
-        // Calculate required collateral based on the calculated tick
-        const requiredCollateralAmt = await calculateCollateralFromTick(
-          borrowAmtBigInt,
-          calculatedTick,
-          currentDebtIndex
+        const formatted = formatUnits(
+          usedCollateralAmount,
+          market.collateralToken.decimals
         );
-
-        if (requiredCollateralAmt) {
-          // Convert back from bigint to decimal string with proper precision
-          const formatted = formatUnits(
-            requiredCollateralAmt,
-            market.collateralToken.decimals
-          );
-          setCollateralAmount(formatted);
-        }
+        setCollateralAmount(formatted);
       } catch (error) {
+        setIsCalculatingTick(false);
         console.error("Error recalculating values:", error);
       }
     }, 500); // 500ms debounce delay
@@ -482,7 +400,7 @@ export function BorrowForm({
         </div>
       </div>
 
-      {calculatingTickError && (
+      {error && (
         <div
           className={cn(
             "p-3 rounded-lg flex items-center",
@@ -490,7 +408,7 @@ export function BorrowForm({
           )}
         >
           <Info className="h-4 w-4 text-red-500 mr-2" />
-          <span className="text-xs text-red-500">{calculatingTickError}</span>
+          <span className="text-xs text-red-500">{error}</span>
         </div>
       )}
 

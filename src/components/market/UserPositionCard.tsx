@@ -393,9 +393,7 @@ export function UserPositionCard({
                           className="bg-background-subtle p-3 rounded-lg"
                         >
                           <div className="flex justify-between text-xs mb-1">
-                            <span>
-                              Position {idx + 1} (Tick: {position.tick})
-                            </span>
+                            <span>Position {idx + 1}</span>
                           </div>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-sm">
                             <div>

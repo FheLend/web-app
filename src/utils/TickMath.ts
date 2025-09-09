@@ -1,11 +1,11 @@
 // TickMath.ts
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-export const MIN_TICK: number = -332727;
+export const MIN_TICK: number = -166363;
 export const MAX_TICK: number = -MIN_TICK;
 
-export const MIN_RATIO: bigint = 4295088377n;
-export const MAX_RATIO: bigint = 340272774162632205326393168280372117504n;
+export const MIN_RATIO: bigint = 65541n;
+export const MAX_RATIO: bigint = 18445561804641519763n;
 
 export function getRatioAtTick(tick: number): bigint {
   const absTick = tick < 0 ? BigInt(-tick) : BigInt(tick);
@@ -55,15 +55,15 @@ export function getRatioAtTick(tick: number): bigint {
 
   if (tick > 0) ratio = ((1n << 256n) - 1n) / ratio; // uint256.max / ratio
 
-  const shifted = ratio >> 48n;
-  const needsRoundUp = ratio % (1n << 48n) !== 0n;
+  const shifted = ratio >> 88n;
+  const needsRoundUp = ratio % (1n << 88n) !== 0n;
   return shifted + (needsRoundUp ? 1n : 0n);
 }
 
 export function getTickAtRatio(ratioX80: bigint): number {
   if (ratioX80 < MIN_RATIO || ratioX80 >= MAX_RATIO) throw new Error("R");
 
-  const ratio = ratioX80 << 48n; // back to Q128.128
+  const ratio = ratioX80 << 88n; // back to Q128.128
 
   // find most significant bit (msb)
   let r = ratio;
