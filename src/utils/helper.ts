@@ -1,7 +1,7 @@
 import { getTickAtRatio } from "./tick";
 
 // For calculating the tick
-const DEBT_INDEX_PRECISION = BigInt(1e18);
+const DEBT_INDEX_PRECISION = BigInt(1e15);
 const Q40 = 2n ** 40n;
 
 export const createPosition = async (
