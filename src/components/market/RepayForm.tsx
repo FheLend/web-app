@@ -141,7 +141,7 @@ export function RepayForm({
     posIndex: number,
     valueType: "collateral" | "borrow",
     encryptedValue: bigint
-  ): Promise<string | null> => {
+  ): Promise<bigint | null> => {
     try {
       // Decrypt the value
       const decryptedResult = await cofhejs.decrypt(
@@ -150,9 +150,7 @@ export function RepayForm({
       );
 
       if (decryptedResult.success) {
-        // Format the value
-        const valueInWei = decryptedResult.data;
-        return formatNumber(valueInWei);
+        return decryptedResult.data;
       } else {
         throw new Error(decryptedResult.error?.code || "Decryption failed");
       }
@@ -210,8 +208,12 @@ export function RepayForm({
       setDecryptedValues((prev) => ({
         ...prev,
         [posIndex]: {
-          collateral: decryptedCollateral,
-          borrow: decryptedBorrow,
+          collateral: formatNumber(
+            formatUnits(decryptedCollateral, market.collateralToken.decimals)
+          ),
+          borrow: formatNumber(
+            formatUnits(decryptedBorrow, market.loanToken.decimals)
+          ),
         },
       }));
     } catch (error) {

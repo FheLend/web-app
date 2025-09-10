@@ -1,4 +1,4 @@
-import { getTickAtRatio } from "./tick";
+import { getRatioAtTick, getTickAtRatio } from "./tick";
 
 // For calculating the tick
 const DEBT_INDEX_PRECISION = BigInt(1e15);
@@ -18,10 +18,12 @@ export const createPosition = async (
 
     const tick = getTickAtRatio(ratioX80);
     const roundedTick = Math.floor(tick / tickSpacing) * tickSpacing;
-    const usedCollateralAmount = (scaledBorrowAmount * Q40) / ratioX80;
+
+    const newRatioX80 = getRatioAtTick(roundedTick);
+
+    const usedCollateralAmount = (scaledBorrowAmount * Q40) / newRatioX80;
     return { tick: roundedTick, usedCollateralAmount };
   } catch (error) {
-    console.error("Error calculating tick from ratio:", error);
     throw new Error("Failed to calculate tick. Please try again.");
   }
 };
