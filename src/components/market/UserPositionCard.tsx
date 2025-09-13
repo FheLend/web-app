@@ -20,70 +20,7 @@ import {
   useCofhejsModalStore,
 } from "@/hooks/useCofhejs";
 import { toast } from "@/components/ui/use-toast";
-
-// Format number for display with proper decimal places and commas
-// This handles both number and string inputs to account for large values
-function formatNumber(value: number | string | bigint): string {
-  // Convert to string if it's not already
-  const valueStr = value.toString();
-
-  // If it's a very large number in scientific notation or with many digits
-  if (valueStr.includes("e") || valueStr.length > 15) {
-    // Convert from BigInt or large string to a human-readable format
-    // For crypto amounts with 18 decimals
-    try {
-      // If it's a bigint or a string representation of a large integer
-      if (typeof value === "bigint" || /^\d+$/.test(valueStr)) {
-        // Format with 18 decimal places (standard for ETH/tokens)
-        const formatted = formatUnits(BigInt(valueStr), 18);
-
-        // Parse to float for further formatting
-        const numValue = parseFloat(formatted);
-
-        // Apply appropriate formatting based on the size
-        if (numValue < 0.0001 && numValue > 0) {
-          return numValue.toExponential(4);
-        } else if (numValue < 1) {
-          return numValue.toFixed(4);
-        } else if (numValue < 1000) {
-          return numValue.toFixed(2);
-        } else {
-          return numValue.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          });
-        }
-      }
-    } catch (e) {
-      console.error("Error formatting large number:", e);
-      // Fallback to truncation if conversion fails
-      return valueStr.slice(0, 10) + "...";
-    }
-  }
-
-  // For regular numbers
-  const numValue = typeof value === "number" ? value : parseFloat(valueStr);
-
-  // If the number is very small (near zero), show more decimal places
-  if (numValue > 0 && numValue < 0.0001) {
-    return numValue.toExponential(2);
-  }
-  // For small numbers, show 4 decimal places
-  else if (numValue < 1) {
-    return numValue.toFixed(4);
-  }
-  // For medium numbers, show 2 decimal places
-  else if (numValue < 1000) {
-    return numValue.toFixed(2);
-  }
-  // For large numbers, use locale string with 2 decimal places
-  else {
-    return numValue.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  }
-}
+import { formatNumber } from "@/utils/converter";
 
 interface UserPositionCardProps {
   market: Market;
@@ -136,7 +73,7 @@ export function UserPositionCard({
     posIndex: number,
     valueType: "collateral" | "borrow",
     encryptedValue: bigint
-  ): Promise<string | null> => {
+  ): Promise<bigint | null> => {
     try {
       // Decrypt the value
       const decryptedResult = await cofhejs.decrypt(
@@ -145,9 +82,7 @@ export function UserPositionCard({
       );
 
       if (decryptedResult.success) {
-        // Format the value
-        const valueInWei = decryptedResult.data;
-        return formatNumber(valueInWei);
+        return decryptedResult.data;
       } else {
         throw new Error(decryptedResult.error?.code || "Decryption failed");
       }
@@ -205,8 +140,12 @@ export function UserPositionCard({
       setDecryptedValues((prev) => ({
         ...prev,
         [posIndex]: {
-          collateral: decryptedCollateral,
-          borrow: decryptedBorrow,
+          collateral: formatNumber(
+            formatUnits(decryptedCollateral, market.collateralToken.decimals)
+          ),
+          borrow: formatNumber(
+            formatUnits(decryptedBorrow, market.loanToken.decimals)
+          ),
         },
       }));
     } catch (error) {
