@@ -280,10 +280,10 @@ function VaultTable() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            Encrypted Lending Vaults
+            Encrypted Earning Vaults
           </h2>
           <p className="text-muted-foreground text-base sm:text-lg">
-            Discover our FHE-powered lending pools with private transactions and
+            Discover our FHE-powered earning pools with private transactions and
             balances
           </p>
         </div>

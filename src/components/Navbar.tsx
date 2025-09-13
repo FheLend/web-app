@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, Settings, LayoutGrid } from "lucide-react";
+import { Menu, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -10,7 +10,6 @@ import { useAdminAuthContext } from "@/providers/AdminAuthProvider";
 import { useAccount } from "wagmi";
 import Logo from "@/assets/logo.svg";
 import LogoWhite from "@/assets/logo-white.svg";
-import { CofhejsPortal } from "./cofhe/CofhejsPortal";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,7 +18,7 @@ export function Navbar() {
   const { potentialAdmin } = useAdminAuthContext();
   const { address } = useAccount();
 
-  const isLendingActive =
+  const isEarnActive =
     location.pathname === "/" ||
     location.pathname === "/lending" ||
     location.pathname.startsWith("/vault");
@@ -43,8 +42,8 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8 items-center text-base">
-          <NavLink href="/lending" active={isLendingActive}>
-            Lend
+          <NavLink href="/earn" active={isEarnActive}>
+            Earn
           </NavLink>
           <NavLink href="/borrow" active={isBorrowActive}>
             Borrow
@@ -80,8 +79,8 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className={mobileMenuDivider}>
           <div className="space-y-3 px-2">
-            <NavLink href="/lending" active={isLendingActive} mobile>
-              Lend
+            <NavLink href="/earn" active={isEarnActive} mobile>
+              Earn
             </NavLink>
             <NavLink href="/borrow" active={isBorrowActive} mobile>
               Borrow
