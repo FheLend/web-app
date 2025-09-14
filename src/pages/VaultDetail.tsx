@@ -18,20 +18,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useMemo } from "react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { useThemeStyles } from "@/lib/themeUtils";
 import { useAccount, useReadContracts } from "wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
+import MarketAbi from "@/constant/abi/MarketFHE.json";
 import { useAppKit } from "@reown/appkit/react";
 import { DepositForm, WithdrawForm } from "@/components/vault";
 
@@ -169,28 +162,35 @@ export default function VaultDetail() {
   const { cardStyles, iconBadge, boxInfo } = useThemeStyles();
   const { isConnected } = useAccount();
   const { open } = useAppKit();
-  const vault = useMemo(() => {
-    return vaultDetailsMock;
-  }, []);
 
   const vaultInfoKey = useMemo(() => {
-    return ["asset", "name", "symbol", "decimals"].map((key) => ({
-      address: id as `0x${string}`,
-      abi: VaultAbi.abi as any,
-      functionName: key,
-    }));
+    return ["asset", "name", "symbol", "decimals", "borrowToken"].map(
+      (key) => ({
+        address: id as `0x${string}`,
+        abi: MarketAbi.abi as any,
+        functionName: key,
+      })
+    );
   }, [id]);
 
-  // @ts-ignore
   const { data, isLoading } = useReadContracts({
     contracts: vaultInfoKey as any,
   });
 
-  const vaultAsset = data?.[0]?.result as string;
+  // const vaultAsset = data?.[0]?.result as string;
   const vaultName = data?.[1]?.result as string;
-  const vaultSymbol = data?.[2]?.result as string;
-  const vaultDecimals = data?.[3]?.result as number;
+  // const vaultSymbol = data?.[2]?.result as string;
+  // const vaultDecimals = data?.[3]?.result as number;
+
+  // FIXME: start mock data
+  const borrowToken = data?.[4]?.result as string;
+  const vaultSymbol = vaultName?.split("/")[1].split(" ")[0];
+  const vaultDecimals = 9;
+  const vaultAsset = borrowToken;
   console.log(vaultName, vaultAsset, vaultSymbol);
+  // END: mock data
+
+  const vault = { ...vaultDetailsMock, id, name: vaultName || "" };
 
   if (isLoading) {
     return (

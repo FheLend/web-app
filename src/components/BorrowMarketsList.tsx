@@ -154,7 +154,7 @@ export function BorrowMarketsList() {
         const allMarkets: Market[] = [];
 
         for (const marketAddress of marketAddresses) {
-          const vaultInfo = [
+          const marketInfo = [
             "asset",
             "name",
             "borrowToken",
@@ -167,7 +167,7 @@ export function BorrowMarketsList() {
 
           // @ts-expect-error - Type instantiation too deep for wagmi ABI types
           const results = await readContracts(config, {
-            contracts: vaultInfo,
+            contracts: marketInfo,
           });
           const [asset, marketName, borrowToken, collateralToken] = results;
 

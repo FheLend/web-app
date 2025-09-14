@@ -24,8 +24,9 @@ import { Footer } from "@/components/Footer";
 import { Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Encryptable, cofhejs } from "cofhejs/web";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
+import { erc20Abi } from "viem";
 
 const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 
@@ -56,7 +57,8 @@ function SendTokenBtn({
   tokenAddress,
   amount,
   recipientAddress,
-}: TransferForm) {
+  decimals,
+}: TransferForm & { decimals: number }) {
   const [isLoading, setIsLoading] = useState(false);
   const { writeContractAsync, isPending } = useWriteContract();
   const { address, chain } = useAccount();
@@ -64,7 +66,9 @@ function SendTokenBtn({
   const onSubmit = async () => {
     setIsLoading(true);
     try {
-      const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 10 ** 18));
+      const amountBigInt = BigInt(
+        Math.floor(parseFloat(amount) * 10 ** decimals)
+      );
       console.log("Parsed amount as BigInt:", amountBigInt);
 
       const encryptedResult = await cofhejs.encrypt([
@@ -120,7 +124,8 @@ function MintTokenBtn({
   tokenAddress,
   amount,
   recipientAddress,
-}: TransferForm) {
+  decimals,
+}: TransferForm & { decimals: number }) {
   const [isLoading, setIsLoading] = useState(false);
   const { writeContractAsync, isPending } = useWriteContract();
   const { address, chain } = useAccount();
@@ -128,7 +133,9 @@ function MintTokenBtn({
   const onSubmit = async () => {
     setIsLoading(true);
     try {
-      const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 10 ** 18));
+      const amountBigInt = BigInt(
+        Math.floor(parseFloat(amount) * 10 ** decimals)
+      );
 
       const txResult = await writeContractAsync({
         address: tokenAddress as `0x${string}`,
@@ -188,6 +195,15 @@ export default function Transfer() {
     name: "tokenAddress",
   });
 
+  const { data: decimals } = useReadContract({
+    address: tokenAddress as `0x${string}`,
+    abi: erc20Abi,
+    functionName: "decimals",
+    query: {
+      enabled: ethereumAddressRegex.test(tokenAddress || ""),
+    },
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-28">
@@ -233,6 +249,7 @@ export default function Transfer() {
                           onChange={field.onChange}
                           tokenAddress={tokenAddress}
                           userAddress={address}
+                          decimals={decimals}
                         />
                         <FormMessage />
                       </FormItem>
@@ -257,6 +274,7 @@ export default function Transfer() {
                     <div className="col-span-2">
                       <SendTokenBtn
                         {...(form.control._formValues as TransferForm)}
+                        decimals={decimals || 18}
                       />
                     </div>
                     <div className="col-span-1 flex items-center justify-center">
@@ -265,6 +283,7 @@ export default function Transfer() {
                     <div className="col-span-2">
                       <MintTokenBtn
                         {...(form.control._formValues as TransferForm)}
+                        decimals={decimals || 18}
                       />
                     </div>
                   </div>

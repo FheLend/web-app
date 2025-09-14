@@ -58,6 +58,7 @@ export const useContractConfig = () => {
     configs,
     error,
     refetch: fetchConfigs,
+    loading,
   };
 };
 

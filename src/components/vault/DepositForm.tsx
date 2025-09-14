@@ -8,12 +8,11 @@ import { useCofhejsActivePermit } from "@/hooks/useCofhejs";
 import { cn } from "@/lib/utils";
 import { BalanceInput } from "@/components/common/BalanceInput";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
-import { readContract, signTypedData, verifyTypedData } from "@wagmi/core";
+import { readContract, signTypedData } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import { parseSignature } from "viem";
 import MarketAbi from "@/constant/abi/MarketFHE.json";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
-import { Input } from "../ui/input";
 
 interface DepositFormProps {
   vaultId: string;
@@ -42,7 +41,6 @@ export function DepositForm({
   const activePermitHash = useCofhejsActivePermit();
   const { address, chain } = useAccount();
   const publicClient = usePublicClient();
-  const [marketAddress, setMarketAddress] = useState("");
 
   const handleDeposit = async () => {
     if (!depositAmount || !vaultId || !activePermitHash) return;
@@ -84,7 +82,7 @@ export function DepositForm({
       };
       const message = {
         owner: address,
-        spender: marketAddress ? marketAddress : vaultId,
+        spender: vaultId,
         value_hash: encryptedAmount.data[0].ctHash,
         nonce,
         deadline: activePermitHash.expiration,
@@ -106,7 +104,7 @@ export function DepositForm({
 
       const permit = {
         owner: address,
-        spender: marketAddress ? marketAddress : vaultId,
+        spender: vaultId,
         value_hash: encryptedAmount.data[0].ctHash,
         deadline: activePermitHash.expiration,
         v,
@@ -118,8 +116,8 @@ export function DepositForm({
       console.log("permit:", permit);
 
       const txResult = await writeContractAsync({
-        address: (marketAddress ? marketAddress : vaultId) as `0x${string}`,
-        abi: (marketAddress ? MarketAbi : VaultAbi).abi,
+        address: vaultId as `0x${string}`,
+        abi: VaultAbi.abi,
         functionName: "encDeposit",
         args: [encryptedAmount.data[0], address, permit],
         account: address,
@@ -174,15 +172,6 @@ export function DepositForm({
         decimals={vaultDecimals}
         suffixSymbol={vaultSymbol}
       />
-
-      <div>
-        <div className="text-sm text-muted-foreground mb-2">Market Address</div>
-        <Input
-          value={marketAddress}
-          onChange={(e) => setMarketAddress(e.target.value)}
-          placeholder="0x..."
-        />
-      </div>
 
       <div
         className={cn(

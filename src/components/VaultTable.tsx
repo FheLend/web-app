@@ -18,6 +18,7 @@ import { useThemeStyles } from "@/lib/themeUtils";
 import { readContracts } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import VaultAbi from "@/constant/abi/VaultFHE.json";
+import MarketFHEAbi from "@/constant/abi/MarketFHE.json";
 import { Image } from "./ui/image";
 import { useContractConfig } from "@/hooks/useContractConfig";
 import { useAccount } from "wagmi";
@@ -71,11 +72,22 @@ function VaultTable() {
   const { chainId } = useAccount();
   const [vaults, setVaults] = useState<Vault[]>([]);
 
-  const vaultAddress = useMemo(() => {
-    const config = configs.find(
+  const vaultAddresses = useMemo(() => {
+    const matchingConfigs = configs.filter(
       (c) => +c.network === chainId && c.description === "vault"
     );
-    return config ? config.contract_address : null;
+    return matchingConfigs.length > 0
+      ? matchingConfigs.map((c) => c.contract_address)
+      : [];
+  }, [chainId, configs]);
+
+  const marketAddresses = useMemo(() => {
+    const matchingConfigs = configs.filter(
+      (c) => +c.network === chainId && c.description === "market"
+    );
+    return matchingConfigs.length > 0
+      ? matchingConfigs.map((c) => c.contract_address)
+      : [];
   }, [chainId, configs]);
 
   const handleSort = (field: SortField) => {
@@ -148,25 +160,46 @@ function VaultTable() {
   useEffect(() => {
     async function fetchVaults() {
       try {
-        const vaultInfo = ["asset", "name", "symbol", "decimals"].map(
-          (key) => ({
+        const allVaults: Vault[] = [];
+        // FIXME: This is temporary. Data should be from Vault contracts.
+        for (const vaultAddress of marketAddresses) {
+          // const vaultInfo = ["asset", "name", "symbol", "decimals"].map(
+          //   (key) => ({
+          //     address: vaultAddress as `0x${string}`,
+          //     abi: VaultAbi.abi as any,
+          //     functionName: key,
+          //   })
+          // );
+          const vaultInfo = [
+            "asset",
+            "name",
+            "borrowToken",
+            "collateralToken",
+          ].map((key) => ({
             address: vaultAddress as `0x${string}`,
-            abi: VaultAbi.abi as any,
+            abi: MarketFHEAbi.abi as any,
             functionName: key,
-          })
-        );
-        // @ts-expect-error - Type instantiation too deep for wagmi ABI types
-        const results = await readContracts(config, {
-          contracts: vaultInfo,
-        });
-        const [asset, vaultName, vaultSymbol, vaultDecimals] = results;
+          }));
 
-        setVaults([
-          {
+          // @ts-expect-error - Type instantiation too deep for wagmi ABI types
+          const results = await readContracts(config, {
+            contracts: vaultInfo,
+          });
+          console.log(results);
+          const [asset, vaultName, vaultSymbol, vaultDecimals] = results;
+
+          const exTractCollateral = (vaultName.result as string)
+            .split("/")[1]
+            .split(" ")[0];
+          const extractVaultName = "Vault " + exTractCollateral;
+
+          allVaults.push({
             id: vaultAddress,
             asset: asset.result,
-            name: vaultName.result,
-            symbol: vaultSymbol.result,
+            // name: vaultName.result,
+            name: extractVaultName, // FIXME: back to vaultName.result in the future,
+            // symbol: vaultSymbol.result,
+            symbol: exTractCollateral, // FIXME: back to vaultSymbol.result in the future,
             decimals: vaultDecimals.result,
             logo: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
             deposits: "******",
@@ -177,16 +210,18 @@ function VaultTable() {
             apy: 7.41,
             depositsValue: 350.06,
             valueInUsd: 349.87,
-          } as Vault,
-        ]);
+          } as Vault);
+        }
+
+        setVaults(allVaults);
       } catch (error) {
         console.error("Error fetching vaults:", error);
       }
     }
-    if (vaultAddress) {
+    if (vaultAddresses && vaultAddresses.length > 0) {
       fetchVaults();
     }
-  }, [vaultAddress]);
+  }, [vaultAddresses, marketAddresses]);
 
   const renderMobileVaults = () => {
     return sortedVaults.map((vault) => (
@@ -365,7 +400,7 @@ function VaultTable() {
                 </TableRow>
               </TableHeader>
               <TableBody className={tableBody}>
-                {sortedVaults.map((vault) => (
+                {sortedVaults.map((vault, index) => (
                   <TableRow
                     key={vault.id}
                     className={tableRow}
@@ -382,7 +417,7 @@ function VaultTable() {
                         </div>
                         <div className="ml-4">
                           <div className="font-medium text-foreground text-lg">
-                            {vault.name}
+                            {vault.name} {index + 1}
                           </div>
                           {/* <div className="text-muted-foreground">
                             ~${vault.value}
