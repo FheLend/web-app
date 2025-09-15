@@ -76,7 +76,7 @@ export function RepayForm({
   ): Promise<bigint | null> => {
     try {
       // Decrypt the value
-      const decryptedResult = await cofhejs.decrypt(
+      const decryptedResult = await cofhejs.unseal(
         encryptedValue,
         FheTypes.Uint128
       );
@@ -130,11 +130,6 @@ export function RepayForm({
         decryptValue(posIndex, "collateral", encryptedCollateral),
         decryptValue(posIndex, "borrow", encryptedBorrow),
       ]);
-
-      // If either decryption failed, throw error
-      if (!decryptedCollateral || !decryptedBorrow) {
-        throw new Error("Failed to decrypt one or both values");
-      }
 
       // Store the decrypted values
       setDecryptedValues((prev) => ({

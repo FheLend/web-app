@@ -95,7 +95,7 @@ export function BalanceInput({
       setIsFetchingBalance(true);
 
       // Decrypt the balance
-      const decryptedResult = await cofhejs.decrypt(
+      const decryptedResult = await cofhejs.unseal(
         encryptedBalanceData,
         FheTypes.Uint128
       );

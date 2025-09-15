@@ -14,7 +14,7 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cofhejs, FheTypes } from "cofhejs/web";
+import { cofhejs, FheTypes, Permit, SealingKey } from "cofhejs/web";
 import {
   useCofhejsIsActivePermitValid,
   useCofhejsModalStore,
@@ -75,12 +75,10 @@ export function UserPositionCard({
     encryptedValue: bigint
   ): Promise<bigint | null> => {
     try {
-      // Decrypt the value
-      const decryptedResult = await cofhejs.decrypt(
+      const decryptedResult = await cofhejs.unseal(
         encryptedValue,
         FheTypes.Uint128
       );
-
       if (decryptedResult.success) {
         return decryptedResult.data;
       } else {
@@ -130,11 +128,6 @@ export function UserPositionCard({
         decryptValue(posIndex, "collateral", encryptedCollateral),
         decryptValue(posIndex, "borrow", encryptedBorrow),
       ]);
-
-      // If either decryption failed, throw error
-      if (!decryptedCollateral || !decryptedBorrow) {
-        throw new Error("Failed to decrypt one or both values");
-      }
 
       // Store the decrypted values
       setDecryptedValues((prev) => ({
