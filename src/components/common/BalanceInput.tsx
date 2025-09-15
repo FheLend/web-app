@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, AlertCircle as AlertCircleIcon } from "lucide-react";
@@ -36,7 +36,7 @@ export function BalanceInput({
   className,
   tokenAddress,
   userAddress,
-  decimals = 18,
+  decimals,
   suffixSymbol,
   disabled = false,
 }: BalanceInputProps) {
@@ -47,6 +47,46 @@ export function BalanceInput({
     useCofhejsIsActivePermitValid();
   const { setGeneratePermitModalOpen } = useCofhejsModalStore();
   const cofhejsStatus = useCofhejsInitStatus();
+
+  const decryptBalance = useCallback(
+    async (encryptedBalanceData: bigint) => {
+      if (!encryptedBalanceData || !decimals) return;
+
+      try {
+        setIsFetchingBalance(true);
+
+        // Decrypt the balance
+        const decryptedResult = await cofhejs.unseal(
+          encryptedBalanceData,
+          FheTypes.Uint128
+        );
+
+        if (decryptedResult.success) {
+          // Format the balance (convert from wei to token units)
+          const balanceInWei = decryptedResult.data;
+          const formattedBalance = (
+            Number(balanceInWei) /
+            10 ** decimals
+          ).toLocaleString();
+          setBalance(formattedBalance);
+        } else {
+          setBalance(null);
+          throw new Error(decryptedResult.error.code);
+        }
+      } catch (error) {
+        toast({
+          title: "Error decrypting balance",
+          description: error?.message || error,
+          variant: "destructive",
+        });
+        setIsFetchingBalance(false);
+        setBalance(null);
+      } finally {
+        setIsFetchingBalance(false);
+      }
+    },
+    [decimals]
+  );
 
   // Fetch balance when token address changes and is valid
   useEffect(() => {
@@ -85,45 +125,7 @@ export function BalanceInput({
     };
 
     fetchBalance();
-  }, [tokenAddress, userAddress, isPermitValid]);
-
-  // Function to decrypt the balance (can be called after permit generation)
-  const decryptBalance = async (encryptedBalanceData: bigint) => {
-    if (!encryptedBalanceData) return;
-
-    try {
-      setIsFetchingBalance(true);
-
-      // Decrypt the balance
-      const decryptedResult = await cofhejs.unseal(
-        encryptedBalanceData,
-        FheTypes.Uint128
-      );
-
-      if (decryptedResult.success) {
-        // Format the balance (convert from wei to token units)
-        const balanceInWei = decryptedResult.data;
-        const formattedBalance = (
-          Number(balanceInWei) /
-          10 ** decimals
-        ).toLocaleString();
-        setBalance(formattedBalance);
-      } else {
-        setBalance(null);
-        throw new Error(decryptedResult.error.code);
-      }
-    } catch (error) {
-      toast({
-        title: "Error decrypting balance",
-        description: error?.message || error,
-        variant: "destructive",
-      });
-      setIsFetchingBalance(false);
-      setBalance(null);
-    } finally {
-      setIsFetchingBalance(false);
-    }
-  };
+  }, [tokenAddress, userAddress, isPermitValid, decryptBalance]);
 
   // Handler for permit generation
   const handleGeneratePermit = () => {
