@@ -5,14 +5,7 @@ import { useAccount } from "wagmi";
 import { formatEther, formatUnits } from "viem";
 import { useUserPositions } from "@/hooks/useUserPositions";
 import { Market } from "@/types/market";
-import {
-  Loader2,
-  AlertCircle,
-  ChevronDown,
-  ChevronUp,
-  Lock,
-  Unlock,
-} from "lucide-react";
+import { Loader2, AlertCircle, ChevronUp, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { cofhejs, FheTypes } from "cofhejs/web";
 import {
@@ -288,9 +281,9 @@ export function RepayForm({
                           {isDecrypting ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
                           ) : decryptedCollateral && decryptedBorrow ? (
-                            <Unlock className="h-3 w-3" />
+                            <EyeOff className="h-3 w-3" />
                           ) : (
-                            <Lock className="h-3 w-3" />
+                            <Eye className="h-3 w-3" />
                           )}
                         </Button>
                       </div>

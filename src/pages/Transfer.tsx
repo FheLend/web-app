@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,6 +20,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Footer } from "@/components/Footer";
 import { Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -27,17 +34,13 @@ import { Encryptable, cofhejs } from "cofhejs/web";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import FHERC20Abi from "@/constant/abi/FHERC20.json";
 import { erc20Abi } from "viem";
+import { useContractConfig } from "@/hooks/useContractConfig";
 
 const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 
 const transferSchema = z.object({
-  tokenAddress: z
-    .string()
-    .min(1, "Token address is required")
-    .refine(
-      (address) => ethereumAddressRegex.test(address),
-      "Invalid Ethereum address format. Must start with 0x followed by 40 hexadecimal characters"
-    ),
+  tokenId: z.string().min(1, "Token selection is required"),
+  tokenAddress: z.string().min(1, "Token address is required"),
   amount: z
     .string()
     .min(0, "Amount is required")
@@ -178,11 +181,20 @@ function MintTokenBtn({
 }
 
 export default function Transfer() {
-  const { address } = useAccount();
+  const { address, chainId } = useAccount();
+  const { configs } = useContractConfig();
+
+  // Filter tokens from the configs
+  const tokenList = useMemo(() => {
+    return configs.filter(
+      (c) => +c.network === chainId && c.description?.toLowerCase() === "token"
+    );
+  }, [chainId, configs]);
 
   const form = useForm<TransferForm>({
     resolver: zodResolver(transferSchema),
     defaultValues: {
+      tokenId: "",
       tokenAddress: "",
       amount: "",
       recipientAddress: "",
@@ -194,6 +206,15 @@ export default function Transfer() {
     control: form.control,
     name: "tokenAddress",
   });
+
+  // Set token address when token ID changes
+  const onTokenChange = (tokenId: string) => {
+    const selectedToken = tokenList.find((token) => token.id === tokenId);
+    if (selectedToken) {
+      form.setValue("tokenAddress", selectedToken.contract_address);
+      form.setValue("tokenId", tokenId);
+    }
+  };
 
   const { data: decimals } = useReadContract({
     address: tokenAddress as `0x${string}`,
@@ -226,12 +247,51 @@ export default function Transfer() {
                 >
                   <FormField
                     control={form.control}
+                    name="tokenId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Token</FormLabel>
+                        <Select
+                          onValueChange={onTokenChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a token" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {tokenList.length > 0 ? (
+                              tokenList.map((token) => (
+                                <SelectItem key={token.id} value={token.id}>
+                                  {token.name} (
+                                  {token.contract_address.substring(0, 6)}...
+                                  {token.contract_address.substring(
+                                    token.contract_address.length - 4
+                                  )}
+                                  )
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="no-tokens" disabled>
+                                No tokens available
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
                     name="tokenAddress"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Token Address</FormLabel>
                         <FormControl>
-                          <Input placeholder="0x..." {...field} />
+                          <Input placeholder="0x..." {...field} disabled />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
