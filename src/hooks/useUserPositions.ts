@@ -4,17 +4,11 @@ import { formatEther, formatUnits } from "viem";
 import { readContract } from "@wagmi/core";
 import { config } from "@/configs/wagmi";
 import MarketFHEAbi from "@/constant/abi/MarketFHE.json";
+import { Position } from "@/types/position";
 
 interface UseUserPositionsOptions {
   marketAddress?: `0x${string}`;
   enabled?: boolean;
-}
-
-export interface UserPosition {
-  tick: number;
-  liquidity: string;
-  borrowAmount: string;
-  collateralAmount: string;
 }
 
 export function useUserPositions({
@@ -22,7 +16,7 @@ export function useUserPositions({
   enabled = true,
 }: UseUserPositionsOptions) {
   const { address, isConnected } = useAccount();
-  const [positions, setPositions] = useState<UserPosition[]>([]);
+  const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -66,7 +60,7 @@ export function useUserPositions({
           }
 
           // Map the raw contract data to our UserPosition format
-          const userPositions: UserPosition[] = Array.isArray(positionsData)
+          const userPositions: Position[] = Array.isArray(positionsData)
             ? positionsData.map((posInfo, index) => {
                 return {
                   // Use index as the tick for now

@@ -1,26 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useAccount } from "wagmi";
-import { formatEther, formatUnits } from "viem";
 import { Market } from "@/types/market";
 import { useUserPositions } from "@/hooks/useUserPositions";
-import {
-  Loader2,
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-  Lock,
-  Unlock,
-} from "lucide-react";
-import { useState, useEffect } from "react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cofhejs, FheTypes, Permit, SealingKey } from "cofhejs/web";
 import {
-  useCofhejsIsActivePermitValid,
-  useCofhejsModalStore,
-} from "@/hooks/useCofhejs";
-import { toast } from "@/components/ui/use-toast";
-import { formatNumber } from "@/utils/converter";
+  usePositionDecryption,
+  calculateTotalPositionValues,
+} from "@/hooks/usePositionDecryption";
+import { PositionDisplay } from "./PositionDisplay";
 
 interface UserPositionCardProps {
   market: Market;
@@ -37,175 +26,31 @@ export function UserPositionCard({
     enabled: !!isConnected && !!address,
   });
 
-  // State to track decrypted values for each position
-  const [decryptedValues, setDecryptedValues] = useState<{
-    [posIndex: number]: { collateral?: string; borrow?: string };
-  }>({});
-  const [decryptingPositions, setDecryptingPositions] = useState<{
-    [posIndex: number]: { collateral: boolean; borrow: boolean };
-  }>({});
-
-  // Permit validation
-  const { valid: isPermitValid } = useCofhejsIsActivePermitValid();
-  const { setGeneratePermitModalOpen } = useCofhejsModalStore();
+  // Use our custom hook for position decryption
+  const {
+    decryptedValues,
+    decryptingPositions,
+    decryptPosition,
+    decryptCollateral,
+    decryptBorrow,
+    isDecryptingCollateral,
+    isDecryptingBorrow,
+    isDecryptedCollateral,
+    isDecryptedBorrow,
+    calculatePositionLtv,
+  } = usePositionDecryption({
+    positions,
+    market,
+  });
 
   console.log("User positions:", positions);
 
   // Only show loader for connected users
   const showLoading = isConnected && loading;
 
-  // Function to handle permit generation
-  const handleGeneratePermit = (posIndex: number) => {
-    setGeneratePermitModalOpen(true, () => {
-      // After permit is generated, attempt to decrypt again
-      toast({
-        title: "Permit generated",
-        description: "Decrypting your position data...",
-      });
-
-      // Retry decryption after permit is generated
-      decryptPosition(posIndex, true);
-    });
-  };
-
-  // Function to decrypt an individual value
-  const decryptValue = async (
-    posIndex: number,
-    valueType: "collateral" | "borrow",
-    encryptedValue: bigint
-  ): Promise<bigint | null> => {
-    try {
-      const decryptedResult = await cofhejs.unseal(
-        encryptedValue,
-        FheTypes.Uint128
-      );
-      if (decryptedResult.success) {
-        return decryptedResult.data;
-      } else {
-        throw new Error(decryptedResult.error?.code || "Decryption failed");
-      }
-    } catch (error) {
-      console.error(`Error decrypting ${valueType}:`, error);
-      return null;
-    }
-  };
-
-  // Function to decrypt both collateral and borrow amounts of a position
-  const decryptPosition = async (posIndex: number, skipPermitCheck = false) => {
-    // Set loading state for this position
-    setDecryptingPositions((prev) => ({
-      ...prev,
-      [posIndex]: {
-        collateral: true,
-        borrow: true,
-      },
-    }));
-
-    try {
-      if (!skipPermitCheck && !isPermitValid) {
-        // Reset loading state
-        setDecryptingPositions((prev) => ({
-          ...prev,
-          [posIndex]: {
-            collateral: false,
-            borrow: false,
-          },
-        }));
-
-        // Show permit modal if no valid permit exists
-        handleGeneratePermit(posIndex);
-        return;
-      }
-
-      // Get the encrypted values
-      const encryptedCollateral = BigInt(
-        positions[posIndex].collateralAmount || "0"
-      );
-      const encryptedBorrow = BigInt(positions[posIndex].borrowAmount || "0");
-
-      // Decrypt both values in parallel
-      const [decryptedCollateral, decryptedBorrow] = await Promise.all([
-        decryptValue(posIndex, "collateral", encryptedCollateral),
-        decryptValue(posIndex, "borrow", encryptedBorrow),
-      ]);
-
-      // Store the decrypted values
-      setDecryptedValues((prev) => ({
-        ...prev,
-        [posIndex]: {
-          collateral: formatNumber(
-            formatUnits(decryptedCollateral, market.collateralToken.decimals)
-          ),
-          borrow: formatNumber(
-            formatUnits(decryptedBorrow, market.loanToken.decimals)
-          ),
-        },
-      }));
-    } catch (error) {
-      console.error(`Error decrypting position:`, error);
-      toast({
-        title: `Error decrypting position`,
-        description: error?.message || String(error),
-        variant: "destructive",
-      });
-    } finally {
-      setDecryptingPositions((prev) => ({
-        ...prev,
-        [posIndex]: {
-          collateral: false,
-          borrow: false,
-        },
-      }));
-    }
-  };
-
   // Calculate total values based on decrypted data
-  const calculateTotals = () => {
-    // Initialize with encrypted placeholders
-    let totalCollateral = "*****";
-    let totalBorrowed = "*****";
-    let ltvPercentage = "*****";
-
-    // Check if we have decrypted values for all positions
-    const allCollateralDecrypted = positions.every(
-      (_, idx) => !!decryptedValues[idx]?.collateral
-    );
-    const allBorrowDecrypted = positions.every(
-      (_, idx) => !!decryptedValues[idx]?.borrow
-    );
-
-    // If all values are decrypted, calculate totals
-    if (allCollateralDecrypted && allBorrowDecrypted) {
-      let collateralTotal = 0;
-      let borrowTotal = 0;
-
-      positions.forEach((_, idx) => {
-        // Get the decrypted values and convert to numbers
-        const collateral = parseFloat(
-          decryptedValues[idx]?.collateral?.replace(/,/g, "") || "0"
-        );
-        const borrow = parseFloat(
-          decryptedValues[idx]?.borrow?.replace(/,/g, "") || "0"
-        );
-
-        collateralTotal += collateral;
-        borrowTotal += borrow;
-      });
-
-      // Format totals for display
-      totalCollateral = collateralTotal.toFixed(2);
-      totalBorrowed = borrowTotal.toFixed(2);
-
-      // Calculate LTV
-      const ltv =
-        collateralTotal > 0 ? (borrowTotal / collateralTotal) * 100 : 0;
-      ltvPercentage = ltv.toFixed(2);
-    }
-
-    return { totalCollateral, totalBorrowed, ltvPercentage };
-  };
-
-  const { totalCollateral, totalBorrowed, ltvPercentage } = calculateTotals();
+  const { totalCollateral, totalBorrowed, ltvPercentage } =
+    calculateTotalPositionValues(positions, decryptedValues);
 
   return (
     <Card className={cardStyles}>
@@ -288,106 +133,30 @@ export function UserPositionCard({
                 <div className="mt-4 border-t border-border pt-4">
                   <div className="space-y-3">
                     {positions.map((position, idx) => {
-                      // Get the decryption status for this position
-                      const isDecryptingCollateral =
-                        decryptingPositions[idx]?.collateral || false;
-                      const isDecryptingBorrow =
-                        decryptingPositions[idx]?.borrow || false;
-
-                      // Get decrypted values if available
-                      const decryptedCollateral =
-                        decryptedValues[idx]?.collateral;
-                      const decryptedBorrow = decryptedValues[idx]?.borrow;
-
-                      // Display value based on decryption status
-                      const displayCollateral = decryptedCollateral || "******";
-                      const displayBorrowed = decryptedBorrow || "******";
-
-                      // Calculate LTV (only if both values are decrypted)
-                      let posLtv = 0;
-                      if (decryptedCollateral && decryptedBorrow) {
-                        // Convert from formatted string back to numbers for LTV calc
-                        const collateralValue = parseFloat(
-                          decryptedCollateral.replace(/,/g, "")
-                        );
-                        const borrowValue = parseFloat(
-                          decryptedBorrow.replace(/,/g, "")
-                        );
-                        posLtv =
-                          collateralValue > 0
-                            ? (borrowValue / collateralValue) * 100
-                            : 0;
-                      }
+                      // Using our custom hook helpers
+                      const posLtv = calculatePositionLtv(idx);
 
                       return (
-                        <div
-                          key={`position-${idx}`}
-                          className="bg-background-subtle p-3 rounded-lg"
-                        >
-                          <div className="flex justify-between text-xs mb-1">
-                            <span>Position {idx + 1}</span>
-                          </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-sm">
-                            <div>
-                              <span className="block text-muted-foreground">
-                                Collateral
-                              </span>
-                              <span className="font-medium">
-                                {displayCollateral}{" "}
-                                {market.collateralToken.symbol}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="block text-muted-foreground">
-                                Borrowed
-                              </span>
-                              <span className="font-medium">
-                                {displayBorrowed} {market.loanToken.symbol}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">
-                                LTV:{" "}
-                                {decryptedCollateral && decryptedBorrow
-                                  ? `${posLtv.toFixed(2)}%`
-                                  : "*****"}
-                              </span>
-                            </div>
-                            <div className="flex justify-end">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-xs"
-                                onClick={() => decryptPosition(idx)}
-                                disabled={
-                                  isDecryptingCollateral ||
-                                  isDecryptingBorrow ||
-                                  (!!decryptedCollateral && !!decryptedBorrow)
-                                }
-                              >
-                                {isDecryptingCollateral ||
-                                isDecryptingBorrow ? (
-                                  <>
-                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                    Decrypting...
-                                  </>
-                                ) : decryptedCollateral && decryptedBorrow ? (
-                                  <>
-                                    <Unlock className="h-3 w-3 mr-1" />
-                                    Decrypted
-                                  </>
-                                ) : (
-                                  <>
-                                    <Lock className="h-3 w-3 mr-1" />
-                                    Decrypt
-                                  </>
-                                )}
-                              </Button>
-                              <Button className="h-7 text-xs ml-3">
-                                Repay
-                              </Button>
-                            </div>
-                          </div>
+                        <div key={`position-${idx}`}>
+                          <PositionDisplay
+                            position={position}
+                            positionIndex={idx}
+                            market={market}
+                            decryptedCollateral={
+                              decryptedValues[idx]?.collateral
+                            }
+                            decryptedBorrow={decryptedValues[idx]?.borrow}
+                            isDecryptingCollateral={isDecryptingCollateral(idx)}
+                            isDecryptingBorrow={isDecryptingBorrow(idx)}
+                            isDecryptedCollateral={isDecryptedCollateral(idx)}
+                            isDecryptedBorrow={isDecryptedBorrow(idx)}
+                            posLtv={posLtv}
+                            onDecryptCollateral={() => decryptCollateral(idx)}
+                            onDecryptBorrow={() => decryptBorrow(idx)}
+                            displayCompact={true}
+                          >
+                            <Button className="h-7 text-xs ml-3">Repay</Button>
+                          </PositionDisplay>
                         </div>
                       );
                     })}
