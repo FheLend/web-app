@@ -82,7 +82,10 @@ export function PositionDisplay({
               size="icon"
               variant="ghost"
               className="h-4 w-4 p-0"
-              onClick={onDecryptCollateral}
+              onClick={(e) => {
+                onDecryptCollateral();
+                e.stopPropagation();
+              }}
               disabled={isDecryptingCollateral || isDecryptedCollateral}
             >
               {isDecryptingCollateral ? (
@@ -111,7 +114,10 @@ export function PositionDisplay({
               size="icon"
               variant="ghost"
               className="h-4 w-4 p-0"
-              onClick={onDecryptBorrow}
+              onClick={(e) => {
+                onDecryptBorrow();
+                e.stopPropagation();
+              }}
               disabled={isDecryptingBorrow || isDecryptedBorrow}
             >
               {isDecryptingBorrow ? (
