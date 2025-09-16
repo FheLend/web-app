@@ -281,7 +281,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 >
                   Overview
                 </TabsTrigger>
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="activity"
                   className={cn(
                     "px-6 rounded-none data-[state=active]:shadow-none data-[state=active]:bg-transparent h-16 text-base",
@@ -310,7 +310,7 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                 >
                   <Database className="mr-2 h-4 w-4" />
                   Oracles
-                </TabsTrigger>
+                </TabsTrigger> */}
                 <TabsTrigger
                   value="positions"
                   className={cn(
@@ -419,68 +419,6 @@ export function MarketDetailView({ marketId }: MarketDetailProps) {
                       Chart visualization would go here
                     </p>
                   </CardContent>
-                </Card>
-
-                <Card className={cardStyles}>
-                  <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                    <div>
-                      <CardTitle className="text-2xl flex items-center">
-                        Rate
-                        <span
-                          className={cn(
-                            "ml-2",
-                            market.rateChange === "up"
-                              ? "text-emerald-400"
-                              : market.rateChange === "down"
-                              ? "text-rose-400"
-                              : "text-amber-400"
-                          )}
-                        >
-                          {market.rateChange === "up" && "↑"}
-                          {market.rateChange === "down" && "↓"}
-                          {market.rateChange === "stable" && "→"}
-                        </span>
-                      </CardTitle>
-                      <CardDescription
-                        className={cn(
-                          "text-3xl font-bold mt-1",
-                          market.rateChange === "up"
-                            ? "text-emerald-400"
-                            : market.rateChange === "down"
-                            ? "text-rose-400"
-                            : "text-amber-400"
-                        )}
-                      >
-                        {market.rate}
-                      </CardDescription>
-                    </div>
-                    <div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-sm flex items-center"
-                      >
-                        1 month
-                        <ChevronDown className="ml-1 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="h-[200px] flex items-center justify-center">
-                    <p className="text-muted-foreground">
-                      Rate chart visualization would go here
-                    </p>
-                  </CardContent>
-                  <div className="px-6 py-4 border-t border-border">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <div className="font-medium">Native Rate</div>
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <div className="font-medium">
-                        {(market.rateValue - 0.15).toFixed(2)}%
-                      </div>
-                    </div>
-                  </div>
                 </Card>
               </TabsContent>
 
