@@ -53,15 +53,6 @@ export function BorrowForm({
   const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getCurrentDebtIndex = useCallback(async () => {
-    const currentDebtIndex = (await readContract(config, {
-      address: market.id as `0x${string}`,
-      abi: MarketFHEAbi.abi,
-      functionName: "pDebtIndex",
-    })) as bigint;
-    return currentDebtIndex;
-  }, [market.id]);
-
   // Calculate loan-to-value ratio
   const ltvRatio = useMemo(() => {
     if (
@@ -109,8 +100,6 @@ export function BorrowForm({
           market.loanToken.decimals
         );
 
-        const currentDebtIndex = await getCurrentDebtIndex();
-
         // If we don't have a base collateral amount or the user manually changed it, use current value
         if (!baseCollateralRef.current || collateralAmt !== collateralAmount) {
           baseCollateralRef.current = collateralAmt;
@@ -127,9 +116,9 @@ export function BorrowForm({
         setError(null);
         const { tick: calculatedTick, usedCollateralAmount } =
           await createPosition(
+            market.id as `0x${string}`,
             borrowAmtBigInt,
             baseCollateralAmtBigInt,
-            currentDebtIndex,
             market.tickSpacing
           );
         setIsCalculatingTick(false);

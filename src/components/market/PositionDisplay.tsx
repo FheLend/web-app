@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Market } from "@/types/market";
 import { Loader2, Lock, Unlock, Eye, EyeOff } from "lucide-react";
 import { Position } from "@/types/position";
+import { formatNumber } from "@/utils/converter";
 
 interface PositionDisplayProps {
   position: Position;
@@ -41,8 +42,12 @@ export function PositionDisplay({
   children,
 }: PositionDisplayProps) {
   // Display value based on decryption status
-  const displayCollateral = decryptedCollateral || "******";
-  const displayBorrowed = decryptedBorrow || "******";
+  const displayCollateral = decryptedCollateral
+    ? formatNumber(decryptedCollateral)
+    : "******";
+  const displayBorrowed = decryptedBorrow
+    ? formatNumber(decryptedBorrow)
+    : "******";
 
   // Derived state for backward compatibility
   const isDecrypting = isDecryptingCollateral || isDecryptingBorrow;

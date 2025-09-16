@@ -153,13 +153,11 @@ export function usePositionDecryption({
       );
 
       // Format based on token decimals
-      const formattedValue = formatNumber(
-        formatUnits(
-          decryptedValue,
-          valueType === "collateral"
-            ? market.collateralToken.decimals
-            : market.loanToken.decimals
-        )
+      const formattedValue = formatUnits(
+        decryptedValue,
+        valueType === "collateral"
+          ? market.collateralToken.decimals
+          : market.loanToken.decimals
       );
 
       // Store the decrypted value, preserving any other values that might be already decrypted

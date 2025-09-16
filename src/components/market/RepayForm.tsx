@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { BalanceInput } from "@/components/common/BalanceInput";
-import { useAccount, usePublicClient, useWriteContract, useChain } from "wagmi";
+import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { Encryptable, cofhejs } from "cofhejs/web";
 import { readContract, signTypedData } from "@wagmi/core";
 import { formatUnits, parseSignature, parseUnits } from "viem";
@@ -17,6 +17,8 @@ import { Market } from "@/types/market";
 import { useUserPositions } from "@/hooks/useUserPositions";
 import { usePositionDecryption } from "@/hooks/usePositionDecryption";
 import { PositionDisplay } from "./PositionDisplay";
+import { formatNumber } from "@/utils/converter";
+import { createPosition } from "@/utils/helper";
 
 interface RepayFormProps {
   isConnected: boolean;
@@ -37,7 +39,11 @@ export function RepayForm({
   const { writeContractAsync, isPending: isRepayPending } = useWriteContract();
 
   // Get user positions
-  const { positions, loading, positionsError } = useUserPositions({
+  const {
+    positions,
+    loading,
+    error: positionsError,
+  } = useUserPositions({
     marketAddress: market.id as `0x${string}`,
     enabled: !!isConnected && !!address,
   });
@@ -72,16 +78,6 @@ export function RepayForm({
     market,
   });
 
-  // Get current debt index for calculation
-  const getCurrentDebtIndex = useCallback(async () => {
-    const currentDebtIndex = (await readContract(config, {
-      address: market.id as `0x${string}`,
-      abi: MarketFHEAbi.abi,
-      functionName: "pDebtIndex",
-    })) as bigint;
-    return currentDebtIndex;
-  }, [market.id]);
-
   // Toggle position expansion
   const togglePositionExpand = (index: number) => {
     if (expandedPositionIndex === index) {
@@ -94,31 +90,6 @@ export function RepayForm({
           ...repayAmounts,
           [index]: "",
         });
-
-        // Set default minimum collateral amount based on proportional repay ratio
-        if (
-          decryptedValues[index]?.collateral &&
-          decryptedValues[index]?.borrow
-        ) {
-          const collateralValue = parseFloat(decryptedValues[index].collateral);
-          // Default to 50% of borrow amount for repay
-          const borrowValue = parseFloat(decryptedValues[index].borrow);
-          const defaultRepayValue = borrowValue / 2;
-          // Calculate proportional collateral based on repay ratio
-          const repayRatio = defaultRepayValue / borrowValue;
-          const minCollateral = (collateralValue * repayRatio).toString();
-
-          setMinCollateralAmounts({
-            ...minCollateralAmounts,
-            [index]: minCollateral,
-          });
-
-          // Also set the default repay amount to 50% of borrow
-          setRepayAmounts({
-            ...repayAmounts,
-            [index]: defaultRepayValue.toString(),
-          });
-        }
       }
     }
   };
@@ -129,7 +100,7 @@ export function RepayForm({
   }, [repayAmounts, minCollateralAmounts]);
 
   // Handle repay amount changes
-  const handleRepayAmountChange = (index: number, value: string) => {
+  const handleRepayAmountChange = async (index: number, value: string) => {
     setRepayAmounts({
       ...repayAmounts,
       [index]: value,
@@ -143,17 +114,9 @@ export function RepayForm({
 
       if (borrowValue > 0 && repayValue > 0) {
         // Calculate the proportion of the loan being repaid (capped at 100%)
-        const repayRatio = Math.min(repayValue / borrowValue, 1);
+        const ratio = borrowValue / collateralValue;
         // Calculate proportional collateral to be returned based on repay ratio
-        const minCollateralValue = collateralValue * repayRatio;
-
-        console.log("Calculating minCollateral:", {
-          repayValue,
-          borrowValue,
-          repayRatio,
-          collateralValue,
-          minCollateralValue,
-        });
+        const minCollateralValue = repayValue / ratio;
 
         setMinCollateralAmounts({
           ...minCollateralAmounts,
@@ -181,15 +144,6 @@ export function RepayForm({
     }
 
     try {
-      setIsEncrypting(true);
-
-      // Get the position's tick and ensure it's properly spaced
-      const positionTick = positions[positionIndex].tick;
-      // Ensure the tick is aligned with the market's tickSpacing
-      const tick =
-        Math.floor(positionTick / market.tickSpacing) * market.tickSpacing;
-
-      // Convert amounts to BigInt with proper decimals
       const repayAmountBigInt = parseUnits(
         repayAmounts[positionIndex],
         market.loanToken.decimals
@@ -199,8 +153,15 @@ export function RepayForm({
         minCollateralAmounts[positionIndex] || "0",
         market.collateralToken.decimals
       );
+      const { tick, usedCollateralAmount } = await createPosition(
+        market.id as `0x${string}`,
+        repayAmountBigInt,
+        minCollateralAmountBigInt,
+        market.tickSpacing
+      );
 
       // Encrypt the repay amount
+      setIsEncrypting(true);
       const encryptedRepayAmount = await cofhejs.encrypt([
         Encryptable.uint128(repayAmountBigInt),
       ]);
@@ -457,20 +418,19 @@ export function RepayForm({
                             Current loan
                           </span>
                           <span className="font-medium">
-                            {decryptedValues[idx]?.borrow || "******"}{" "}
+                            {decryptedValues[idx]?.borrow
+                              ? formatNumber(decryptedValues[idx]?.borrow)
+                              : "******"}{" "}
                             {market.loanToken.symbol}
                           </span>
                         </div>
 
                         <div className="flex justify-between text-sm p-3 rounded-md bg-gray-100 dark:bg-gray-800">
                           <span className="text-muted-foreground">
-                            Expected collateral return
+                            Min collateral return
                           </span>
                           <span className="font-medium">
-                            ~
-                            {parseFloat(
-                              minCollateralAmounts[idx] || "0"
-                            ).toFixed(4)}{" "}
+                            ~{formatNumber(minCollateralAmounts[idx] || "0")}{" "}
                             {market.collateralToken.symbol}
                           </span>
                         </div>
